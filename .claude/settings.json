@@ -4,6 +4,12 @@
     "type": "command",
     "command": "bash .claude/statusline.sh"
   },
+  "env": {
+    "ANTHROPIC_AUTH_TOKEN": "d35406ea-4341-4788-863e-1f969431a988",
+    "ANTHROPIC_BASE_URL": "https://ark.cn-beijing.volces.com/api/coding",
+    "ANTHROPIC_MODEL": "ark-code-latest",
+    "CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC": "1"
+  },
   "permissions": {
     "allow": [
       "Bash(git status*)",
