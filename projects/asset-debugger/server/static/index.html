@@ -1,0 +1,3461 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HoloPix 素材调试器</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        h1 {
+            text-align: center;
+            color: #1a73e8;
+            margin-bottom: 30px;
+            font-size: 28px;
+        }
+        
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #e8f0fe;
+            padding-bottom: 10px;
+        }
+        
+        .tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            border-radius: 6px;
+            transition: all 0.3s;
+            font-weight: 500;
+        }
+        
+        .tab:hover {
+            background: #e8f0fe;
+        }
+        
+        .tab.active {
+            background: #1a73e8;
+            color: white;
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        
+        .card h2 {
+            font-size: 18px;
+            margin-bottom: 15px;
+            color: #1a73e8;
+            border-bottom: 2px solid #e8f0fe;
+            padding-bottom: 10px;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+            color: #555;
+            font-size: 14px;
+        }
+        
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+        
+        .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+        
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .btn-primary {
+            background: #1a73e8;
+            color: white;
+        }
+        
+        .btn-secondary {
+            background: #34a853;
+            color: white;
+        }
+        
+        .btn-warning {
+            background: #fbbc05;
+            color: #333;
+        }
+        
+        .btn-danger {
+            background: #ea4335;
+            color: white;
+        }
+        
+        .params-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+        
+        .param-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .param-row label {
+            min-width: 100px;
+            font-size: 13px;
+        }
+        
+        .param-row input,
+        .param-row select {
+            flex: 1;
+        }
+        
+        .model-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+        
+        .model-table th,
+        .model-table td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .model-table th {
+            background: #f8f9fa;
+            font-weight: 600;
+        }
+        
+        .asset-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 20px;
+        }
+        
+        .asset-card {
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .asset-card img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+        }
+        
+        .asset-card .info {
+            padding: 10px;
+        }
+        
+        .asset-card .actions {
+            padding: 10px;
+            border-top: 1px solid #eee;
+            display: flex;
+            gap: 10px;
+        }
+        
+        .result-box {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 20px;
+        }
+        
+        .result-content {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 15px;
+            border-radius: 6px;
+            font-family: monospace;
+            font-size: 12px;
+            overflow-x: auto;
+            white-space: pre-wrap;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        
+        .status-submitted { background: #fff3cd; color: #856404; }
+        .status-processing { background: #cce5ff; color: #004085; }
+        .status-succeed { background: #d4edda; color: #155724; }
+        .status-failed { background: #f8d7da; color: #721c24; }
+        
+        .task-list {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        .task-item {
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .task-item:hover {
+            background: #f8f9fa;
+        }
+        
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #1a73e8;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* 模型详情展开样式 */
+        .model-row {
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        
+        .model-row:hover {
+            background: #f0f7ff;
+        }
+        
+        .model-row.pinned {
+            background: #fff8e1;
+        }
+        
+        .model-row.pinned:hover {
+            background: #ffecb3;
+        }
+        
+        .model-detail-row {
+            display: none;
+            background: #f8f9fa;
+        }
+        
+        .model-detail-row.active {
+            display: table-row;
+        }
+        
+        .model-detail-content {
+            padding: 20px;
+        }
+        
+        .model-detail-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        
+        .model-detail-info {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .model-detail-info p {
+            margin: 0;
+            font-size: 14px;
+        }
+        
+        .model-detail-info .label {
+            font-weight: 600;
+            color: #1a73e8;
+        }
+        
+        .model-detail-images {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .model-detail-images img {
+            max-width: 100%;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .model-detail-loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+        
+        .model-actions {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        
+        .model-actions .btn {
+            padding: 5px 12px;
+            font-size: 12px;
+        }
+        
+        .pin-icon {
+            color: #fbbc05;
+            font-size: 16px;
+        }
+        
+        .hide-icon {
+            color: #9aa0a6;
+            font-size: 16px;
+        }
+        
+        .model-row.hidden {
+            opacity: 0.5;
+            background: #f1f3f4;
+        }
+        
+        .model-row.hidden:hover {
+            background: #e8eaed;
+        }
+        
+        .filter-bar {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+        
+        .filter-btn {
+            padding: 6px 12px;
+            border: 1px solid #dadce0;
+            background: white;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 13px;
+        }
+        
+        .filter-btn.active {
+            background: #1a73e8;
+            color: white;
+            border-color: #1a73e8;
+        }
+        
+        .param-disabled {
+            opacity: 0.5;
+            pointer-events: none;
+        }
+        
+        .param-disabled::after {
+            content: " (不支持)";
+            color: #ea4335;
+            font-size: 12px;
+        }
+        
+        /* 弹框样式 */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.6);
+            z-index: 10000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .modal-container {
+            background: white;
+            border-radius: 12px;
+            max-width: 900px;
+            width: 100%;
+            max-height: 90vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        
+        .modal-header {
+            padding: 20px 25px;
+            border-bottom: 1px solid #e0e0e0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #f8f9fa;
+        }
+        
+        .modal-header h3 {
+            margin: 0;
+            color: #1a73e8;
+            font-size: 18px;
+        }
+        
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 28px;
+            cursor: pointer;
+            color: #666;
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: all 0.2s;
+        }
+        
+        .modal-close:hover {
+            background: #e0e0e0;
+            color: #333;
+        }
+        
+        .modal-body {
+            padding: 25px;
+            overflow-y: auto;
+            flex: 1;
+        }
+        
+        .modal-footer {
+            padding: 15px 25px;
+            border-top: 1px solid #e0e0e0;
+            background: #f8f9fa;
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+        
+        /* 参数表格样式 */
+        .param-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+            margin-top: 15px;
+        }
+        
+        .param-table th,
+        .param-table td {
+            padding: 12px 15px;
+            text-align: left;
+            border: 1px solid #e0e0e0;
+        }
+        
+        .param-table th {
+            background: #f5f5f5;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .param-table tr:hover {
+            background: #f8f9fa;
+        }
+        
+        .param-table td.param-name {
+            font-weight: 500;
+            color: #1a73e8;
+            white-space: nowrap;
+        }
+        
+        .param-table td.param-value {
+            max-width: 400px;
+            word-break: break-all;
+        }
+        
+        .param-table td.param-value .full-text {
+            display: block;
+            white-space: pre-wrap;
+            line-height: 1.6;
+        }
+        
+        .param-table td.param-value .truncated {
+            display: none;
+        }
+        
+        .param-diff-row {
+            background: #fff8e1 !important;
+        }
+        
+        .param-diff-row td.param-value.original {
+            color: #e65100;
+            text-decoration: line-through;
+        }
+        
+        .param-diff-row td.param-value.actual {
+            color: #2e7d32;
+            font-weight: 500;
+        }
+        
+        .param-status {
+            text-align: center;
+        }
+        
+        .param-status .status-same {
+            color: #4caf50;
+            font-weight: bold;
+        }
+        
+        .param-status .status-diff {
+            color: #f57c00;
+            font-weight: bold;
+        }
+        
+        /* 图片预览样式 */
+        .image-preview-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.9);
+            z-index: 20000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+        }
+        
+        .image-preview-modal img {
+            max-width: 100%;
+            max-height: 90vh;
+            object-fit: contain;
+            border-radius: 8px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+        }
+        
+        .image-preview-close {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            font-size: 32px;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+        
+        .image-preview-close:hover {
+            background: rgba(255,255,255,0.3);
+        }
+        
+        /* 标签样式 */
+        .badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        
+        .badge-success {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+        
+        .badge-warning {
+            background: #fff3e0;
+            color: #e65100;
+        }
+        
+        .badge-info {
+            background: #e3f2fd;
+            color: #1565c0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🏞️ HoloPix 素材调试器</h1>
+        
+        <div class="tabs">
+            <div class="tab active" onclick="switchTab('generate')">🎨 生成素材</div>
+            <div class="tab" onclick="switchTab('models')">📋 模型列表</div>
+            <div class="tab" onclick="switchTab('tasks')">📋 任务列表</div>
+            <div class="tab" onclick="switchTab('assets')">🖼️ 素材库</div>
+            <div class="tab" onclick="switchTab('stickman')">🎭 火柴人调试</div>
+        </div>
+        
+        <!-- 生成素材 -->
+        <div id="generate" class="tab-content active">
+            <!-- 快捷应用栏 -->
+            <div class="card">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                    <h2 style="margin: 0; border: none; padding: 0;">⚡ 快捷应用</h2>
+                    <div style="display: flex; gap: 10px;">
+                        <button class="btn" onclick="openQuickPresetModal()" style="background: #e8f0fe; color: #1a73e8;">📂 加载配置</button>
+                        <button class="btn btn-secondary" onclick="saveQuickPreset()">💾 保存配置</button>
+                    </div>
+                </div>
+                <div id="quickPresetList" style="display: flex; gap: 10px; flex-wrap: wrap;">
+                    <span style="color: #999; font-size: 14px;">暂无快捷应用，请保存当前配置</span>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>🎨 文生图参数配置</h2>
+
+                <!-- ========== 第1组: 模型配置 (必填核心) ========== -->
+                <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+                    <h3 style="margin: 0 0 15px 0; font-size: 16px; color: #1a73e8;">📦 1. 模型配置 (必填)</h3>
+                    <p style="font-size: 12px; color: #666; margin-bottom: 10px;">最多可选择5个模型进行叠加，不同基础模型不能混合</p>
+
+                    <!-- 已选模型列表 -->
+                    <div id="selectedModelsList" style="margin-bottom: 15px;">
+                        <div class="model-item" style="display: flex; align-items: center; gap: 10px; padding: 10px; background: white; border-radius: 6px; margin-bottom: 8px;">
+                            <span>模型 ID: 2</span>
+                            <input type="range" min="0" max="1" step="0.1" value="0.9" style="flex: 1;" onchange="updateModelStrength(2, this.value)">
+                            <span>强度: 0.9</span>
+                            <button onclick="removeModel(2)" style="background: #ea4335; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer;">删除</button>
+                        </div>
+                    </div>
+
+                    <!-- 添加模型按钮 -->
+                    <button class="btn" onclick="openModelSelector()" style="background: #e8f0fe; color: #1a73e8;">➕ 添加模型 (最多5个)</button>
+                </div>
+
+                <!-- ========== 第2组: 文本提示词 ========== -->
+                <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+                    <h3 style="margin: 0 0 15px 0; font-size: 16px; color: #1a73e8;">📝 2. 文本提示词</h3>
+
+                    <div class="form-group">
+                        <label>正向提示词 (prompt) <span style="color: #ea4335;">*</span>
+                            <span style="font-weight: normal; color: #999; font-size: 12px;"> - 描述想要生成的内容，最多2000字符</span>
+                        </label>
+                        <textarea id="prompt" placeholder="例如: Q版角色，2.5头身比，大头小身体，可爱卡通风格，明亮色彩...">Q版角色，2.5头身比，大头小身体，可爱卡通风格，明亮色彩，干净线条，透明背景，游戏角色，手游优化，高质量，精致面部，生动表情</textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label>反向提示词 (negativePrompt)
+                            <span style="font-weight: normal; color: #999; font-size: 12px;"> - 描述不想要的内容，Holopix-V1不支持</span>
+                        </label>
+                        <textarea id="negativePrompt" placeholder="例如: 模糊，低质量，变形，丑陋...">模糊，低质量，变形，丑陋，畸形，糟糕的人体结构，多余的手指，缺失的手指，多余的手臂，多余的腿，watermark, signature, text, logo</textarea>
+                    </div>
+                </div>
+
+                <!-- ========== 第3组: 画面控制 ========== -->
+                <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+                    <h3 style="margin: 0 0 15px 0; font-size: 16px; color: #1a73e8;">🎛️ 3. 画面控制</h3>
+
+                    <div class="params-grid">
+                        <div class="form-group">
+                            <label>画面比例 (aspectRatios)
+                                <span style="font-weight: normal; color: #999; font-size: 12px;"> - 设置生成图片的宽高比</span>
+                            </label>
+                            <select id="aspectRatios">
+                                <option value="1:1" selected>1:1 (正方形)</option>
+                                <option value="16:9">16:9 (宽屏)</option>
+                                <option value="9:16">9:16 (竖屏)</option>
+                                <option value="4:3">4:3 (标准)</option>
+                                <option value="3:4">3:4 (竖版)</option>
+                                <option value="3:2">3:2 (相机)</option>
+                                <option value="2:3">2:3 (竖相机)</option>
+                                <option value="21:9">21:9 (超宽屏)</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label>随机种子 (seed)
+                                <span style="font-weight: normal; color: #999; font-size: 12px;"> - -1为随机，固定值可复现结果</span>
+                            </label>
+                            <input type="number" id="seed" value="-1" min="-1">
+                        </div>
+
+                        <div class="form-group">
+                            <label>画面指导权重 (imageGuidanceWeights)
+                                <span style="font-weight: normal; color: #999; font-size: 12px;"> - Holopix-V1必填，3-6越大越整洁</span>
+                            </label>
+                            <input type="number" id="imageGuidanceWeights" min="3" max="6" value="6">
+                        </div>
+
+                        <div class="form-group">
+                            <label>出图数量 (batchSize)
+                                <span style="font-weight: normal; color: #999; font-size: 12px;"> - V1最多2张，其他最多4张</span>
+                            </label>
+                            <input type="number" id="batchSize" min="1" max="4" value="1">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ========== 第4组: 增强选项 ========== -->
+                <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+                    <h3 style="margin: 0 0 15px 0; font-size: 16px; color: #1a73e8;">✨ 4. 增强选项</h3>
+
+                    <div class="params-grid">
+                        <div class="param-row" style="background: white; padding: 10px; border-radius: 6px;">
+                            <input type="checkbox" id="faceDetail">
+                            <div>
+                                <label style="margin: 0; font-weight: 600;">脸部修复 (faceDetail)</label>
+                                <span style="font-size: 12px; color: #666;">额外细化脸部生成</span>
+                            </div>
+                        </div>
+
+                        <div class="param-row" style="background: white; padding: 10px; border-radius: 6px;">
+                            <input type="checkbox" id="hdFix" onchange="toggleHdScale()">
+                            <div style="flex: 1;">
+                                <label style="margin: 0; font-weight: 600;">高清修复 (hdFix)</label>
+                                <span style="font-size: 12px; color: #666;">A1/SDXL等模型支持</span>
+                                <div id="hdScaleContainer" style="display: none; margin-top: 8px;">
+                                    <select id="hdScale" style="width: 100%;">
+                                        <option value="1.5" selected>1.5倍放大</option>
+                                        <option value="2">2倍放大</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="param-row" style="background: white; padding: 10px; border-radius: 6px;">
+                            <input type="checkbox" id="simpleBackground">
+                            <div>
+                                <label style="margin: 0; font-weight: 600;">简单背景 (simpleBackground)</label>
+                                <span style="font-size: 12px; color: #666;">生成简洁背景，不支持V1</span>
+                            </div>
+                        </div>
+
+                        <div class="param-row" style="background: white; padding: 10px; border-radius: 6px;">
+                            <input type="checkbox" id="enablePerturb" onchange="togglePerturb()">
+                            <div style="flex: 1;">
+                                <label style="margin: 0; font-weight: 600;">画面增强 (enablePerturb)</label>
+                                <span style="font-size: 12px; color: #666;">A1/Pony/Animagine支持</span>
+                                <div id="perturbContainer" style="display: none; margin-top: 8px;">
+                                    <label style="font-size: 12px;">强度 (0-5):</label>
+                                    <input type="number" id="perturb" min="0" max="5" step="0.1" value="5" style="width: 100%;">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ========== 第5组: 参考图片 ========== -->
+                <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+                    <h3 style="margin: 0 0 15px 0; font-size: 16px; color: #1a73e8;">🖼️ 5. 参考图片</h3>
+
+                    <!-- 形象样式参考 -->
+                    <div style="background: white; padding: 15px; border-radius: 6px; margin-bottom: 15px;">
+                        <h4 style="margin: 0 0 10px 0; font-size: 14px;">形象样式参考 (imageReference)</h4>
+                        <p style="font-size: 12px; color: #666; margin-bottom: 10px;">支持图片URL或Base64，sdxl/pony/animagine/A1模型支持</p>
+
+                        <div class="form-group">
+                            <input type="text" id="imageReference" placeholder="输入图片URL..." style="margin-bottom: 10px;">
+                        </div>
+
+                        <div class="params-grid" style="grid-template-columns: 1fr 1fr;">
+                            <div class="form-group">
+                                <label>参考模式 (referenceMode)</label>
+                                <select id="referenceMode">
+                                    <option value="">不使用</option>
+                                    <option value="standard">standard - 标准参考(整体内容)</option>
+                                    <option value="color">color - 氛围颜色</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label>参考权重 (referenceWeight: 0-1)</label>
+                                <input type="number" id="referenceWeight" min="0" max="1" step="0.1" value="0.8">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 火柴人姿势参考 -->
+                    <div style="background: white; padding: 15px; border-radius: 6px;">
+                        <h4 style="margin: 0 0 10px 0; font-size: 14px;">角色姿态参考 (characterPose)</h4>
+                        <p style="font-size: 12px; color: #666; margin-bottom: 10px;">支持DwPose格式图片URL，A1/SDXL等模型支持，填入后aspectRatios失效</p>
+
+                        <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 10px;">
+                            <button class="btn" onclick="openStickmanPoseModal()" style="background: #e8f0fe; color: #1a73e8;">📷 选择火柴人姿势</button>
+                            <button class="btn" onclick="clearStickmanPose()" style="background: #fce8e8; color: #ea4335;">❌ 清除</button>
+                        </div>
+
+                        <div id="selectedStickmanPose" style="display: none; padding: 10px; background: #f8f9fa; border-radius: 6px;">
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <img id="selectedPoseImage" src="" style="width: 60px; height: 60px; object-fit: cover; border-radius: 4px; background: #000;">
+                                <div>
+                                    <div id="selectedPoseName" style="font-weight: 500;"></div>
+                                    <div id="selectedPoseDesc" style="font-size: 12px; color: #666;"></div>
+                                </div>
+                            </div>
+                            <input type="hidden" id="selectedPoseId" value="">
+                            <input type="hidden" id="characterPose" value="">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 生成按钮 -->
+                <div style="text-align: center; padding: 20px; background: #e8f0fe; border-radius: 8px;">
+                    <button class="btn btn-primary" onclick="generateImage()" style="font-size: 18px; padding: 15px 40px;">🎨 生成图片</button>
+                    <p style="margin-top: 10px; color: #666; font-size: 12px;">点击生成后，请到「任务列表」查看进度</p>
+                </div>
+            </div>
+            
+            <div class="result-box" id="generateResult" style="display: none;">
+                <h3>📤 请求参数 / 📥 响应结果</h3>
+                <div class="result-content" id="generateResultContent"></div>
+            </div>
+        </div>
+        
+        <!-- 模型列表 -->
+        <div id="models" class="tab-content">
+            <div class="card">
+                <h2>📋 可用模型列表</h2>
+                <button class="btn btn-primary" onclick="syncModels()" style="margin-bottom: 15px;">🔄 同步模型列表</button>
+                <div id="modelList">
+                    <p style="color: #999; text-align: center; padding: 40px;">点击"同步模型列表"获取可用模型</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 任务列表 -->
+        <div id="tasks" class="tab-content">
+            <div class="card">
+                <h2>📋 生成任务列表</h2>
+                <button class="btn btn-secondary" onclick="loadTasks()" style="margin-bottom: 15px;">🔄 刷新列表</button>
+                <div class="task-list" id="taskList">
+                    <p style="color: #999; text-align: center; padding: 40px;">暂无任务</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 素材库 -->
+        <div id="assets" class="tab-content">
+            <div class="card">
+                <h2>🖼️ 素材库</h2>
+                <button class="btn btn-secondary" onclick="loadAssets()" style="margin-bottom: 15px;">🔄 刷新素材</button>
+                <div class="asset-grid" id="assetGrid">
+                    <p style="color: #999; text-align: center; padding: 40px; grid-column: 1/-1;">暂无素材</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 火柴人调试 -->
+        <div id="stickman" class="tab-content">
+            <div style="display: grid; grid-template-columns: 1fr 320px; gap: 20px;">
+                <!-- 左侧: Canvas 编辑器 -->
+                <div class="card">
+                    <h2>🎨 火柴人编辑器</h2>
+                    <div style="background: #000; border-radius: 8px; overflow: hidden; margin-bottom: 15px;">
+                        <canvas id="stickmanCanvas" width="600" height="500" style="display: block; cursor: crosshair;"></canvas>
+                    </div>
+
+                    <!-- 动作按钮 -->
+                    <div style="margin-bottom: 15px;">
+                        <label style="display: block; margin-bottom: 8px; font-weight: 500; color: #555;">预设动作:</label>
+                        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                            <button class="btn btn-primary" onclick="stickmanEditor.loadPreset('idle')">🧍 站立</button>
+                            <button class="btn btn-primary" onclick="stickmanEditor.loadPreset('attack')">⚔️ 挥动武器</button>
+                            <button class="btn btn-primary" onclick="stickmanEditor.loadPreset('dodge')">🛡️ 躲避</button>
+                            <button class="btn btn-primary" onclick="stickmanEditor.loadPreset('defend')">🏃 防御</button>
+                            <button class="btn btn-warning" onclick="stickmanEditor.resetPose()">🔄 重置</button>
+                        </div>
+                    </div>
+
+                    <!-- 编辑工具 -->
+                    <div style="display: flex; gap: 10px; flex-wrap: wrap; padding-top: 15px; border-top: 1px solid #eee;">
+                        <button class="btn btn-secondary" onclick="stickmanEditor.savePose()">💾 保存姿势</button>
+                        <button class="btn" onclick="stickmanEditor.exportPNG()" style="background: #34a853; color: white;">🖼️ 导出PNG</button>
+                        <button class="btn" onclick="stickmanEditor.generateDescription()" style="background: #fbbc05; color: #333;">📝 生成描述</button>
+                        <button class="btn" onclick="stickmanEditor.useInGeneration()" style="background: #1a73e8; color: white;">🎨 用于文生图</button>
+                    </div>
+
+                    <!-- 描述输出 -->
+                    <div id="stickmanDescription" style="margin-top: 15px; padding: 12px; background: #f8f9fa; border-radius: 6px; display: none;">
+                        <label style="font-weight: 500; color: #555; margin-bottom: 5px; display: block;">姿势描述:</label>
+                        <div id="stickmanDescriptionText" style="font-size: 13px; line-height: 1.6; color: #333;"></div>
+                    </div>
+                </div>
+
+                <!-- 右侧: 姿势列表 -->
+                <div class="card">
+                    <h2>📋 姿势列表</h2>
+
+                    <!-- 筛选按钮 -->
+                    <div style="display: flex; gap: 5px; margin-bottom: 15px;">
+                        <button class="filter-btn active" onclick="stickmanEditor.filterPoses('all')" id="filter-all">全部</button>
+                        <button class="filter-btn" onclick="stickmanEditor.filterPoses('preset')" id="filter-preset">预设</button>
+                        <button class="filter-btn" onclick="stickmanEditor.filterPoses('custom')" id="filter-custom">自定义</button>
+                    </div>
+
+                    <!-- 姿势列表 -->
+                    <div id="poseList" style="max-height: 500px; overflow-y: auto;">
+                        <p style="color: #999; text-align: center; padding: 40px;">加载中...</p>
+                    </div>
+
+                    <!-- 初始化按钮 -->
+                    <button class="btn" onclick="stickmanEditor.initPresets()" style="margin-top: 15px; width: 100%; background: #e8f0fe; color: #1a73e8;">🔄 初始化预设姿势</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 切换标签页
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+            
+            event.target.classList.add('active');
+            document.getElementById(tabName).classList.add('active');
+            
+            // 加载对应数据
+            if (tabName === 'models') loadModels();
+            if (tabName === 'tasks') loadTasks();
+            if (tabName === 'assets') loadAssets();
+        }
+        
+        // 生成图片
+        async function generateImage() {
+            const modelId = document.getElementById('modelId').value;
+            
+            const data = {
+                model_id: modelId ? parseInt(modelId) : parseInt(document.getElementById('modelSelect').value),
+                model_strength: parseFloat(document.getElementById('modelStrength').value),
+                prompt: document.getElementById('prompt').value,
+                negative_prompt: document.getElementById('negativePrompt').value,
+                aspect_ratios: document.getElementById('aspectRatios').value,
+                seed: parseInt(document.getElementById('seed').value),
+                batch_size: parseInt(document.getElementById('batchSize').value),
+                hd_fix: document.getElementById('hdFix').value === 'true',
+                hd_scale: parseFloat(document.getElementById('hdScale').value),
+                face_detail: document.getElementById('faceDetail').value === 'true',
+                enable_perturb: document.getElementById('enablePerturb').value === 'true',
+                simple_background: document.getElementById('simpleBackground').value === 'true'
+            };
+            
+            try {
+                const response = await fetch('/api/generate', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(data)
+                });
+                
+                const result = await response.json();
+                
+                document.getElementById('generateResult').style.display = 'block';
+                document.getElementById('generateResultContent').textContent = JSON.stringify(result, null, 2);
+                
+                if (result.success) {
+                    alert('生成任务已提交！Client ID: ' + result.data.clientId);
+                } else {
+                    alert('生成失败: ' + result.msg);
+                }
+            } catch (error) {
+                alert('请求失败: ' + error.message);
+            }
+        }
+        
+        // 同步模型列表
+        async function syncModels() {
+            try {
+                const response = await fetch('/api/models/sync', {method: 'POST'});
+                const result = await response.json();
+                
+                if (result.success) {
+                    displayModels(result.data);
+                    // 更新下拉框
+                    const select = document.getElementById('modelSelect');
+                    select.innerHTML = result.data.map(m => 
+                        `<option value="${m.modelId || m.id}">${m.modelName} (ID: ${m.modelId || m.id})</option>`
+                    ).join('');
+                } else {
+                    alert('同步失败: ' + result.error);
+                }
+            } catch (error) {
+                alert('请求失败: ' + error.message);
+            }
+        }
+        
+        // 加载模型列表
+        async function loadModels() {
+            try {
+                const response = await fetch('/api/models');
+                const result = await response.json();
+                
+                if (result.success && result.data.length > 0) {
+                    displayModels(result.data);
+                }
+            } catch (error) {
+                console.error('加载模型失败:', error);
+            }
+        }
+        
+        // 当前筛选状态
+        let currentFilter = 'all'; // all, visible, hidden
+        let allModels = []; // 存储所有模型数据
+        let activeFilters = {
+            modelType: '',
+            styleType: '',
+            baseModel: '',
+            modelTags: '',
+            searchName: '', // 模型名称模糊搜索
+            modelIds: '' // 模型ID筛选，支持多个逗号分割
+        };
+        
+        // 获取所有唯一的筛选选项
+        function getFilterOptions(models) {
+            const options = {
+                modelTypes: [...new Set(models.map(m => m.model_type || m.modelType).filter(Boolean))].sort(),
+                styleTypes: [...new Set(models.map(m => m.style_type || m.styleType).filter(Boolean))].sort(),
+                baseModels: [...new Set(models.map(m => m.base_model || m.baseModel).filter(Boolean))].sort(),
+                modelTags: [...new Set(models.map(m => m.model_tags || m.modelTags).filter(Boolean).flatMap(t => t ? t.split(',').map(s => s.trim()) : []))].sort()
+            };
+            return options;
+        }
+        
+        // 显示模型列表
+        function displayModels(models, filter = 'all', filters = activeFilters) {
+            allModels = models; // 保存所有模型
+            currentFilter = filter;
+            activeFilters = filters;
+            
+            // 根据可见性筛选
+            let filteredModels = models;
+            if (filter === 'visible') {
+                filteredModels = models.filter(m => !(m.is_hidden || m.isHidden));
+            } else if (filter === 'hidden') {
+                filteredModels = models.filter(m => m.is_hidden || m.isHidden);
+            }
+            
+            // 根据五个独立条件筛选
+            if (filters.modelType) {
+                filteredModels = filteredModels.filter(m => (m.model_type || m.modelType) === filters.modelType);
+            }
+            if (filters.styleType) {
+                filteredModels = filteredModels.filter(m => (m.style_type || m.styleType) === filters.styleType);
+            }
+            if (filters.baseModel) {
+                filteredModels = filteredModels.filter(m => (m.base_model || m.baseModel) === filters.baseModel);
+            }
+            if (filters.modelTags) {
+                filteredModels = filteredModels.filter(m => {
+                    const tags = (m.model_tags || m.modelTags || '');
+                    return tags.includes(filters.modelTags);
+                });
+            }
+            // 模型名称模糊搜索
+            if (filters.searchName) {
+                const lowerSearch = filters.searchName.toLowerCase();
+                filteredModels = filteredModels.filter(m => {
+                    const modelName = (m.model_name || m.modelName || '').toLowerCase();
+                    return modelName.includes(lowerSearch);
+                });
+            }
+            // 模型ID筛选 - 支持多个ID逗号分割
+            if (filters.modelIds) {
+                const idList = filters.modelIds.split(',').map(id => id.trim()).filter(id => id);
+                if (idList.length > 0) {
+                    filteredModels = filteredModels.filter(m => {
+                        const modelId = (m.model_id || m.modelId || '');
+                        return idList.some(id => modelId.toLowerCase() === id.toLowerCase());
+                    });
+                }
+            }
+
+            // 排序：未隐藏的在前，已隐藏的在后
+            filteredModels.sort((a, b) => {
+                const aHidden = a.is_hidden || a.isHidden;
+                const bHidden = b.is_hidden || b.isHidden;
+                if (aHidden === bHidden) return 0;
+                return aHidden ? 1 : -1;
+            });
+            
+            // 获取筛选选项
+            const options = getFilterOptions(models);
+            const visibleCount = models.filter(m => !(m.is_hidden || m.isHidden)).length;
+            const hiddenCount = models.filter(m => m.is_hidden || m.isHidden).length;
+            
+            // 生成筛选栏
+            let html = `
+                <div class="filter-bar">
+                    <button class="filter-btn ${filter === 'all' ? 'active' : ''}" onclick="displayModels(allModels, 'all')">
+                        全部 (${models.length})
+                    </button>
+                    <button class="filter-btn ${filter === 'visible' ? 'active' : ''}" onclick="displayModels(allModels, 'visible')">
+                        显示中 (${visibleCount})
+                    </button>
+                    <button class="filter-btn ${filter === 'hidden' ? 'active' : ''}" onclick="displayModels(allModels, 'hidden')">
+                        已隐藏 (${hiddenCount})
+                    </button>
+                    <div style="flex: 1;"></div>
+                    <button class="filter-btn" style="background: #34a853; color: white;" onclick="expandAllDetails()">📂 展开全部详情</button>
+                    <button class="filter-btn" style="background: #ea4335; color: white;" onclick="collapseAllDetails()">📁 收起全部详情</button>
+                </div>
+                
+                <div class="filter-bar" style="margin-top: 10px; flex-wrap: wrap;">
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <label style="font-size: 13px; color: #5f6368;">模型类型:</label>
+                        <select onchange="updateFilter('modelType', this.value)" style="padding: 5px 10px; border: 1px solid #dadce0; border-radius: 4px; font-size: 13px;">
+                            <option value="">全部</option>
+                            ${options.modelTypes.map(t => `<option value="${t}" ${filters.modelType === t ? 'selected' : ''}>${t}</option>`).join('')}
+                        </select>
+                    </div>
+                    
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <label style="font-size: 13px; color: #5f6368;">风格类型:</label>
+                        <select onchange="updateFilter('styleType', this.value)" style="padding: 5px 10px; border: 1px solid #dadce0; border-radius: 4px; font-size: 13px;">
+                            <option value="">全部</option>
+                            ${options.styleTypes.map(t => `<option value="${t}" ${filters.styleType === t ? 'selected' : ''}>${t}</option>`).join('')}
+                        </select>
+                    </div>
+                    
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <label style="font-size: 13px; color: #5f6368;">基础模型:</label>
+                        <select onchange="updateFilter('baseModel', this.value)" style="padding: 5px 10px; border: 1px solid #dadce0; border-radius: 4px; font-size: 13px;">
+                            <option value="">全部</option>
+                            ${options.baseModels.map(t => `<option value="${t}" ${filters.baseModel === t ? 'selected' : ''}>${t}</option>`).join('')}
+                        </select>
+                    </div>
+                    
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <label style="font-size: 13px; color: #5f6368;">模型标签:</label>
+                        <select onchange="updateFilter('modelTags', this.value)" style="padding: 5px 10px; border: 1px solid #dadce0; border-radius: 4px; font-size: 13px; min-width: 120px;">
+                            <option value="">全部</option>
+                            ${options.modelTags.map(t => `<option value="${t}" ${filters.modelTags === t ? 'selected' : ''}>${t}</option>`).join('')}
+                        </select>
+                    </div>
+                    
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <label style="font-size: 13px; color: #5f6368;">名称搜索:</label>
+                        <input type="text"
+                               id="searchNameInput"
+                               placeholder="输入模型名称..."
+                               value="${filters.searchName || ''}"
+                               onkeyup="if(event.key === 'Enter') applyNameSearch()"
+                               style="padding: 5px 10px; border: 1px solid #dadce0; border-radius: 4px; font-size: 13px; width: 150px;">
+                        <button class="filter-btn" onclick="applyNameSearch()">搜索</button>
+                    </div>
+
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <label style="font-size: 13px; color: #5f6368;">模型ID:</label>
+                        <input type="text"
+                               id="modelIdInput"
+                               placeholder="多个ID用逗号分割"
+                               value="${filters.modelIds || ''}"
+                               onkeyup="if(event.key === 'Enter') applyModelIdFilter()"
+                               style="padding: 5px 10px; border: 1px solid #dadce0; border-radius: 4px; font-size: 13px; width: 180px;">
+                        <button class="filter-btn" onclick="applyModelIdFilter()">筛选</button>
+                    </div>
+
+                    <div style="flex: 1;"></div>
+                    <button class="filter-btn" onclick="clearAllFilters()">清除筛选</button>
+                </div>
+                
+                ${Object.values(filters).some(v => v) ? `<div style="margin: 10px 0; padding: 8px 12px; background: #e8f5e9; border-radius: 6px; color: #34a853; font-size: 13px;">
+                    筛选结果: ${filteredModels.length} 个模型
+                </div>` : ''}
+                <!-- 多模型生成工具栏 -->
+                <div id="multiModelToolbar" style="margin: 15px 0; padding: 12px 15px; background: #e8f0fe; border-radius: 8px; display: none; align-items: center; gap: 15px;">
+                    <span style="font-weight: 500; color: #1a73e8;">已选择 <span id="selectedModelCount">0</span> 个模型</span>
+                    <button class="btn btn-primary" onclick="openMultiModelGenerateModal()">🎨 多模型生成</button>
+                    <button class="btn" onclick="clearAllModelSelection()">清除选择</button>
+                </div>
+
+                <table class="model-table">
+                    <thead>
+                        <tr>
+                            <th><input type="checkbox" id="selectAllModels" onclick="toggleSelectAllModels()"></th>
+                            <th>置顶</th>
+                            <th>隐藏</th>
+                            <th>模型名称</th>
+                            <th>模型ID</th>
+                            <th>模型类型</th>
+                            <th>风格类型</th>
+                            <th>基础模型</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+            
+            filteredModels.forEach((model, index) => {
+                const modelId = model.modelId || model.model_id || model.id;
+                const isPinned = model.is_pinned || model.isPinned;
+                const isHidden = model.is_hidden || model.isHidden;
+                const pinClass = isPinned ? 'pinned' : '';
+                const hiddenClass = isHidden ? 'hidden' : '';
+                const pinIcon = isPinned ? '📌' : '📍';
+                const hideIcon = isHidden ? '👁️' : '🙈';
+                const hideTitle = isHidden ? '显示' : '隐藏';
+
+                html += `
+                    <tr class="model-row ${pinClass} ${hiddenClass}" id="model-row-${modelId}">
+                        <td onclick="event.stopPropagation()">
+                            <input type="checkbox" class="model-checkbox" data-model-id="${modelId}" data-model-name="${model.modelName || model.model_name || ''}" onchange="updateModelSelection()">
+                        </td>
+                        <td onclick="event.stopPropagation(); togglePin('${modelId}', ${!isPinned})">
+                            <span class="pin-icon" style="cursor: pointer;" title="${isPinned ? '取消置顶' : '置顶'}">${pinIcon}</span>
+                        </td>
+                        <td onclick="event.stopPropagation(); toggleHidden('${modelId}', ${!isHidden})">
+                            <span class="hide-icon" style="cursor: pointer;" title="${hideTitle}">${hideIcon}</span>
+                        </td>
+                        <td onclick="toggleModelDetail('${modelId}', ${index})">${model.modelName || model.model_name || '-'}</td>
+                        <td onclick="toggleModelDetail('${modelId}', ${index})"><code style="background: #f1f3f4; padding: 2px 6px; border-radius: 4px; font-size: 12px;">${modelId}</code></td>
+                        <td onclick="toggleModelDetail('${modelId}', ${index})">${model.modelType || model.model_type || '-'}</td>
+                        <td onclick="toggleModelDetail('${modelId}', ${index})">${model.styleType || model.style_type || '-'}</td>
+                        <td onclick="toggleModelDetail('${modelId}', ${index})">${model.baseModel || model.base_model || '-'}</td>
+                        <td>
+                            <div class="model-actions">
+                                <span class="btn btn-primary" onclick="event.stopPropagation(); toggleModelDetail('${modelId}', ${index})">详情</span>
+                                <span class="btn btn-success" onclick="event.stopPropagation(); useModel('${modelId}')">使用</span>
+                                <span class="btn" style="background: #fbbc05; color: white;" onclick="event.stopPropagation(); copyModelInfo('${modelId}')">复制</span>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr class="model-detail-row" id="model-detail-${index}">
+                        <td colspan="8">
+                            <div class="model-detail-content" id="model-detail-content-${index}">
+                                <div class="model-detail-loading">点击加载模型详情...</div>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            });
+            
+            html += '</tbody></table>';
+            
+            // 显示筛选结果统计
+            const hasActiveFilters = Object.values(filters).some(v => v);
+            if (hasActiveFilters) {
+                html += `<div style="margin-top: 15px; padding: 10px; background: #e8f5e9; border-radius: 6px; color: #34a853;">
+                    筛选结果: ${filteredModels.length} 个模型
+                </div>`;
+            }
+            
+            document.getElementById('modelList').innerHTML = html;
+        }
+        
+        // 更新筛选条件
+        function updateFilter(filterType, value) {
+            const newFilters = { ...activeFilters, [filterType]: value };
+            displayModels(allModels, currentFilter, newFilters);
+        }
+        
+        // 应用名称搜索
+        function applyNameSearch() {
+            const searchValue = document.getElementById('searchNameInput').value;
+            updateFilter('searchName', searchValue);
+        }
+
+        // 应用模型ID筛选
+        function applyModelIdFilter() {
+            const modelIdValue = document.getElementById('modelIdInput').value;
+            updateFilter('modelIds', modelIdValue);
+        }
+
+        // ==================== 多模型选择功能 (模型列表页) ====================
+
+        // 存储选中的模型 (模型列表页使用)
+        let modelListSelectedModels = new Map(); // modelId -> {name, strength}
+
+        // 全选/取消全选
+        function toggleSelectAllModels() {
+            const selectAllCheckbox = document.getElementById('selectAllModels');
+            const checkboxes = document.querySelectorAll('.model-checkbox');
+            const isChecked = selectAllCheckbox.checked;
+
+            checkboxes.forEach(checkbox => {
+                checkbox.checked = isChecked;
+                const modelId = checkbox.dataset.modelId;
+                const modelName = checkbox.dataset.modelName;
+
+                if (isChecked) {
+                    modelListSelectedModels.set(modelId, { name: modelName, strength: 0.9 });
+                } else {
+                    modelListSelectedModels.delete(modelId);
+                }
+            });
+
+            updateModelSelectionUI();
+        }
+
+        // 更新模型选择状态
+        function updateModelSelection() {
+            modelListSelectedModels.clear();
+            const checkboxes = document.querySelectorAll('.model-checkbox:checked');
+
+            checkboxes.forEach(checkbox => {
+                const modelId = checkbox.dataset.modelId;
+                const modelName = checkbox.dataset.modelName;
+                modelListSelectedModels.set(modelId, { name: modelName, strength: 0.9 });
+            });
+
+            updateModelSelectionUI();
+        }
+
+        // 更新选择状态UI
+        function updateModelSelectionUI() {
+            const toolbar = document.getElementById('multiModelToolbar');
+            const countSpan = document.getElementById('selectedModelCount');
+            const selectAllCheckbox = document.getElementById('selectAllModels');
+
+            const count = modelListSelectedModels.size;
+            countSpan.textContent = count;
+
+            if (count > 0) {
+                toolbar.style.display = 'flex';
+            } else {
+                toolbar.style.display = 'none';
+            }
+
+            // 更新全选框状态
+            const checkboxes = document.querySelectorAll('.model-checkbox');
+            const checkedBoxes = document.querySelectorAll('.model-checkbox:checked');
+            selectAllCheckbox.checked = checkboxes.length > 0 && checkboxes.length === checkedBoxes.length;
+            selectAllCheckbox.indeterminate = checkedBoxes.length > 0 && checkedBoxes.length < checkboxes.length;
+        }
+
+        // 清除所有选择
+        function clearAllModelSelection() {
+            modelListSelectedModels.clear();
+            const checkboxes = document.querySelectorAll('.model-checkbox');
+            checkboxes.forEach(checkbox => checkbox.checked = false);
+            document.getElementById('selectAllModels').checked = false;
+            updateModelSelectionUI();
+        }
+
+        // 打开多模型生成弹窗
+        function openMultiModelGenerateModal() {
+            if (modelListSelectedModels.size === 0) {
+                showNotification('请至少选择一个模型', 'error');
+                return;
+            }
+            if (modelListSelectedModels.size > 5) {
+                showNotification('最多只能选择5个模型', 'error');
+                return;
+            }
+
+            let modelListHtml = '';
+            selectedModels.forEach((data, modelId) => {
+                modelListHtml += `
+                    <div style="display: flex; align-items: center; gap: 10px; margin: 10px 0; padding: 10px; background: #f8f9fa; border-radius: 6px;">
+                        <span style="flex: 1; font-weight: 500;">${data.name}</span>
+                        <code style="background: #e8f0fe; padding: 2px 8px; border-radius: 4px; font-size: 12px;">${modelId}</code>
+                        <label style="font-size: 13px; color: #5f6368;">强度:</label>
+                        <input type="number" class="multi-model-strength" data-model-id="${modelId}"
+                               min="0" max="1" step="0.1" value="${data.strength}"
+                               style="width: 70px; padding: 5px; border: 1px solid #dadce0; border-radius: 4px;">
+                    </div>
+                `;
+            });
+
+            const modalHtml = `
+                <div class="modal-overlay" onclick="if(event.target===this)closeModal(this)">
+                    <div class="modal-container" style="max-width: 600px;">
+                        <div class="modal-header">
+                            <h3>🎨 多模型叠加生成</h3>
+                            <button class="modal-close" onclick="closeModal(this.closest('.modal-overlay'))">&times;</button>
+                        </div>
+                        <div class="modal-body">
+                            <div style="background: #e8f5e9; padding: 12px; border-radius: 8px; margin-bottom: 20px; font-size: 13px; color: #2e7d32;">
+                                ✅ 已选择 ${selectedModels.size} 个模型（最多支持5个模型叠加）
+                            </div>
+
+                            <h4 style="margin: 20px 0 10px; color: #333;">模型列表与强度设置</h4>
+                            ${modelListHtml}
+
+                            <h4 style="margin: 25px 0 10px; color: #333;">生成参数</h4>
+                            <div style="display: grid; gap: 15px;">
+                                <div>
+                                    <label style="display: block; margin-bottom: 5px; font-size: 13px; color: #5f6368;">正向提示词</label>
+                                    <textarea id="multiModelPrompt" rows="3" placeholder="输入提示词..."
+                                              style="width: 100%; padding: 10px; border: 1px solid #dadce0; border-radius: 6px; resize: vertical;">Q版角色，可爱卡通风格，明亮色彩，干净线条，白色背景</textarea>
+                                </div>
+                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                                    <div>
+                                        <label style="display: block; margin-bottom: 5px; font-size: 13px; color: #5f6368;">宽高比</label>
+                                        <select id="multiModelAspectRatio" style="width: 100%; padding: 8px; border: 1px solid #dadce0; border-radius: 6px;">
+                                            <option value="1:1">1:1</option>
+                                            <option value="3:4" selected>3:4</option>
+                                            <option value="4:3">4:3</option>
+                                            <option value="16:9">16:9</option>
+                                            <option value="9:16">9:16</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label style="display: block; margin-bottom: 5px; font-size: 13px; color: #5f6368;">出图数量</label>
+                                        <select id="multiModelBatchSize" style="width: 100%; padding: 8px; border: 1px solid #dadce0; border-radius: 6px;">
+                                            <option value="1" selected>1</option>
+                                            <option value="2">2</option>
+                                            <option value="4">4</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button class="btn" onclick="closeModal(this.closest('.modal-overlay'))">取消</button>
+                            <button class="btn btn-primary" onclick="submitMultiModelGenerate()">🚀 开始生成</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            document.body.insertAdjacentHTML('beforeend', modalHtml);
+        }
+
+        // 提交多模型生成
+        async function submitMultiModelGenerate() {
+            const prompt = document.getElementById('multiModelPrompt').value;
+            const aspectRatio = document.getElementById('multiModelAspectRatio').value;
+            const batchSize = parseInt(document.getElementById('multiModelBatchSize').value);
+
+            if (!prompt.trim()) {
+                showNotification('请输入提示词', 'error');
+                return;
+            }
+
+            // 收集模型和强度
+            const modelDetailList = [];
+            const strengthInputs = document.querySelectorAll('.multi-model-strength');
+            strengthInputs.forEach(input => {
+                modelDetailList.push({
+                    modelId: input.dataset.modelId,
+                    strength: parseFloat(input.value) || 0.9
+                });
+            });
+
+            const requestData = {
+                data: {
+                    modelDetailList: modelDetailList,
+                    prompt: prompt,
+                    aspectRatios: aspectRatio,
+                    batchSize: batchSize,
+                    seed: -1,
+                    faceDetail: true
+                }
+            };
+
+            showNotification('正在提交多模型生成任务...', 'info');
+
+            try {
+                const response = await fetch('/api/generate', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(requestData)
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    showNotification(`✅ 生成任务已提交！任务ID: ${result.data.task_id}`, 'success');
+                    closeModal(document.querySelector('.modal-overlay'));
+                    // 刷新任务列表
+                    loadTasks();
+                } else {
+                    showNotification('生成失败: ' + (result.error || '未知错误'), 'error');
+                }
+            } catch (error) {
+                showNotification('请求失败: ' + error.message, 'error');
+            }
+        }
+
+        // 展开全部模型详情
+        async function expandAllDetails() {
+            const detailRows = document.querySelectorAll('.model-detail-row');
+            const visibleRows = Array.from(detailRows).filter(row => row.style.display !== 'none');
+            
+            showNotification(`正在展开 ${visibleRows.length} 个模型详情...`, 'info');
+            
+            for (let i = 0; i < visibleRows.length; i++) {
+                const row = visibleRows[i];
+                const index = row.id.replace('model-detail-', '');
+                
+                // 展开详情
+                row.classList.add('active');
+                
+                // 加载内容（如果未加载）
+                const contentDiv = row.querySelector('.model-detail-content');
+                if (contentDiv && !contentDiv.dataset.loaded) {
+                    // 获取模型ID
+                    const modelRow = document.getElementById(`model-detail-${index}`).previousElementSibling;
+                    if (modelRow) {
+                        const onclickAttr = modelRow.getAttribute('onclick');
+                        const match = onclickAttr?.match(/toggleModelDetail\('([^']+)'/);
+                        if (match) {
+                            const modelId = match[1];
+                            contentDiv.innerHTML = '<div class="model-detail-loading"><div class="loading"></div><p>加载中...</p></div>';
+                            
+                            try {
+                                const response = await fetch(`/api/models/${modelId}`);
+                                const result = await response.json();
+                                if (result.success) {
+                                    displayModelDetail(contentDiv, result.data, result.from_cache);
+                                    contentDiv.dataset.loaded = 'true';
+                                }
+                            } catch (error) {
+                                contentDiv.innerHTML = '<div class="model-detail-loading" style="color: #ea4335;">加载失败</div>';
+                            }
+                        }
+                    }
+                }
+                
+                // 每10个暂停一下，避免卡顿
+                if ((i + 1) % 10 === 0) {
+                    await new Promise(resolve => setTimeout(resolve, 100));
+                }
+            }
+            
+            showNotification(`已展开 ${visibleRows.length} 个模型详情`, 'success');
+        }
+        
+        // 收起全部模型详情
+        function collapseAllDetails() {
+            document.querySelectorAll('.model-detail-row.active').forEach(row => {
+                row.classList.remove('active');
+            });
+            showNotification('已收起全部详情', 'success');
+        }
+        
+        // 复制模型信息
+        async function copyModelInfo(modelId) {
+            const model = allModels.find(m => (m.model_id || m.modelId || m.id) === modelId);
+            if (!model) {
+                showNotification('模型未找到', 'error');
+                return;
+            }
+            
+            // 获取模型详情（从缓存或API）
+            let modelDetail = null;
+            try {
+                const response = await fetch(`/api/models/${modelId}`);
+                const result = await response.json();
+                if (result.success) {
+                    modelDetail = result.data;
+                }
+            } catch (error) {
+                console.log('获取详情失败，使用基础信息');
+            }
+            
+            // 构建复制内容
+            const modelName = model.model_name || model.modelName || '未知模型';
+            const modelType = model.model_type || model.modelType || '-';
+            const styleType = model.style_type || model.styleType || '-';
+            const baseModel = model.base_model || model.baseModel || '-';
+            const modelTags = model.model_tags || model.modelTags || '-';
+            const introduction = modelDetail?.introduction || modelDetail?.Introduction || model.introduction || '-';
+            
+            const copyText = `${modelName}
+模型ID: ${modelId}
+模型类型: ${modelType}
+风格类型: ${styleType}
+基础模型: ${baseModel}
+模型标签: ${modelTags}
+模型简介: ${introduction}`;
+            
+            // 复制到剪贴板
+            try {
+                await navigator.clipboard.writeText(copyText);
+                showNotification('模型信息已复制到剪贴板', 'success');
+            } catch (err) {
+                // 降级方案
+                const textArea = document.createElement('textarea');
+                textArea.value = copyText;
+                document.body.appendChild(textArea);
+                textArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textArea);
+                showNotification('模型信息已复制到剪贴板', 'success');
+            }
+        }
+        
+        // 清除所有筛选
+        function clearAllFilters() {
+            activeFilters = {
+                modelType: '',
+                styleType: '',
+                baseModel: '',
+                modelTags: '',
+                searchName: '',
+                modelIds: ''
+            };
+            displayModels(allModels, currentFilter, activeFilters);
+        }
+        
+        // 切换模型隐藏状态（异步更新，不刷新列表）
+        async function toggleHidden(modelId, isHidden) {
+            try {
+                const response = await fetch(`/api/models/${modelId}/hidden`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ is_hidden: isHidden })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    // 更新对应行的隐藏图标（不刷新整个列表）
+                    const modelRow = document.getElementById(`model-row-${modelId}`);
+                    if (modelRow) {
+                        if (isHidden) {
+                            modelRow.classList.add('hidden');
+                            modelRow.querySelector('.hide-icon').textContent = '👁️';
+                            modelRow.querySelector('.hide-icon').title = '显示';
+                        } else {
+                            modelRow.classList.remove('hidden');
+                            modelRow.querySelector('.hide-icon').textContent = '🙈';
+                            modelRow.querySelector('.hide-icon').title = '隐藏';
+                        }
+                    }
+                    
+                    // 更新 allModels 中的数据
+                    const model = allModels.find(m => (m.model_id || m.modelId || m.id) === modelId);
+                    if (model) {
+                        model.is_hidden = isHidden;
+                        model.isHidden = isHidden;
+                    }
+                    
+                    // 更新筛选栏的计数
+                    updateFilterCounts();
+                    
+                    showNotification(isHidden ? '模型已隐藏' : '模型已显示', 'success');
+                } else {
+                    alert('操作失败: ' + result.error);
+                }
+            } catch (error) {
+                alert('请求失败: ' + error.message);
+            }
+        }
+        
+        // 切换模型置顶状态（异步更新，不刷新列表）
+        async function togglePin(modelId, isPinned) {
+            try {
+                const response = await fetch(`/api/models/${modelId}/pin`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ is_pinned: isPinned })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    // 更新对应行的置顶图标（不刷新整个列表）
+                    const modelRow = document.getElementById(`model-row-${modelId}`);
+                    if (modelRow) {
+                        if (isPinned) {
+                            modelRow.classList.add('pinned');
+                            modelRow.querySelector('.pin-icon').textContent = '📌';
+                            modelRow.querySelector('.pin-icon').title = '取消置顶';
+                        } else {
+                            modelRow.classList.remove('pinned');
+                            modelRow.querySelector('.pin-icon').textContent = '📍';
+                            modelRow.querySelector('.pin-icon').title = '置顶';
+                        }
+                    }
+                    
+                    // 更新 allModels 中的数据
+                    const model = allModels.find(m => (m.model_id || m.modelId || m.id) === modelId);
+                    if (model) {
+                        model.is_pinned = isPinned;
+                        model.isPinned = isPinned;
+                    }
+                    
+                    showNotification(isPinned ? '模型已置顶' : '已取消置顶', 'success');
+                } else {
+                    alert('置顶失败: ' + result.error);
+                }
+            } catch (error) {
+                alert('请求失败: ' + error.message);
+            }
+        }
+        
+        // 更新筛选栏计数
+        function updateFilterCounts() {
+            const visibleCount = allModels.filter(m => !(m.is_hidden || m.isHidden)).length;
+            const hiddenCount = allModels.filter(m => m.is_hidden || m.isHidden).length;
+            
+            const filterBtns = document.querySelectorAll('.filter-btn');
+            if (filterBtns[0]) filterBtns[0].textContent = `全部 (${allModels.length})`;
+            if (filterBtns[1]) filterBtns[1].textContent = `显示中 (${visibleCount})`;
+            if (filterBtns[2]) filterBtns[2].textContent = `已隐藏 (${hiddenCount})`;
+        }
+        
+        // 使用模型 - 切换到生成页面并设置模型
+        async function useModel(modelId) {
+            try {
+                const response = await fetch(`/api/models/${modelId}/use`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    // 保存当前选中的模型信息
+                    window.currentModel = result.model;
+                    window.supportedParams = result.supported_params;
+                    
+                    // 切换到生成页面
+                    showSection('generate');
+                    
+                    // 更新生成页面的模型选择
+                    updateGenerateForm(result.model, result.supported_params);
+                    
+                    // 显示提示
+                    const modelName = result.model.model_name || result.model.modelName;
+                    showNotification(`已选择模型: ${modelName}`, 'success');
+                } else {
+                    alert('使用模型失败: ' + result.error);
+                }
+            } catch (error) {
+                alert('请求失败: ' + error.message);
+            }
+        }
+        
+        // 更新生成表单 - 根据模型支持的参数显示/隐藏
+        function updateGenerateForm(model, supportedParams) {
+            // 更新模型ID输入框
+            const modelIdInput = document.getElementById('modelId');
+            if (modelIdInput) {
+                modelIdInput.value = model.model_id || model.modelId || model.id;
+            }
+            
+            // 显示当前使用的模型
+            const modelInfoDiv = document.getElementById('currentModelInfo');
+            if (modelInfoDiv) {
+                const modelName = model.model_name || model.modelName;
+                const isV1 = supportedParams.hd_fix === false;
+                modelInfoDiv.innerHTML = `
+                    <div style="background: #e8f5e9; padding: 10px 15px; border-radius: 6px; margin-bottom: 15px;">
+                        <strong>当前模型:</strong> ${modelName} 
+                        ${isV1 ? '<span style="color: #f57c00;">(V1 - 部分参数受限)</span>' : ''}
+                    </div>
+                `;
+            }
+            
+            // 根据支持的参数启用/禁用表单元素
+            const paramElements = {
+                'negativePrompt': supportedParams.negative_prompt,
+                'hdFix': supportedParams.hd_fix,
+                'faceDetail': supportedParams.face_detail,
+                'enablePerturb': supportedParams.enable_perturb,
+                'simpleBackground': supportedParams.simple_background
+            };
+            
+            for (const [elementId, isSupported] of Object.entries(paramElements)) {
+                const element = document.getElementById(elementId);
+                if (element) {
+                    if (isSupported) {
+                        element.disabled = false;
+                        element.parentElement.classList.remove('param-disabled');
+                    } else {
+                        element.disabled = true;
+                        element.checked = false;
+                        element.parentElement.classList.add('param-disabled');
+                    }
+                }
+            }
+        }
+        
+        // 显示通知
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                padding: 15px 20px;
+                border-radius: 8px;
+                color: white;
+                font-weight: 500;
+                z-index: 10000;
+                animation: slideIn 0.3s ease;
+            `;
+            
+            if (type === 'success') {
+                notification.style.background = '#34a853';
+            } else if (type === 'error') {
+                notification.style.background = '#ea4335';
+            } else {
+                notification.style.background = '#1a73e8';
+            }
+            
+            notification.textContent = message;
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.style.animation = 'slideOut 0.3s ease';
+                setTimeout(() => notification.remove(), 300);
+            }, 3000);
+        }
+        
+        // 切换模型详情显示
+        async function toggleModelDetail(modelId, index) {
+            const detailRow = document.getElementById(`model-detail-${index}`);
+            const detailContent = document.getElementById(`model-detail-content-${index}`);
+            
+            // 如果已经展开，则关闭
+            if (detailRow.classList.contains('active')) {
+                detailRow.classList.remove('active');
+                return;
+            }
+            
+            // 展开当前详情（不关闭其他已展开的详情）
+            detailRow.classList.add('active');
+            
+            // 如果已经加载过内容，不再重复加载
+            if (detailContent.dataset.loaded === 'true') {
+                return;
+            }
+            
+            // 显示加载状态
+            detailContent.innerHTML = '<div class="model-detail-loading"><div class="loading"></div><p>加载模型详情中...</p></div>';
+            
+            // 加载模型详情
+            try {
+                const response = await fetch(`/api/models/${modelId}`);
+                const result = await response.json();
+                
+                if (result.success) {
+                    displayModelDetail(detailContent, result.data, result.from_cache);
+                    detailContent.dataset.loaded = 'true'; // 标记已加载
+                } else {
+                    detailContent.innerHTML = `<div class="model-detail-loading" style="color: #ea4335;">加载失败: ${result.error}</div>`;
+                }
+            } catch (error) {
+                detailContent.innerHTML = `<div class="model-detail-loading" style="color: #ea4335;">请求失败: ${error.message}</div>`;
+            }
+        }
+        
+        // 显示模型详情
+        function displayModelDetail(container, data, fromCache = false) {
+            const coverImage = data.coverImage || data.CoverImage || data.cover_image || '';
+            const detailImages = data.modelDetailsImages || data.ModelDetailsImages || data.model_details_images || '';
+            const modelName = data.modelName || data.ModelName || data.model_name || '未知模型';
+            const modelId = data.id || data.Id || data.model_id || '-';
+            
+            let html = `
+                <div class="model-detail-grid">
+                    <div class="model-detail-info">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                            <h3 style="margin: 0; color: #1a73e8;">${modelName}</h3>
+                            ${fromCache ? '<span style="background: #e8f5e9; color: #34a853; padding: 3px 8px; border-radius: 4px; font-size: 12px;">📦 来自缓存</span>' : '<span style="background: #e3f2fd; color: #1a73e8; padding: 3px 8px; border-radius: 4px; font-size: 12px;">🌐 实时获取</span>'}
+                        </div>
+                        <p><span class="label">模型ID:</span> ${modelId}</p>
+                        <p><span class="label">模型类型:</span> ${data.modelType || data.ModelType || data.model_type || '-'}</p>
+                        <p><span class="label">风格类型:</span> ${data.styleType || data.StyleType || data.style_type || '-'}</p>
+                        <p><span class="label">基础模型:</span> ${data.baseModel || data.BaseModel || data.base_model || '-'}</p>
+                        <p><span class="label">模型标签:</span> ${data.modelTags || data.ModelTags || data.model_tags || '-'}</p>
+                        <p><span class="label">商用许可:</span> ${data.commercialLicense || data.CommercialLicense || data.commercial_license || '-'}</p>
+                        <p><span class="label">可用状态:</span> ${(data.modelAvailable || data.ModelAvailable || data.model_available) ? '✅ 可用' : '❌ 不可用'}</p>
+                        <p><span class="label">模型简介:</span></p>
+                        <p style="background: white; padding: 10px; border-radius: 6px; line-height: 1.6;">${data.introduction || data.Introduction || '暂无简介'}</p>
+                    </div>
+                    <div class="model-detail-images">
+                        ${coverImage ? `
+                            <div>
+                                <p class="label">封面图</p>
+                                <img src="${coverImage}" alt="封面图" onerror="this.style.display='none'">
+                            </div>
+                        ` : ''}
+                        ${detailImages ? `
+                            <div>
+                                <p class="label">详情图</p>
+                                <img src="${detailImages}" alt="详情图" onerror="this.style.display='none'">
+                            </div>
+                        ` : ''}
+                    </div>
+                </div>
+            `;
+            
+            container.innerHTML = html;
+        }
+        
+        // 加载任务列表
+        async function loadTasks() {
+            try {
+                const response = await fetch('/api/tasks');
+                const result = await response.json();
+                
+                if (result.success && result.data.length > 0) {
+                    displayTasks(result.data);
+                } else {
+                    document.getElementById('taskList').innerHTML = '<p style="color: #999; text-align: center; padding: 40px;">暂无任务</p>';
+                }
+            } catch (error) {
+                console.error('加载任务失败:', error);
+            }
+        }
+        
+        // 显示任务列表
+        function displayTasks(tasks) {
+            let html = '';
+            
+            tasks.forEach(task => {
+                const statusClass = `status-${task.status}`;
+                const modelId = task.model_id || '-';
+                const aspectRatio = task.aspect_ratios || '1:1';
+                const batchSize = task.batch_size || 1;
+                
+                // 构建参数标签
+                let paramTags = [];
+                if (task.hd_fix) paramTags.push('🔧高清');
+                if (task.face_detail) paramTags.push('👤面部');
+                if (task.enable_perturb) paramTags.push('⚡扰动');
+                if (task.simple_background) paramTags.push('⬜简背');
+                
+                html += `
+                    <div class="task-item" style="flex-direction: column; align-items: stretch; gap: 10px;">
+                        <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                            <div style="flex: 1;">
+                                <div style="font-weight: 600; color: #1a73e8; margin-bottom: 5px;">📝 提示词</div>
+                                <div style="background: #f8f9fa; padding: 8px 12px; border-radius: 6px; font-size: 13px; line-height: 1.5; margin-bottom: 8px;">${task.prompt || '-'}</div>
+                                ${task.negative_prompt ? `
+                                    <div style="font-size: 12px; color: #5f6368; margin-bottom: 5px;">
+                                        <span style="color: #ea4335;">反向提示词:</span> ${task.negative_prompt}
+                                    </div>
+                                ` : ''}
+                            </div>
+                            <div style="text-align: right; margin-left: 15px;">
+                                <span class="status-badge ${statusClass}" style="font-size: 14px; padding: 6px 12px;">${task.status}</span>
+                                <div style="font-size: 12px; color: #666; margin-top: 8px;">
+                                    ${new Date(task.created_at).toLocaleString()}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div style="display: flex; gap: 15px; flex-wrap: wrap; font-size: 12px; color: #5f6368; background: #f1f3f4; padding: 10px 15px; border-radius: 6px;">
+                            <div><strong>模型ID:</strong> <code style="background: white; padding: 2px 6px; border-radius: 4px;">${modelId}</code></div>
+                            <div><strong>比例:</strong> ${aspectRatio}</div>
+                            <div><strong>数量:</strong> ${batchSize}</div>
+                            <div><strong>种子:</strong> ${task.seed || -1}</div>
+                            ${paramTags.length > 0 ? `<div><strong>参数:</strong> ${paramTags.join(' ')}</div>` : ''}
+                        </div>
+                        
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <div style="font-size: 12px; color: #999;">
+                                Client ID: <code>${task.client_id}</code>
+                            </div>
+                            <div style="display: flex; gap: 8px;">
+                                <button class="btn btn-primary" onclick="viewTaskDetail(${task.id})">详情</button>
+                                <button class="btn btn-warning" onclick="queryTask('${task.client_id}')">查询</button>
+                                <button class="btn btn-success" onclick="downloadTask('${task.client_id}')">下载</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            document.getElementById('taskList').innerHTML = html;
+        }
+        
+        // 查看任务详情 - 使用新的弹框组件
+        async function viewTaskDetail(recordId) {
+            try {
+                const response = await fetch(`/api/generate/${recordId}`);
+                const result = await response.json();
+                
+                if (result.success) {
+                    const task = result.data;
+                    showTaskDetailModal(task);
+                }
+            } catch (error) {
+                alert('加载详情失败: ' + error.message);
+            }
+        }
+        
+        // 显示任务详情弹框
+        function showTaskDetailModal(task) {
+            const comparison = task.param_comparison || {};
+            const hasDiff = comparison.has_differences;
+            const differences = comparison.differences || {};
+            
+            // 参数名称映射
+            const paramNameMap = {
+                'prompt': '提示词',
+                'negative_prompt': '反向提示词',
+                'model_id': '模型ID',
+                'model_strength': '模型强度',
+                'aspect_ratios': '宽高比',
+                'seed': '随机种子',
+                'batch_size': '出图数量',
+                'hd_fix': '高清修复',
+                'hd_scale': '高清倍数',
+                'face_detail': '脸部修复',
+                'enable_perturb': '扰动增强',
+                'perturb': '扰动值',
+                'simple_background': '简化背景'
+            };
+            
+            // 格式化参数值
+            const formatValue = (val, key) => {
+                if (val === null || val === undefined) return '<span style="color: #999;">-</span>';
+                if (typeof val === 'boolean') return val ? '<span class="badge badge-success">✓ 开启</span>' : '<span class="badge" style="background: #f5f5f5; color: #666;">✗ 关闭</span>';
+                if (key === 'prompt' || key === 'negative_prompt') {
+                    return `<span class="full-text">${escapeHtml(val)}</span>`;
+                }
+                return escapeHtml(String(val));
+            };
+            
+            // 构建参数对比表格
+            let paramTableHtml = '';
+            if (comparison.original_params && Object.keys(comparison.original_params).length > 0) {
+                const allKeys = new Set([
+                    ...Object.keys(comparison.original_params),
+                    ...Object.keys(comparison.actual_params || {})
+                ]);
+                
+                paramTableHtml = `
+                    <table class="param-table">
+                        <thead>
+                            <tr>
+                                <th style="width: 120px;">参数名</th>
+                                <th style="width: 45%;">原始请求值</th>
+                                <th style="width: 45%;">实际使用值</th>
+                                <th style="width: 80px; text-align: center;">状态</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${Array.from(allKeys).map(key => {
+                                const origVal = comparison.original_params[key];
+                                const actualVal = (comparison.actual_params || {})[key];
+                                const isDifferent = differences[key] !== undefined;
+                                const displayName = paramNameMap[key] || key;
+                                
+                                return `
+                                    <tr class="${isDifferent ? 'param-diff-row' : ''}">
+                                        <td class="param-name">${displayName}</td>
+                                        <td class="param-value ${isDifferent ? 'original' : ''}">${formatValue(origVal, key)}</td>
+                                        <td class="param-value ${isDifferent ? 'actual' : ''}">${formatValue(actualVal, key)}</td>
+                                        <td class="param-status">
+                                            ${isDifferent ? '<span class="status-diff">⚠️ 差异</span>' : '<span class="status-same">✓</span>'}
+                                        </td>
+                                    </tr>
+                                `;
+                            }).join('')}
+                        </tbody>
+                    </table>
+                `;
+            } else {
+                // 没有对比数据时显示简单参数表
+                const params = {
+                    'prompt': task.prompt,
+                    'negative_prompt': task.negative_prompt,
+                    'model_id': task.model_id,
+                    'model_strength': task.model_strength,
+                    'aspect_ratios': task.aspect_ratios,
+                    'seed': task.seed,
+                    'batch_size': task.batch_size,
+                    'hd_fix': task.hd_fix,
+                    'face_detail': task.face_detail,
+                    'enable_perturb': task.enable_perturb,
+                    'simple_background': task.simple_background
+                };
+                
+                paramTableHtml = `
+                    <table class="param-table">
+                        <thead>
+                            <tr>
+                                <th style="width: 120px;">参数名</th>
+                                <th>参数值</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${Object.entries(params).map(([key, val]) => {
+                                if (val === null || val === undefined) return '';
+                                const displayName = paramNameMap[key] || key;
+                                return `
+                                    <tr>
+                                        <td class="param-name">${displayName}</td>
+                                        <td class="param-value">${formatValue(val, key)}</td>
+                                    </tr>
+                                `;
+                            }).join('')}
+                        </tbody>
+                    </table>
+                `;
+            }
+            
+            // 状态标签
+            const statusBadgeClass = {
+                'submitted': 'badge-warning',
+                'processing': 'badge-info',
+                'succeed': 'badge-success',
+                'failed': 'badge-danger'
+            }[task.status] || 'badge-info';
+            
+            const statusText = {
+                'submitted': '已提交',
+                'processing': '处理中',
+                'succeed': '成功',
+                'failed': '失败'
+            }[task.status] || task.status;
+            
+            const modalHtml = `
+                <div class="modal-overlay" onclick="if(event.target===this)closeModal(this)">
+                    <div class="modal-container">
+                        <div class="modal-header">
+                            <h3>📋 任务详情 - 完整参数</h3>
+                            <button class="modal-close" onclick="closeModal(this.closest('.modal-overlay'))">&times;</button>
+                        </div>
+                        <div class="modal-body">
+                            ${hasDiff ? `
+                                <div style="background: #fff3e0; padding: 12px 15px; border-radius: 8px; margin-bottom: 20px; display: flex; align-items: center; gap: 10px;">
+                                    <span style="font-size: 20px;">⚠️</span>
+                                    <span>检测到 <strong>${Object.keys(differences).length}</strong> 个参数差异（部分参数可能因模型限制被自动调整）</span>
+                                </div>
+                            ` : ''}
+                            
+                            <div style="margin-bottom: 20px;">
+                                <div style="display: flex; gap: 15px; flex-wrap: wrap; margin-bottom: 15px;">
+                                    <div><strong>状态:</strong> <span class="badge ${statusBadgeClass}">${statusText}</span></div>
+                                    <div><strong>记录ID:</strong> <code>${task.id}</code></div>
+                                    <div><strong>Client ID:</strong> <code>${task.client_id || '-'}</code></div>
+                                </div>
+                                <div style="display: flex; gap: 15px; flex-wrap: wrap; font-size: 13px; color: #666;">
+                                    <div>创建时间: ${task.created_at ? new Date(task.created_at).toLocaleString() : '-'}</div>
+                                    ${task.updated_at ? `<div>更新时间: ${new Date(task.updated_at).toLocaleString()}</div>` : ''}
+                                </div>
+                            </div>
+                            
+                            <h4 style="margin: 25px 0 15px; color: #333; font-size: 16px;">📊 参数详情</h4>
+                            ${paramTableHtml}
+                        </div>
+                        <div class="modal-footer">
+                            <button class="btn" onclick="closeModal(this.closest('.modal-overlay'))">关闭</button>
+                            <button class="btn btn-primary" onclick="copyTaskParams(${task.id})">📋 复制参数</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            document.body.insertAdjacentHTML('beforeend', modalHtml);
+        }
+        
+        // HTML转义
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+        
+        // 关闭弹框
+        function closeModal(modal) {
+            if (modal) modal.remove();
+        }
+        
+        // 复制任务参数
+        async function copyTaskParams(recordId) {
+            try {
+                const response = await fetch(`/api/generate/${recordId}`);
+                const result = await response.json();
+                
+                if (result.success) {
+                    const task = result.data;
+                    const paramText = `提示词: ${task.prompt || '-'}
+反向提示词: ${task.negative_prompt || '-'}
+模型ID: ${task.model_id || '-'}
+模型强度: ${task.model_strength || 0.9}
+宽高比: ${task.aspect_ratios || '1:1'}
+随机种子: ${task.seed || -1}
+出图数量: ${task.batch_size || 1}
+高清修复: ${task.hd_fix ? '是' : '否'}
+脸部修复: ${task.face_detail ? '是' : '否'}
+扰动增强: ${task.enable_perturb ? '是' : '否'}
+简化背景: ${task.simple_background ? '是' : '否'}`;
+                    
+                    await navigator.clipboard.writeText(paramText);
+                    showNotification('参数已复制到剪贴板', 'success');
+                }
+            } catch (error) {
+                showNotification('复制失败: ' + error.message, 'error');
+            }
+        }
+        
+        // 图片预览
+        function showImagePreview(imageUrl, title) {
+            const modalHtml = `
+                <div class="image-preview-modal" onclick="if(event.target===this || event.target.classList.contains('image-preview-close')) this.remove()">
+                    <button class="image-preview-close">&times;</button>
+                    <img src="${imageUrl}" alt="${title || '预览'}" onclick="event.stopPropagation()">
+                </div>
+            `;
+            document.body.insertAdjacentHTML('beforeend', modalHtml);
+        }
+        
+        // 查询任务
+        async function queryTask(clientId) {
+            try {
+                const response = await fetch(`/api/tasks/${clientId}`);
+                const result = await response.json();
+                
+                if (result.success) {
+                    const task = result.data.clientList[0];
+                    alert(`任务状态: ${task.status}\n${task.statusMsg || ''}`);
+                    loadTasks(); // 刷新列表
+                } else {
+                    alert('查询失败: ' + result.error);
+                }
+            } catch (error) {
+                alert('请求失败: ' + error.message);
+            }
+        }
+        
+        // 下载任务图片
+        async function downloadTask(clientId) {
+            try {
+                const response = await fetch(`/api/tasks/${clientId}/download`, {method: 'POST'});
+                const result = await response.json();
+                
+                if (result.success) {
+                    alert(`下载成功！共 ${result.count} 张图片`);
+                    loadAssets(); // 刷新素材库
+                } else {
+                    alert('下载失败: ' + result.error);
+                }
+            } catch (error) {
+                alert('请求失败: ' + error.message);
+            }
+        }
+        
+        // 加载素材库
+        async function loadAssets() {
+            try {
+                const response = await fetch('/api/assets');
+                const result = await response.json();
+                
+                if (result.success && result.data.length > 0) {
+                    displayAssets(result.data);
+                } else {
+                    document.getElementById('assetGrid').innerHTML = '<p style="color: #999; text-align: center; padding: 40px; grid-column: 1/-1;">暂无素材</p>';
+                }
+            } catch (error) {
+                console.error('加载素材失败:', error);
+            }
+        }
+        
+        // 显示素材
+        async function displayAssets(assets) {
+            let html = '';
+            
+            // 获取所有关联的任务信息
+            const recordIds = [...new Set(assets.map(a => a.record_id).filter(Boolean))];
+            const taskInfoMap = {};
+            
+            if (recordIds.length > 0) {
+                // 并行获取所有任务信息
+                const taskPromises = recordIds.map(async (recordId) => {
+                    try {
+                        const response = await fetch(`/api/generate/${recordId}`);
+                        const result = await response.json();
+                        if (result.success) {
+                            return { recordId, data: result.data };
+                        }
+                    } catch (e) {
+                        console.log('获取任务信息失败:', recordId, e);
+                    }
+                    return null;
+                });
+                
+                const results = await Promise.all(taskPromises);
+                results.forEach(result => {
+                    if (result) {
+                        taskInfoMap[result.recordId] = result.data;
+                    }
+                });
+            }
+            
+            assets.forEach(asset => {
+                const taskInfo = asset.record_id ? taskInfoMap[asset.record_id] : null;
+                // 改进提示词显示逻辑
+                let promptPreview = '未知任务';
+                if (taskInfo && taskInfo.prompt) {
+                    promptPreview = taskInfo.prompt.substring(0, 30) + '...';
+                } else if (asset.description) {
+                    promptPreview = asset.description.substring(0, 30) + '...';
+                }
+                
+                // 获取模型信息
+                const modelId = taskInfo ? (taskInfo.model_id || '-') : (asset.model_id || '-');
+                const aspectRatio = taskInfo ? (taskInfo.aspect_ratios || '1:1') : '1:1';
+                
+                html += `
+                    <div class="asset-card">
+                        <img src="${asset.url}" alt="${asset.filename}" 
+                             style="cursor: zoom-in;"
+                             onclick="showImagePreview('${asset.url}', '${asset.filename}')"
+                             onerror="this.onerror=null; this.src='data:image/svg+xml,&lt;svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22200%22 height=%22200%22&gt;&lt;rect fill=%22%23f5f5f5%22 width=%22200%22 height=%22200%22/&gt;&lt;text fill=%22%23999%22 x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 dy=%22.3em%22&gt;加载失败&lt;/text&gt;&lt;/svg&gt;'">
+                        <div class="info">
+                            <div style="font-size: 11px; color: #1a73e8; font-weight: 500; margin-bottom: 4px;">📝 ${promptPreview}</div>
+                            <div style="font-size: 12px; color: #666;">${asset.filename}</div>
+                            <div style="font-size: 11px; color: #999;">${(asset.file_size / 1024).toFixed(1)} KB | ${new Date(asset.created_at).toLocaleDateString()}</div>
+                            <div style="font-size: 10px; color: #5f6368; margin-top: 4px; padding-top: 4px; border-top: 1px solid #eee;">
+                                模型: ${modelId} | 比例: ${aspectRatio}
+                            </div>
+                        </div>
+                        <div class="actions">
+                            <button class="btn btn-primary" onclick="showImagePreview('${asset.url}', '${asset.filename}')" style="flex: 1;">🔍 预览</button>
+                            ${asset.record_id ? `<button class="btn btn-warning" onclick="viewTaskDetail(${asset.record_id})">任务</button>` : ''}
+                            <button class="btn btn-danger" onclick="deleteAsset(${asset.id})">删除</button>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            document.getElementById('assetGrid').innerHTML = html;
+        }
+        
+        // 删除素材
+        async function deleteAsset(assetId) {
+            if (!confirm('确定要删除这个素材吗？')) return;
+            
+            try {
+                const response = await fetch(`/api/assets/${assetId}`, {method: 'DELETE'});
+                const result = await response.json();
+                
+                if (result.success) {
+                    loadAssets(); // 刷新素材库
+                } else {
+                    alert('删除失败: ' + result.error);
+                }
+            } catch (error) {
+                alert('请求失败: ' + error.message);
+            }
+        }
+        
+        // ==================== 全局变量和函数 (生成素材页) ====================
+
+        // 已选模型列表 (生成素材页使用)
+        let selectedModels = [{modelId: 2, strength: 0.9}];
+
+        // 渲染已选模型列表
+        function renderSelectedModels() {
+            const container = document.getElementById('selectedModelsList');
+            if (!container) return;
+
+            if (selectedModels.length === 0) {
+                container.innerHTML = '<p style="color: #999; padding: 10px;">未选择模型，请点击下方按钮添加</p>';
+                return;
+            }
+
+            let html = '';
+            selectedModels.forEach((model, index) => {
+                html += `
+                    <div class="model-item" style="display: flex; align-items: center; gap: 10px; padding: 10px; background: white; border-radius: 6px; margin-bottom: 8px;">
+                        <span style="font-weight: 500;">模型 ID: ${model.modelId}</span>
+                        <input type="range" min="0" max="1" step="0.1" value="${model.strength}" style="flex: 1;"
+                               onchange="updateModelStrength(${index}, this.value)">
+                        <span style="min-width: 60px;">强度: ${model.strength}</span>
+                        <button onclick="removeModel(${index})" style="background: #ea4335; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer;">删除</button>
+                    </div>
+                `;
+            });
+
+            container.innerHTML = html;
+        }
+
+        // 更新模型强度
+        function updateModelStrength(index, value) {
+            selectedModels[index].strength = parseFloat(value);
+            renderSelectedModels();
+        }
+
+        // 删除模型
+        function removeModel(index) {
+            selectedModels.splice(index, 1);
+            renderSelectedModels();
+        }
+
+        // 打开模型选择器
+        async function openModelSelector() {
+            if (selectedModels.length >= 5) {
+                alert('最多只能选择5个模型');
+                return;
+            }
+
+            // 获取可用模型列表
+            try {
+                const response = await fetch('/api/models');
+                const result = await response.json();
+
+                if (!result.success) {
+                    alert('加载模型列表失败');
+                    return;
+                }
+
+                const models = result.data.filter(m => !m.is_hidden);
+
+                let html = `
+                    <div class="modal-overlay" id="modelSelectorModal" onclick="if(event.target===this)closeModelSelector()">
+                        <div class="modal-container" style="max-width: 600px;">
+                            <div class="modal-header">
+                                <h3>添加模型 (已选 ${selectedModels.length}/5)</h3>
+                                <button class="modal-close" onclick="closeModelSelector()">&times;</button>
+                            </div>
+                            <div class="modal-body">
+                                <div style="max-height: 400px; overflow-y: auto;">
+                `;
+
+                models.forEach(model => {
+                    const modelIdNum = parseInt(model.model_id);
+                    const isAlreadySelected = selectedModels.some(m => m.modelId === modelIdNum);
+                    html += `
+                        <div style="display: flex; align-items: center; gap: 10px; padding: 10px; border-bottom: 1px solid #eee;
+                                    ${isAlreadySelected ? 'opacity: 0.5; background: #f5f5f5;' : 'cursor: pointer;'}
+                                    ${!isAlreadySelected ? 'onmouseover="this.style.background=\'#f8f9fa\'" onmouseout="this.style.background=\'white\'"' : ''}"
+                             ${!isAlreadySelected ? `onclick="addModel(${modelIdNum})"` : ''}>
+                            <img src="${model.cover_image || ''}" style="width: 50px; height: 50px; object-fit: cover; border-radius: 4px;"
+                                 onerror="this.style.display='none'">
+                            <div style="flex: 1;">
+                                <div style="font-weight: 500;">${model.model_name || '未命名模型'}</div>
+                                <div style="font-size: 12px; color: #666;">ID: ${model.model_id} | ${model.model_type || '未知类型'}</div>
+                            </div>
+                            ${isAlreadySelected ? '<span style="color: #999; font-size: 12px;">已添加</span>' : '<span style="color: #1a73e8;">点击添加</span>'}
+                        </div>
+                    `;
+                });
+
+                html += `
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button class="btn" onclick="closeModelSelector()">关闭</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                document.body.insertAdjacentHTML('beforeend', html);
+            } catch (error) {
+                alert('加载模型列表失败');
+            }
+        }
+
+        // 关闭模型选择器
+        function closeModelSelector() {
+            const modal = document.getElementById('modelSelectorModal');
+            if (modal) modal.remove();
+        }
+
+        // 添加模型
+        function addModel(modelId) {
+            modelId = parseInt(modelId);
+
+            if (selectedModels.length >= 5) {
+                alert('最多只能选择5个模型');
+                return;
+            }
+
+            if (selectedModels.some(m => m.modelId === modelId)) {
+                alert('该模型已添加');
+                return;
+            }
+
+            selectedModels.push({modelId: modelId, strength: 0.9});
+            renderSelectedModels();
+            closeModelSelector();
+            alert(`已添加模型 ID: ${modelId}`);
+        }
+
+        // 切换高清修复选项
+        function toggleHdScale() {
+            const hdFix = document.getElementById('hdFix');
+            if (hdFix) {
+                document.getElementById('hdScaleContainer').style.display = hdFix.checked ? 'block' : 'none';
+            }
+        }
+
+        // 切换画面增强选项
+        function togglePerturb() {
+            const enablePerturb = document.getElementById('enablePerturb');
+            if (enablePerturb) {
+                document.getElementById('perturbContainer').style.display = enablePerturb.checked ? 'block' : 'none';
+            }
+        }
+
+        // 页面加载时初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            loadModels();
+            stickmanEditor.init();
+            renderSelectedModels();
+        });
+
+        // ==================== 火柴人编辑器 ====================
+        const stickmanEditor = {
+            canvas: null,
+            ctx: null,
+            joints: {},
+            connections: [],
+            selectedJoint: null,
+            isDragging: false,
+            currentPoseId: null,
+            currentFilter: 'all',
+
+            // 彩虹配色方案
+            colors: {
+                head: '#9C27B0',
+                neck: '#E91E63',
+                torso: '#F44336',
+                shoulderL: '#FFEB3B',
+                shoulderR: '#00BCD4',
+                armL: '#4CAF50',
+                armR: '#2196F3',
+                legL: '#00BCD4',
+                legR: '#9C27B0',
+                joint: '#FFFFFF',
+                jointSelected: '#FFEB3B'
+            },
+
+            // 默认关节位置（站立姿势）
+            defaultJoints: {
+                head: {x: 300, y: 80},
+                neck: {x: 300, y: 110},
+                shoulderL: {x: 270, y: 130},
+                shoulderR: {x: 330, y: 130},
+                elbowL: {x: 250, y: 180},
+                elbowR: {x: 350, y: 180},
+                wristL: {x: 230, y: 230},
+                wristR: {x: 370, y: 230},
+                hipCenter: {x: 300, y: 230},
+                hipL: {x: 280, y: 230},
+                hipR: {x: 320, y: 230},
+                kneeL: {x: 280, y: 320},
+                kneeR: {x: 320, y: 320},
+                ankleL: {x: 280, y: 420},
+                ankleR: {x: 320, y: 420}
+            },
+
+            // 连接线定义
+            getConnections() {
+                return [
+                    {from: 'head', to: 'neck', color: this.colors.neck},
+                    {from: 'neck', to: 'shoulderL', color: this.colors.shoulderL},
+                    {from: 'neck', to: 'shoulderR', color: this.colors.shoulderR},
+                    {from: 'shoulderL', to: 'elbowL', color: this.colors.armL},
+                    {from: 'elbowL', to: 'wristL', color: this.colors.armL},
+                    {from: 'shoulderR', to: 'elbowR', color: this.colors.armR},
+                    {from: 'elbowR', to: 'wristR', color: this.colors.armR},
+                    {from: 'neck', to: 'hipCenter', color: this.colors.torso},
+                    {from: 'hipCenter', to: 'hipL', color: this.colors.torso},
+                    {from: 'hipCenter', to: 'hipR', color: this.colors.torso},
+                    {from: 'hipL', to: 'kneeL', color: this.colors.legL},
+                    {from: 'kneeL', to: 'ankleL', color: this.colors.legL},
+                    {from: 'hipR', to: 'kneeR', color: this.colors.legR},
+                    {from: 'kneeR', to: 'ankleR', color: this.colors.legR}
+                ];
+            },
+
+            init() {
+                this.canvas = document.getElementById('stickmanCanvas');
+                if (!this.canvas) return;
+
+                this.ctx = this.canvas.getContext('2d');
+                this.joints = JSON.parse(JSON.stringify(this.defaultJoints));
+                this.connections = this.getConnections();
+
+                this.setupEventListeners();
+                this.draw();
+                this.loadPoseList();
+            },
+
+            setupEventListeners() {
+                // 鼠标事件
+                this.canvas.addEventListener('mousedown', (e) => this.onMouseDown(e));
+                this.canvas.addEventListener('mousemove', (e) => this.onMouseMove(e));
+                this.canvas.addEventListener('mouseup', () => this.onMouseUp());
+                this.canvas.addEventListener('mouseleave', () => this.onMouseUp());
+
+                // 触摸事件（移动端支持）
+                this.canvas.addEventListener('touchstart', (e) => {
+                    e.preventDefault();
+                    const touch = e.touches[0];
+                    const mouseEvent = new MouseEvent('mousedown', {
+                        clientX: touch.clientX,
+                        clientY: touch.clientY
+                    });
+                    this.canvas.dispatchEvent(mouseEvent);
+                });
+                this.canvas.addEventListener('touchmove', (e) => {
+                    e.preventDefault();
+                    const touch = e.touches[0];
+                    const mouseEvent = new MouseEvent('mousemove', {
+                        clientX: touch.clientX,
+                        clientY: touch.clientY
+                    });
+                    this.canvas.dispatchEvent(mouseEvent);
+                });
+                this.canvas.addEventListener('touchend', () => {
+                    const mouseEvent = new MouseEvent('mouseup', {});
+                    this.canvas.dispatchEvent(mouseEvent);
+                });
+            },
+
+            getMousePos(e) {
+                const rect = this.canvas.getBoundingClientRect();
+                const scaleX = this.canvas.width / rect.width;
+                const scaleY = this.canvas.height / rect.height;
+                return {
+                    x: (e.clientX - rect.left) * scaleX,
+                    y: (e.clientY - rect.top) * scaleY
+                };
+            },
+
+            onMouseDown(e) {
+                const pos = this.getMousePos(e);
+                const jointRadius = 8;
+
+                // 检查是否点击了关节
+                for (const [name, joint] of Object.entries(this.joints)) {
+                    const dist = Math.sqrt(Math.pow(pos.x - joint.x, 2) + Math.pow(pos.y - joint.y, 2));
+                    if (dist < jointRadius + 5) {
+                        this.selectedJoint = name;
+                        this.isDragging = true;
+                        this.draw();
+                        return;
+                    }
+                }
+            },
+
+            onMouseMove(e) {
+                if (!this.isDragging || !this.selectedJoint) return;
+
+                const pos = this.getMousePos(e);
+
+                // 限制在画布范围内
+                pos.x = Math.max(10, Math.min(this.canvas.width - 10, pos.x));
+                pos.y = Math.max(10, Math.min(this.canvas.height - 10, pos.y));
+
+                this.joints[this.selectedJoint] = pos;
+                this.draw();
+            },
+
+            onMouseUp() {
+                this.isDragging = false;
+                this.selectedJoint = null;
+                this.draw();
+            },
+
+            draw() {
+                // 清空画布（黑底）
+                this.ctx.fillStyle = '#000000';
+                this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+
+                // 绘制连接线
+                this.connections.forEach(conn => {
+                    const from = this.joints[conn.from];
+                    const to = this.joints[conn.to];
+
+                    this.ctx.beginPath();
+                    this.ctx.moveTo(from.x, from.y);
+                    this.ctx.lineTo(to.x, to.y);
+                    this.ctx.strokeStyle = conn.color;
+                    this.ctx.lineWidth = 4;
+                    this.ctx.lineCap = 'round';
+                    this.ctx.stroke();
+
+                    // 添加发光效果
+                    this.ctx.shadowColor = conn.color;
+                    this.ctx.shadowBlur = 10;
+                    this.ctx.stroke();
+                    this.ctx.shadowBlur = 0;
+                });
+
+                // 绘制关节点
+                for (const [name, joint] of Object.entries(this.joints)) {
+                    const isSelected = name === this.selectedJoint;
+
+                    // 关节圆点
+                    this.ctx.beginPath();
+                    this.ctx.arc(joint.x, joint.y, isSelected ? 10 : 6, 0, Math.PI * 2);
+                    this.ctx.fillStyle = isSelected ? this.colors.jointSelected : this.colors.joint;
+                    this.ctx.fill();
+
+                    // 关节边框
+                    this.ctx.beginPath();
+                    this.ctx.arc(joint.x, joint.y, isSelected ? 10 : 6, 0, Math.PI * 2);
+                    this.ctx.strokeStyle = isSelected ? '#FF5722' : '#666';
+                    this.ctx.lineWidth = 2;
+                    this.ctx.stroke();
+                }
+
+                // 绘制头部（特殊处理）
+                const head = this.joints.head;
+                this.ctx.beginPath();
+                this.ctx.arc(head.x, head.y, 20, 0, Math.PI * 2);
+                this.ctx.strokeStyle = this.colors.head;
+                this.ctx.lineWidth = 3;
+                this.ctx.stroke();
+            },
+
+            // 加载预设动作
+            async loadPreset(actionType) {
+                try {
+                    const response = await fetch(`/api/stickman/poses?action_type=${actionType}&is_preset=true`);
+                    const result = await response.json();
+
+                    if (result.success && result.data.length > 0) {
+                        const pose = result.data[0];
+                        this.joints = pose.joints;
+                        this.currentPoseId = pose.id;
+                        this.draw();
+                        showNotification(`已加载: ${pose.name}`, 'success');
+                    } else {
+                        showNotification('预设姿势未找到，请先初始化', 'warning');
+                    }
+                } catch (error) {
+                    showNotification('加载失败: ' + error.message, 'error');
+                }
+            },
+
+            // 重置姿势
+            resetPose() {
+                this.joints = JSON.parse(JSON.stringify(this.defaultJoints));
+                this.currentPoseId = null;
+                this.draw();
+                showNotification('已重置为默认姿势', 'success');
+            },
+
+            // 保存姿势
+            async savePose() {
+                const name = prompt('请输入姿势名称:');
+                if (!name) return;
+
+                const data = {
+                    name: name,
+                    action_type: 'custom',
+                    joints: this.joints,
+                    description: '用户自定义姿势'
+                };
+
+                try {
+                    const response = await fetch('/api/stickman/poses', {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify(data)
+                    });
+
+                    const result = await response.json();
+                    if (result.success) {
+                        showNotification('姿势已保存', 'success');
+                        this.loadPoseList();
+
+                        // 保存缩略图
+                        this.saveThumbnail(result.id);
+                    } else {
+                        showNotification('保存失败: ' + result.error, 'error');
+                    }
+                } catch (error) {
+                    showNotification('保存失败: ' + error.message, 'error');
+                }
+            },
+
+            // 保存缩略图
+            async saveThumbnail(poseId) {
+                const imageData = this.canvas.toDataURL('image/png');
+                try {
+                    await fetch(`/api/stickman/poses/${poseId}/thumbnail`, {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify({image_data: imageData})
+                    });
+                } catch (e) {
+                    console.log('缩略图保存失败:', e);
+                }
+            },
+
+            // 导出 PNG
+            exportPNG() {
+                const link = document.createElement('a');
+                link.download = `stickman_${Date.now()}.png`;
+                link.href = this.canvas.toDataURL('image/png');
+                link.click();
+                showNotification('图片已导出', 'success');
+            },
+
+            // 生成描述
+            async generateDescription() {
+                if (!this.currentPoseId) {
+                    showNotification('请先加载或保存一个姿势', 'warning');
+                    return;
+                }
+
+                try {
+                    const response = await fetch(`/api/stickman/poses/${this.currentPoseId}/description`, {
+                        method: 'POST'
+                    });
+
+                    const result = await response.json();
+                    if (result.success) {
+                        document.getElementById('stickmanDescription').style.display = 'block';
+                        document.getElementById('stickmanDescriptionText').textContent = result.description;
+                    }
+                } catch (error) {
+                    showNotification('生成描述失败', 'error');
+                }
+            },
+
+            // 用于文生图
+            async useInGeneration() {
+                let description = '';
+
+                if (this.currentPoseId) {
+                    try {
+                        const response = await fetch(`/api/stickman/poses/${this.currentPoseId}/description`, {
+                            method: 'POST'
+                        });
+                        const result = await response.json();
+                        if (result.success) {
+                            description = result.description;
+                        }
+                    } catch (e) {
+                        console.log('获取描述失败:', e);
+                    }
+                }
+
+                if (!description) {
+                    description = '火柴人姿势参考';
+                }
+
+                // 切换到生成素材标签
+                switchTab('generate');
+
+                // 追加到提示词
+                const promptEl = document.getElementById('prompt');
+                const currentPrompt = promptEl.value;
+                const poseRef = `\n[姿势参考: ${description}]`;
+
+                if (!currentPrompt.includes('[姿势参考:')) {
+                    promptEl.value = currentPrompt + poseRef;
+                }
+
+                showNotification('姿势已添加到提示词', 'success');
+            },
+
+            // 加载姿势列表
+            async loadPoseList() {
+                try {
+                    const response = await fetch(`/api/stickman/poses?action_type=${this.currentFilter}`);
+                    const result = await response.json();
+
+                    if (result.success) {
+                        this.renderPoseList(result.data);
+                    }
+                } catch (error) {
+                    document.getElementById('poseList').innerHTML =
+                        '<p style="color: #999; text-align: center; padding: 40px;">加载失败</p>';
+                }
+            },
+
+            // 渲染姿势列表
+            renderPoseList(poses) {
+                if (poses.length === 0) {
+                    document.getElementById('poseList').innerHTML =
+                        '<p style="color: #999; text-align: center; padding: 40px;">暂无姿势</p>';
+                    return;
+                }
+
+                let html = '';
+                poses.forEach(pose => {
+                    const isPreset = pose.is_preset;
+                    const icon = isPreset ? '⭐' : '💾';
+                    const thumbUrl = pose.thumbnail_path ? `/${pose.thumbnail_path}` : '';
+
+                    html += `
+                        <div style="display: flex; align-items: center; gap: 10px; padding: 10px; border-bottom: 1px solid #eee; cursor: pointer;"
+                             onmouseover="this.style.background='#f8f9fa'" onmouseout="this.style.background='white'">
+                            ${thumbUrl ?
+                                `<img src="${thumbUrl}" style="width: 50px; height: 50px; object-fit: cover; border-radius: 4px; background: #000;">` :
+                                `<div style="width: 50px; height: 50px; background: #000; border-radius: 4px; display: flex; align-items: center; justify-content: center; color: white; font-size: 20px;">${icon}</div>`
+                            }
+                            <div style="flex: 1;" onclick="stickmanEditor.loadPoseById(${pose.id})">
+                                <div style="font-weight: 500; font-size: 14px;">${icon} ${pose.name}</div>
+                                <div style="font-size: 12px; color: #999;">${pose.action_type}</div>
+                            </div>
+                            ${!isPreset ?
+                                `<button onclick="event.stopPropagation(); stickmanEditor.deletePose(${pose.id})" style="background: #ea4335; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 12px;">删除</button>` :
+                                ''
+                            }
+                        </div>
+                    `;
+                });
+
+                document.getElementById('poseList').innerHTML = html;
+            },
+
+            // 根据ID加载姿势
+            async loadPoseById(poseId) {
+                try {
+                    const response = await fetch(`/api/stickman/poses/${poseId}`);
+                    const result = await response.json();
+
+                    if (result.success) {
+                        this.joints = result.data.joints;
+                        this.currentPoseId = poseId;
+                        this.draw();
+                        showNotification(`已加载: ${result.data.name}`, 'success');
+                    }
+                } catch (error) {
+                    showNotification('加载失败', 'error');
+                }
+            },
+
+            // 删除姿势
+            async deletePose(poseId) {
+                if (!confirm('确定要删除这个姿势吗？')) return;
+
+                try {
+                    const response = await fetch(`/api/stickman/poses/${poseId}`, {
+                        method: 'DELETE'
+                    });
+
+                    const result = await response.json();
+                    if (result.success) {
+                        showNotification('已删除', 'success');
+                        this.loadPoseList();
+                    } else {
+                        showNotification('删除失败: ' + result.error, 'error');
+                    }
+                } catch (error) {
+                    showNotification('删除失败', 'error');
+                }
+            },
+
+            // 筛选姿势
+            filterPoses(filter) {
+                this.currentFilter = filter;
+
+                // 更新按钮状态
+                document.querySelectorAll('#stickman .filter-btn').forEach(btn => {
+                    btn.classList.remove('active');
+                });
+                document.getElementById(`filter-${filter}`).classList.add('active');
+
+                this.loadPoseList();
+            },
+
+            // 初始化预设姿势
+            async initPresets() {
+                try {
+                    const response = await fetch('/api/stickman/init-presets', {
+                        method: 'POST'
+                    });
+
+                    const result = await response.json();
+                    if (result.success) {
+                        showNotification(result.message, 'success');
+                        this.loadPoseList();
+                    }
+                } catch (error) {
+                    showNotification('初始化失败', 'error');
+                }
+            }
+        };
+
+        // ==================== 文生图姿势选择 ====================
+
+        // 打开姿势选择弹窗
+        async function openStickmanPoseModal() {
+            try {
+                const response = await fetch('/api/stickman/poses?is_preset=true');
+                const result = await response.json();
+
+                if (!result.success) {
+                    showNotification('加载姿势失败', 'error');
+                    return;
+                }
+
+                const poses = result.data;
+                let html = `
+                    <div class="modal-overlay" id="stickmanPoseModal" onclick="if(event.target===this)closeStickmanPoseModal()">
+                        <div class="modal-container" style="max-width: 700px;">
+                            <div class="modal-header">
+                                <h3>🎭 选择火柴人姿势</h3>
+                                <button class="modal-close" onclick="closeStickmanPoseModal()">&times;</button>
+                            </div>
+                            <div class="modal-body">
+                                <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 15px;">
+                `;
+
+                poses.forEach(pose => {
+                    const thumbUrl = pose.thumbnail_path ? `/${pose.thumbnail_path}` : '';
+                    // 转义字符串中的特殊字符
+                    const safeName = (pose.name || '').replace(/'/g, "\\'").replace(/"/g, '\\"');
+                    const safeDesc = (pose.description || '').replace(/'/g, "\\'").replace(/"/g, '\\"');
+                    const safeThumbUrl = thumbUrl.replace(/'/g, "\\'").replace(/"/g, '\\"');
+
+                    html += `
+                        <div style="cursor: pointer; border: 2px solid #e0e0e0; border-radius: 8px; padding: 10px; text-align: center; transition: all 0.2s;"
+                             onmouseover="this.style.borderColor='#1a73e8'; this.style.background='#f8f9fa'"
+                             onmouseout="this.style.borderColor='#e0e0e0'; this.style.background='white'"
+                             onclick="selectStickmanPose(${pose.id}, '${safeName}', '${safeDesc}', '${safeThumbUrl}')">
+                            ${thumbUrl ?
+                                `<img src="${thumbUrl}" style="width: 100%; height: 100px; object-fit: contain; background: #000; border-radius: 4px; margin-bottom: 8px;">` :
+                                `<div style="width: 100%; height: 100px; background: #000; border-radius: 4px; margin-bottom: 8px; display: flex; align-items: center; justify-content: center; color: white; font-size: 24px;">🎭</div>`
+                            }
+                            <div style="font-weight: 500; font-size: 14px;">${pose.name}</div>
+                            <div style="font-size: 11px; color: #999; margin-top: 4px;">${pose.description || ''}</div>
+                        </div>
+                    `;
+                });
+
+                html += `
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button class="btn" onclick="closeStickmanPoseModal()">取消</button>
+                                <button class="btn btn-primary" onclick="switchTab('stickman'); closeStickmanPoseModal();">🎨 去编辑器</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                document.body.insertAdjacentHTML('beforeend', html);
+            } catch (error) {
+                showNotification('加载姿势失败', 'error');
+            }
+        }
+
+        // 关闭姿势选择弹窗
+        function closeStickmanPoseModal() {
+            const modal = document.getElementById('stickmanPoseModal');
+            if (modal) modal.remove();
+        }
+
+        // 选择姿势
+        async function selectStickmanPose(poseId, poseName, poseDesc, thumbUrl) {
+            // 设置显示
+            document.getElementById('selectedPoseId').value = poseId;
+            document.getElementById('selectedPoseName').textContent = poseName;
+            document.getElementById('selectedPoseDesc').textContent = poseDesc;
+            document.getElementById('selectedPoseImage').src = thumbUrl;
+            document.getElementById('selectedStickmanPose').style.display = 'block';
+
+            // 获取姿势的完整信息，包括图片URL
+            try {
+                const response = await fetch(`/api/stickman/poses/${poseId}`);
+                const result = await response.json();
+                if (result.success && result.data.thumbnail_path) {
+                    // 构建完整的图片URL作为characterPose
+                    const baseUrl = window.location.origin;
+                    const imageUrl = `${baseUrl}/${result.data.thumbnail_path}`;
+                    document.getElementById('characterPose').value = imageUrl;
+                    console.log('已设置characterPose:', imageUrl);
+                }
+            } catch (e) {
+                console.log('获取姿势详情失败:', e);
+            }
+
+            // 自动追加姿势描述到提示词
+            const promptEl = document.getElementById('prompt');
+            const currentPrompt = promptEl.value;
+
+            // 移除旧的姿势引用
+            let newPrompt = currentPrompt.replace(/\[姿势参考:[^\]]*\]/g, '').trim();
+
+            // 添加新的姿势引用
+            newPrompt += `\n[姿势参考: ${poseName} - ${poseDesc}]`;
+
+            promptEl.value = newPrompt;
+
+            closeStickmanPoseModal();
+            showNotification(`已选择姿势: ${poseName}`, 'success');
+        }
+
+        // 清除姿势
+        function clearStickmanPose() {
+            document.getElementById('selectedPoseId').value = '';
+            document.getElementById('characterPose').value = '';
+            document.getElementById('selectedStickmanPose').style.display = 'none';
+
+            // 从提示词中移除姿势引用
+            const promptEl = document.getElementById('prompt');
+            promptEl.value = promptEl.value.replace(/\[姿势参考:[^\]]*\]/g, '').trim();
+
+            showNotification('已清除姿势选择', 'success');
+        }
+
+        // ==================== 快捷应用管理 ====================
+
+        // 加载快捷应用列表
+        async function loadQuickPresets() {
+            try {
+                const response = await fetch('/api/quick-presets');
+                const result = await response.json();
+
+                if (!result.success) return;
+
+                const container = document.getElementById('quickPresetList');
+                if (!container) return;
+
+                if (result.data.length === 0) {
+                    container.innerHTML = '<span style="color: #999; font-size: 14px;">暂无快捷应用，请保存当前配置</span>';
+                    return;
+                }
+
+                let html = '';
+                result.data.forEach(preset => {
+                    const isFav = preset.is_favorite ? '⭐' : '';
+                    const modelCount = preset.model_list ? preset.model_list.length : 0;
+                    html += `
+                        <div style="display: flex; align-items: center; gap: 8px; padding: 8px 12px; background: #f8f9fa; border-radius: 6px; cursor: pointer;"
+                             onmouseover="this.style.background='#e8f0fe'" onmouseout="this.style.background='#f8f9fa'"
+                             onclick="applyQuickPreset(${preset.id})">
+                            <span>${isFav}</span>
+                            <span style="font-weight: 500;">${preset.name}</span>
+                            <span style="font-size: 12px; color: #666;">(${modelCount}个模型)</span>
+                            <button onclick="event.stopPropagation(); togglePresetFavorite(${preset.id}, ${!preset.is_favorite})" style="background: none; border: none; cursor: pointer; font-size: 16px;">
+                                ${preset.is_favorite ? '⭐' : '☆'}
+                            </button>
+                            <button onclick="event.stopPropagation(); deleteQuickPreset(${preset.id})" style="background: #ea4335; color: white; border: none; padding: 2px 6px; border-radius: 4px; cursor: pointer; font-size: 12px;">删除</button>
+                        </div>
+                    `;
+                });
+
+                container.innerHTML = html;
+            } catch (error) {
+                console.log('加载快捷应用失败:', error);
+            }
+        }
+
+        // 保存快捷应用
+        async function saveQuickPreset() {
+            const name = prompt('请输入配置名称:');
+            if (!name) return;
+
+            const data = {
+                name: name,
+                description: '',
+                model_list: selectedModels,
+                prompt: document.getElementById('prompt').value,
+                negative_prompt: document.getElementById('negativePrompt').value,
+                aspect_ratios: document.getElementById('aspectRatios').value,
+                seed: parseInt(document.getElementById('seed').value),
+                image_guidance_weights: parseInt(document.getElementById('imageGuidanceWeights').value),
+                face_detail: document.getElementById('faceDetail').checked,
+                hd_fix: document.getElementById('hdFix').checked,
+                hd_scale: parseFloat(document.getElementById('hdScale').value),
+                simple_background: document.getElementById('simpleBackground').checked,
+                enable_perturb: document.getElementById('enablePerturb').checked,
+                perturb: parseFloat(document.getElementById('perturb').value),
+                image_reference: document.getElementById('imageReference').value,
+                reference_mode: document.getElementById('referenceMode').value,
+                reference_weight: parseFloat(document.getElementById('referenceWeight').value),
+                character_pose: document.getElementById('characterPose').value,
+                batch_size: parseInt(document.getElementById('batchSize').value)
+            };
+
+            try {
+                const response = await fetch('/api/quick-presets', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(data)
+                });
+
+                const result = await response.json();
+                if (result.success) {
+                    showNotification('配置已保存', 'success');
+                    loadQuickPresets();
+                } else {
+                    showNotification('保存失败: ' + result.error, 'error');
+                }
+            } catch (error) {
+                showNotification('保存失败', 'error');
+            }
+        }
+
+        // 打开快捷应用选择弹窗
+        async function openQuickPresetModal() {
+            try {
+                const response = await fetch('/api/quick-presets');
+                const result = await response.json();
+
+                if (!result.success) {
+                    showNotification('加载快捷应用失败', 'error');
+                    return;
+                }
+
+                const presets = result.data;
+
+                let html = `
+                    <div class="modal-overlay" id="quickPresetModal" onclick="if(event.target===this)closeQuickPresetModal()">
+                        <div class="modal-container" style="max-width: 600px;">
+                            <div class="modal-header">
+                                <h3>📂 选择快捷应用配置</h3>
+                                <button class="modal-close" onclick="closeQuickPresetModal()">&times;</button>
+                            </div>
+                            <div class="modal-body">
+                `;
+
+                if (presets.length === 0) {
+                    html += '<p style="color: #999; text-align: center; padding: 40px;">暂无快捷应用，请先保存配置</p>';
+                } else {
+                    html += '<div style="max-height: 400px; overflow-y: auto;">';
+                    presets.forEach(preset => {
+                        const isFav = preset.is_favorite ? '⭐' : '';
+                        const modelCount = preset.model_list ? preset.model_list.length : 0;
+                        html += `
+                            <div style="display: flex; align-items: center; gap: 10px; padding: 15px; border-bottom: 1px solid #eee; cursor: pointer;"
+                                 onmouseover="this.style.background='#f8f9fa'" onmouseout="this.style.background='white'"
+                                 onclick="applyQuickPreset(${preset.id}); closeQuickPresetModal();">
+                                <div style="font-size: 24px;">${isFav || '📋'}</div>
+                                <div style="flex: 1;">
+                                    <div style="font-weight: 500; font-size: 16px;">${preset.name}</div>
+                                    <div style="font-size: 12px; color: #666;">${modelCount}个模型 | ${preset.aspect_ratios || '1:1'} | ${preset.created_at}</div>
+                                </div>
+                                <button class="btn btn-primary">加载</button>
+                            </div>
+                        `;
+                    });
+                    html += '</div>';
+                }
+
+                html += `
+                            </div>
+                            <div class="modal-footer">
+                                <button class="btn" onclick="closeQuickPresetModal()">关闭</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                document.body.insertAdjacentHTML('beforeend', html);
+            } catch (error) {
+                showNotification('加载快捷应用失败', 'error');
+            }
+        }
+
+        // 关闭快捷应用弹窗
+        function closeQuickPresetModal() {
+            const modal = document.getElementById('quickPresetModal');
+            if (modal) modal.remove();
+        }
+
+        // 应用快捷应用
+        async function applyQuickPreset(presetId) {
+            try {
+                const response = await fetch(`/api/quick-presets/${presetId}`);
+                const result = await response.json();
+
+                if (!result.success) {
+                    showNotification('加载配置失败', 'error');
+                    return;
+                }
+
+                const preset = result.data;
+
+                // 应用模型列表
+                if (preset.model_list && preset.model_list.length > 0) {
+                    selectedModels = preset.model_list.map(m => ({
+                        modelId: m.modelId || m.model_id,
+                        strength: m.strength
+                    }));
+                    renderSelectedModels();
+                }
+
+                // 应用其他参数
+                if (preset.prompt) document.getElementById('prompt').value = preset.prompt;
+                if (preset.negative_prompt) document.getElementById('negativePrompt').value = preset.negative_prompt;
+                if (preset.aspect_ratios) document.getElementById('aspectRatios').value = preset.aspect_ratios;
+                if (preset.seed !== undefined) document.getElementById('seed').value = preset.seed;
+                if (preset.image_guidance_weights) document.getElementById('imageGuidanceWeights').value = preset.image_guidance_weights;
+                if (preset.batch_size) document.getElementById('batchSize').value = preset.batch_size;
+
+                // 复选框
+                document.getElementById('faceDetail').checked = preset.face_detail || false;
+                document.getElementById('hdFix').checked = preset.hd_fix || false;
+                document.getElementById('simpleBackground').checked = preset.simple_background || false;
+                document.getElementById('enablePerturb').checked = preset.enable_perturb || false;
+
+                // 联动选项
+                toggleHdScale();
+                togglePerturb();
+
+                // 参考图片
+                if (preset.hd_scale) document.getElementById('hdScale').value = preset.hd_scale;
+                if (preset.perturb) document.getElementById('perturb').value = preset.perturb;
+                if (preset.image_reference) document.getElementById('imageReference').value = preset.image_reference;
+                if (preset.reference_mode) document.getElementById('referenceMode').value = preset.reference_mode;
+                if (preset.reference_weight) document.getElementById('referenceWeight').value = preset.reference_weight;
+                if (preset.character_pose) {
+                    document.getElementById('characterPose').value = preset.character_pose;
+                    // 如果有姿势，尝试加载姿势信息
+                }
+
+                showNotification(`已加载配置: ${preset.name}`, 'success');
+            } catch (error) {
+                showNotification('加载配置失败', 'error');
+            }
+        }
+
+        // 切换收藏状态
+        async function togglePresetFavorite(presetId, isFavorite) {
+            try {
+                const response = await fetch(`/api/quick-presets/${presetId}/favorite`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({is_favorite: isFavorite})
+                });
+
+                if (response.ok) {
+                    loadQuickPresets();
+                }
+            } catch (error) {
+                console.log('切换收藏失败:', error);
+            }
+        }
+
+        // 删除快捷应用
+        async function deleteQuickPreset(presetId) {
+            if (!confirm('确定要删除这个配置吗？')) return;
+
+            try {
+                const response = await fetch(`/api/quick-presets/${presetId}`, {
+                    method: 'DELETE'
+                });
+
+                if (response.ok) {
+                    showNotification('已删除', 'success');
+                    loadQuickPresets();
+                }
+            } catch (error) {
+                showNotification('删除失败', 'error');
+            }
+        }
+
+        // 修改生成图片函数以支持多模型
+        async function generateImage() {
+            if (selectedModels.length === 0) {
+                showNotification('请至少选择一个模型', 'error');
+                return;
+            }
+
+            const prompt = document.getElementById('prompt').value;
+            if (!prompt.trim()) {
+                showNotification('请输入正向提示词', 'error');
+                return;
+            }
+
+            // 构建请求数据
+            const requestData = {
+                modelDetailList: selectedModels.map(m => ({
+                    modelId: m.modelId,
+                    strength: m.strength
+                })),
+                prompt: prompt,
+                negativePrompt: document.getElementById('negativePrompt').value,
+                aspectRatios: document.getElementById('aspectRatios').value,
+                seed: parseInt(document.getElementById('seed').value),
+                imageGuidanceWeights: parseInt(document.getElementById('imageGuidanceWeights').value),
+                batchSize: parseInt(document.getElementById('batchSize').value),
+                faceDetail: document.getElementById('faceDetail').checked,
+                hdFix: document.getElementById('hdFix').checked,
+                simpleBackground: document.getElementById('simpleBackground').checked,
+                enablePerturb: document.getElementById('enablePerturb').checked
+            };
+
+            // 条件参数
+            if (requestData.hdFix) {
+                requestData.hdScale = parseFloat(document.getElementById('hdScale').value);
+            }
+
+            if (requestData.enablePerturb) {
+                requestData.perturb = parseFloat(document.getElementById('perturb').value);
+            }
+
+            // 参考图片
+            const imageReference = document.getElementById('imageReference').value;
+            if (imageReference) {
+                requestData.imageReference = imageReference;
+                requestData.referenceMode = document.getElementById('referenceMode').value;
+                requestData.referenceWeight = parseFloat(document.getElementById('referenceWeight').value);
+            }
+
+            // 火柴人姿势
+            const characterPose = document.getElementById('characterPose').value;
+            if (characterPose) {
+                requestData.characterPose = characterPose;
+            }
+
+            try {
+                const response = await fetch('/api/generate', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(requestData)
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    showNotification('生成任务已提交，请查看任务列表', 'success');
+                    switchTab('tasks');
+                } else {
+                    showNotification('提交失败: ' + result.error, 'error');
+                }
+            } catch (error) {
+                showNotification('提交失败: ' + error.message, 'error');
+            }
+        }
+
+        // 页面加载时初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            loadModels();
+            stickmanEditor.init();
+            renderSelectedModels();
+            loadQuickPresets();
+        });
+    </script>
+</body>
+</html>

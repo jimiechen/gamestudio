@@ -1,0 +1,23 @@
+{
+  "prompt": "Q版关羽，红脸长须，绿色战袍金甲，双手紧握青龙偃月刀，big head small body, chibi style, cute cartoon character, game sprite, white background, high quality, 挥刀中，双手挥舞青龙偃月刀横向斩出，刀身在身前，圆形绿色气流环绕刀身旋转，气流扩散，动态挥砍，衣袍飘动",
+  "modelDetailList": [
+    {
+      "modelId": "23MM6QW9GA",
+      "strength": 0.9
+    }
+  ],
+  "aspectRatios": "1:1",
+  "seed": -1,
+  "hdFix": false,
+  "hdScale": null,
+  "faceDetail": true,
+  "negativePrompt": "",
+  "batchSize": 1,
+  "enablePerturb": false,
+  "perturb": null,
+  "simpleBackground": false,
+  "characterPose": null,
+  "imageReference": null,
+  "referenceMode": null,
+  "referenceWeight": null
+}

@@ -1,0 +1,23 @@
+{
+  "prompt": "Q版关羽，红脸长须，绿色战袍金甲，双手紧握青龙偃月刀，big head small body, chibi style, cute cartoon character, game sprite, white background, high quality, 待机姿势，青龙偃月刀垂直立于身前，刀身弯曲如月牙，刀身周围有淡淡的圆形白色气流环绕，威严庄重，双脚站稳",
+  "modelDetailList": [
+    {
+      "modelId": "23MM6QW9GA",
+      "strength": 0.9
+    }
+  ],
+  "aspectRatios": "1:1",
+  "seed": -1,
+  "hdFix": false,
+  "hdScale": null,
+  "faceDetail": true,
+  "negativePrompt": "",
+  "batchSize": 1,
+  "enablePerturb": false,
+  "perturb": null,
+  "simpleBackground": false,
+  "characterPose": null,
+  "imageReference": null,
+  "referenceMode": null,
+  "referenceWeight": null
+}

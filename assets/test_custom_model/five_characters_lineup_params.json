@@ -1,0 +1,23 @@
+{
+  "prompt": "五个卡通人物并排站立，从左至右依次为：一个有着棕色短发、穿着白色外套、手持装有蓝色液体试管的男性；一个光头、留着白色胡须、手持弓箭的男性；一个棕色短发、身着棕色衣物、背着箭袋并手持弓箭的男性；一个蓝色长发扎成马尾、穿着白色上衣和蓝色裙子的女性；一个棕色短发、头顶有金色光环、背后有白色翅膀、穿着白色衣物的女性。chibi style, cute cartoon characters, big head small body, bright colors, clean lines, high quality, game art style",
+  "modelDetailList": [
+    {
+      "modelId": "23MM6QW9GA",
+      "strength": 0.9
+    }
+  ],
+  "aspectRatios": "16:9",
+  "seed": -1,
+  "hdFix": false,
+  "hdScale": null,
+  "faceDetail": true,
+  "negativePrompt": "",
+  "batchSize": 1,
+  "enablePerturb": false,
+  "perturb": null,
+  "simpleBackground": false,
+  "characterPose": null,
+  "imageReference": null,
+  "referenceMode": null,
+  "referenceWeight": null
+}

@@ -38,9 +38,9 @@ env/
 *.sqlite3
 
 # Uploads and generated files
-server/static/uploads/
-server/static/stickman_thumbs/
-database/
+projects/asset-debugger/server/static/uploads/
+projects/asset-debugger/server/static/stickman_thumbs/
+projects/asset-debugger/database/
 
 # Logs
 *.log
@@ -48,3 +48,6 @@ database/
 # OS
 .DS_Store
 Thumbs.db
+
+# Trae
+.trae/

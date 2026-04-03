@@ -1,0 +1,23 @@
+{
+  "prompt": "同一个Q版关羽角色，红色大脸，黑色长胡须拖到胸部，绿色长袍配金色腰带和金色护肩，棕色靴子，大头小身体比例，chibi卡通风格，劈砍动作，双手将青龙偃月刀从左上向右下劈砍，刀身斜向下约60度，刀刃朝右下方，身体前倾，左脚在前，刀身周围有青色圆形光环爆发扩散，纯白背景，正面视角",
+  "modelDetailList": [
+    {
+      "modelId": "23MM6QW9GA",
+      "strength": 0.9
+    }
+  ],
+  "aspectRatios": "1:1",
+  "seed": -1,
+  "hdFix": false,
+  "hdScale": null,
+  "faceDetail": true,
+  "negativePrompt": "",
+  "batchSize": 1,
+  "enablePerturb": false,
+  "perturb": null,
+  "simpleBackground": false,
+  "characterPose": null,
+  "imageReference": null,
+  "referenceMode": null,
+  "referenceWeight": null
+}

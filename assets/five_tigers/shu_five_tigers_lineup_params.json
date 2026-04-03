@@ -1,0 +1,23 @@
+{
+  "prompt": "五个Q版三国武将并排站立，角色之间有较大间距，纯白背景，从左至右依次为：关羽，红脸长须，身着绿色战袍，手持巨大的青龙偃月刀，刀身弯曲如月牙，威严庄重；张飞，黑脸豹眼，身着黑色盔甲，手持丈八蛇矛，矛尖如蛇信分叉，勇猛霸气；赵云，银甲白袍，英俊少年将军，手持龙胆亮银枪，枪尖闪烁寒光，英姿飒爽；马超，头戴狮盔，身披兽带银甲，西凉锦马超，手持长枪，枪缨飘扬，英武不凡；黄忠，白须白发老将，身着金色铠甲，手持凤嘴刀，刀背有环，老当益壮。chibi style, cute cartoon characters, big head small body, characters well spaced apart with large gaps, pure white background, no background elements, distinct weapon designs emphasized, bright vibrant colors, clean bold lines, mobile game art style, high quality",
+  "modelDetailList": [
+    {
+      "modelId": "23MM6QW9GA",
+      "strength": 0.9
+    }
+  ],
+  "aspectRatios": "21:9",
+  "seed": -1,
+  "hdFix": false,
+  "hdScale": null,
+  "faceDetail": true,
+  "negativePrompt": "",
+  "batchSize": 1,
+  "enablePerturb": false,
+  "perturb": null,
+  "simpleBackground": false,
+  "characterPose": null,
+  "imageReference": null,
+  "referenceMode": null,
+  "referenceWeight": null
+}
