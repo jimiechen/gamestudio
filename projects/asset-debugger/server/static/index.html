@@ -677,6 +677,9 @@
 
                     <!-- 添加模型按钮 -->
                     <button class="btn" onclick="openModelSelector()" style="background: #e8f0fe; color: #1a73e8;">➕ 添加模型 (最多5个)</button>
+
+                    <!-- 预设模型组合快捷按钮 -->
+                    <div id="presetModelComboButtons" style="margin-top: 15px; display: flex; gap: 10px; flex-wrap: wrap;"></div>
                 </div>
 
                 <!-- ========== 第2组: 文本提示词 ========== -->
@@ -2398,6 +2401,71 @@
         // 已选模型列表 (生成素材页使用)
         let selectedModels = [{modelId: 2, strength: 0.9}];
 
+        // 预设模型组合
+        const presetModelCombos = {
+            'q版卡通人物': {
+                icon: '👧',
+                models: [
+                    {modelId: '23v56pjLui', name: 'Q版基础模型', strength: 0.9},
+                    {modelId: '2BB56NBV2F', name: '卡通渲染风格', strength: 0.8},
+                    {modelId: 'iKXx6k89s3', name: '萌系表情增强', strength: 0.7}
+                ]
+            },
+            '中国风场景': {
+                icon: '🏯',
+                models: [
+                    {modelId: 'c3P5zkc92s', name: '水墨画风格', strength: 0.9},
+                    {modelId: 'L3W5F7EE2P', name: '古建筑元素', strength: 0.8},
+                    {modelId: '2KJ5GG8CC3', name: '山水意境', strength: 0.7}
+                ]
+            }
+        };
+
+        // 渲染预设模型组合按钮
+        function renderPresetModelComboButtons() {
+            const container = document.getElementById('presetModelComboButtons');
+            if (!container) return;
+
+            let html = '';
+            for (const [comboName, comboData] of Object.entries(presetModelCombos)) {
+                const modelNames = comboData.models.map(m => m.name).join(' + ');
+                html += `
+                    <button class="btn" onclick="applyPresetModelCombo('${comboName}')" 
+                            style="background: #ffcc80; color: #e65100; font-size: 13px; text-align: left; padding: 10px 15px;">
+                        <div style="font-weight: 600;">${comboData.icon} ${comboName}</div>
+                        <div style="font-size: 10px; color: #666; margin-top: 4px; line-height: 1.4;">${modelNames}</div>
+                    </button>
+                `;
+            }
+            container.innerHTML = html;
+        }
+
+        // 应用预设模型组合
+        function applyPresetModelCombo(comboName) {
+            const combo = presetModelCombos[comboName];
+            if (!combo) {
+                showNotification('预设组合不存在', 'error');
+                return;
+            }
+
+            // 清空当前模型列表
+            selectedModels = [];
+
+            // 添加预设模型
+            combo.models.forEach(model => {
+                selectedModels.push({
+                    modelId: model.modelId,
+                    strength: model.strength
+                });
+            });
+
+            // 渲染模型列表
+            renderSelectedModels();
+
+            // 显示提示
+            showNotification(`已应用预设: ${comboName} (${combo.models.length}个模型)`, 'success');
+        }
+
         // 渲染已选模型列表
         function renderSelectedModels() {
             const container = document.getElementById('selectedModelsList');
@@ -3471,6 +3539,7 @@
             loadModels();
             stickmanEditor.init();
             renderSelectedModels();
+            renderPresetModelComboButtons();
             loadQuickPresets();
         });
     </script>
