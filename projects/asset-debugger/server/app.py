@@ -184,7 +184,8 @@ def generate_image():
     data = request.json
     
     # 获取模型列表 (支持多模型)
-    model_detail_list = data.get('model_detail_list', [])
+    # 支持两种命名方式: model_detail_list (下划线) 或 modelDetailList (驼峰)
+    model_detail_list = data.get('model_detail_list', []) or data.get('modelDetailList', [])
     if not model_detail_list:
         # 兼容旧格式
         model_detail_list = [{
@@ -192,41 +193,41 @@ def generate_image():
             "strength": data.get('model_strength', 0.9)
         }]
     
-    # 构建请求参数
+    # 构建请求参数 (支持下划线或驼峰两种命名方式)
     params = {
         "modelDetailList": model_detail_list,
         "prompt": data.get('prompt', ''),
-        "negativePrompt": data.get('negative_prompt', ''),
-        "aspectRatios": data.get('aspect_ratios', '1:1'),
+        "negativePrompt": data.get('negative_prompt', '') or data.get('negativePrompt', ''),
+        "aspectRatios": data.get('aspect_ratios', '1:1') or data.get('aspectRatios', '1:1'),
         "seed": data.get('seed', -1),
-        "batchSize": data.get('batch_size', 1),
-        "hdFix": data.get('hd_fix', False),
-        "faceDetail": data.get('face_detail', False)
+        "batchSize": data.get('batch_size', 1) or data.get('batchSize', 1),
+        "hdFix": data.get('hd_fix', False) or data.get('hdFix', False),
+        "faceDetail": data.get('face_detail', False) or data.get('faceDetail', False)
     }
     
     # 可选参数
     if params['hdFix']:
-        params['hdScale'] = data.get('hd_scale', 2)
+        params['hdScale'] = data.get('hd_scale', 2) or data.get('hdScale', 2)
     
-    if data.get('enable_perturb', False):
+    if data.get('enable_perturb', False) or data.get('enablePerturb', False):
         params['enablePerturb'] = True
-        params['perturb'] = data.get('perturb', 5)
+        params['perturb'] = data.get('perturb', 5) or data.get('perturb', 5)
     
-    if data.get('simple_background', False):
+    if data.get('simple_background', False) or data.get('simpleBackground', False):
         params['simpleBackground'] = True
     
     # 参考图片相关参数
-    if data.get('image_reference'):
-        params['imageReference'] = data.get('image_reference')
+    if data.get('image_reference') or data.get('imageReference'):
+        params['imageReference'] = data.get('image_reference', '') or data.get('imageReference', '')
     
-    if data.get('reference_mode'):
-        params['referenceMode'] = data.get('reference_mode')
+    if data.get('reference_mode') or data.get('referenceMode'):
+        params['referenceMode'] = data.get('reference_mode', '') or data.get('referenceMode', '')
     
-    if data.get('reference_weight'):
-        params['referenceWeight'] = data.get('reference_weight')
+    if data.get('reference_weight') or data.get('referenceWeight'):
+        params['referenceWeight'] = data.get('reference_weight', 0) or data.get('referenceWeight', 0)
     
-    if data.get('character_pose'):
-        params['characterPose'] = data.get('character_pose')
+    if data.get('character_pose') or data.get('characterPose'):
+        params['characterPose'] = data.get('character_pose', '') or data.get('characterPose', '')
     
     # 调用 API
     result = holopix_client.generate_image(params)
