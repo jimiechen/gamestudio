@@ -627,6 +627,37 @@
             background: #e3f2fd;
             color: #1565c0;
         }
+
+        /* 生成结果网格响应式布局 */
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 15px;
+        }
+
+        @media (max-width: 1400px) {
+            .results-grid {
+                grid-template-columns: repeat(4, 1fr);
+            }
+        }
+
+        @media (max-width: 1100px) {
+            .results-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        @media (max-width: 800px) {
+            .results-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 500px) {
+            .results-grid {
+                grid-template-columns: 1fr;
+            }
+        }
     </style>
 </head>
 <body>
@@ -869,7 +900,7 @@
             <!-- 生成的图片结果展示 -->
             <div id="generationResults" style="display: none; margin-top: 20px;">
                 <h3 style="color: #34a853; margin-bottom: 15px;">✅ 生成结果</h3>
-                <div id="resultsGrid" class="results-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 20px;">
+                <div id="resultsGrid" class="results-grid" style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 15px;">
                     <!-- 动态插入图片卡片 -->
                 </div>
             </div>
@@ -3611,6 +3642,51 @@
                 this.maxAttempts = 120; // 最大轮询次数 (约10分钟)
                 this.interval = 5000;   // 轮询间隔 5秒
                 this.taskHistory = [];  // 存储任务历史
+                this.allTaskResults = []; // 存储所有任务的图片结果（用于显示在生成结果区域）
+            }
+
+            // 从数据库加载历史任务
+            async loadHistoryFromDB() {
+                try {
+                    const response = await fetch('/api/tasks?limit=20');
+                    const result = await response.json();
+                    if (result.success && result.data) {
+                        // 将数据库记录转换为 taskHistory 格式
+                        this.taskHistory = result.data.map(record => ({
+                            clientId: record.client_id,
+                            params: {
+                                prompt: record.prompt,
+                                negative_prompt: record.negative_prompt,
+                                modelDetailList: [{modelId: record.model_id, strength: record.model_strength}],
+                                aspect_ratios: record.aspect_ratios,
+                                seed: record.seed,
+                                batch_size: record.batch_size,
+                                hd_fix: record.hd_fix,
+                                face_detail: record.face_detail
+                            },
+                            status: record.status,
+                            startTime: new Date(record.created_at).getTime(),
+                            endTime: record.updated_at ? new Date(record.updated_at).getTime() : null,
+                            result: record.response_body
+                        }));
+                        this.renderHistoryList();
+
+                        // 加载已完成的任务图片到结果区域
+                        this.loadCompletedTaskImages();
+                    }
+                } catch (error) {
+                    console.error('加载历史任务失败:', error);
+                }
+            }
+
+            // 加载已完成的任务图片
+            loadCompletedTaskImages() {
+                const completedTasks = this.taskHistory.filter(t => t.status === 'succeed');
+                completedTasks.forEach(task => {
+                    if (task.result && task.result.data) {
+                        this.displayResults(task.result.data, false);
+                    }
+                });
             }
 
             // 开始轮询
@@ -3744,8 +3820,8 @@
                 showNotification('轮询超时，请在任务列表中手动查看', 'warning');
             }
 
-            // 显示结果图片
-            displayResults(task) {
+            // 显示结果图片（追加模式，不覆盖）
+            displayResults(task, append = true) {
                 const resultsGrid = document.getElementById('resultsGrid');
                 // 支持多种图片数据格式
                 let images = [];
@@ -3762,13 +3838,27 @@
                 console.log('Task result:', task);
                 console.log('Images:', images);
 
-                let html = '';
+                // 如果不是追加模式，清空现有内容
+                if (!append) {
+                    resultsGrid.innerHTML = '';
+                }
+
+                // 获取当前已有的图片数量，用于计算新图片的索引
+                const existingCards = resultsGrid.querySelectorAll('.result-card');
+                const startIndex = existingCards.length;
+
                 if (images.length === 0) {
-                    html = '<p style="color: #999; text-align: center; padding: 20px;">暂无图片结果</p>';
+                    if (startIndex === 0) {
+                        resultsGrid.innerHTML = '<p style="color: #999; text-align: center; padding: 20px;">暂无图片结果</p>';
+                    }
                 } else {
+                    // 如果是第一个任务，清空"暂无图片"提示
+                    if (startIndex === 0 && resultsGrid.querySelector('p')) {
+                        resultsGrid.innerHTML = '';
+                    }
+
                     images.forEach((img, index) => {
                         // 处理可能的多种图片URL格式
-                        // img 可能是字符串URL，也可能是对象 {url: "..."}
                         let imgUrl = '';
                         if (typeof img === 'string') {
                             imgUrl = img;
@@ -3779,20 +3869,21 @@
                         imgUrl = imgUrl.replace(/`/g, '').trim();
 
                         if (imgUrl) {
-                            html += `
-                                <div class="result-card" style="border: 1px solid #e0e0e0; border-radius: 8px; overflow: hidden; background: white;">
-                                    <img src="${imgUrl}" alt="生成结果 ${index + 1}" style="width: 100%; height: 250px; object-fit: cover;">
+                            const cardHtml = `
+                                <div class="result-card" data-task-id="${task.clientId}" style="border: 1px solid #e0e0e0; border-radius: 8px; overflow: hidden; background: white;">
+                                    <img src="${imgUrl}" alt="生成结果 ${startIndex + index + 1}" onclick="generationPoller.showImageModal('${imgUrl}')" style="width: 100%; height: 200px; object-fit: cover; cursor: pointer;" title="点击查看大图">
                                     <div style="padding: 10px; display: flex; gap: 10px; justify-content: center;">
                                         <a href="${imgUrl}" target="_blank" download class="btn btn-sm" style="text-decoration: none;">下载</a>
                                         <button class="btn btn-sm btn-primary" onclick="saveToAssets('${imgUrl}')">保存到素材库</button>
                                     </div>
                                 </div>
                             `;
+                            // 追加而不是覆盖
+                            resultsGrid.insertAdjacentHTML('beforeend', cardHtml);
                         }
                     });
                 }
 
-                resultsGrid.innerHTML = html;
                 document.getElementById('generationResults').style.display = 'block';
             }
 
@@ -3982,12 +4073,15 @@
         const generationPoller = new GenerationPoller();
 
         // 页面加载时初始化
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', async function() {
             loadModels();
             stickmanEditor.init();
             renderSelectedModels();
             renderPresetModelComboButtons();
             loadQuickPresets();
+
+            // 加载历史任务
+            await generationPoller.loadHistoryFromDB();
         });
     </script>
 </body>
