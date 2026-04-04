@@ -3719,7 +3719,17 @@
             // 显示结果图片
             displayResults(task) {
                 const resultsGrid = document.getElementById('resultsGrid');
-                const images = task.subTaskList || task.images || task.result_images || [];
+                // 支持多种图片数据格式
+                let images = [];
+                if (task.imgUrls && Array.isArray(task.imgUrls)) {
+                    images = task.imgUrls;
+                } else if (task.subTaskList && Array.isArray(task.subTaskList)) {
+                    images = task.subTaskList;
+                } else if (task.images && Array.isArray(task.images)) {
+                    images = task.images;
+                } else if (task.result_images && Array.isArray(task.result_images)) {
+                    images = task.result_images;
+                }
 
                 console.log('Task result:', task);
                 console.log('Images:', images);
@@ -3730,7 +3740,16 @@
                 } else {
                     images.forEach((img, index) => {
                         // 处理可能的多种图片URL格式
-                        const imgUrl = img.url || img.image_url || img.src || img;
+                        // img 可能是字符串URL，也可能是对象 {url: "..."}
+                        let imgUrl = '';
+                        if (typeof img === 'string') {
+                            imgUrl = img;
+                        } else if (img && typeof img === 'object') {
+                            imgUrl = img.url || img.image_url || img.src || '';
+                        }
+                        // 清理URL中的多余字符（如反引号）
+                        imgUrl = imgUrl.replace(/`/g, '').trim();
+
                         if (imgUrl) {
                             html += `
                                 <div class="result-card" style="border: 1px solid #e0e0e0; border-radius: 8px; overflow: hidden; background: white;">
