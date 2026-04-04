@@ -3719,22 +3719,31 @@
             // 显示结果图片
             displayResults(task) {
                 const resultsGrid = document.getElementById('resultsGrid');
-                const images = task.subTaskList || [];
+                const images = task.subTaskList || task.images || task.result_images || [];
+
+                console.log('Task result:', task);
+                console.log('Images:', images);
 
                 let html = '';
-                images.forEach((img, index) => {
-                    if (img.url) {
-                        html += `
-                            <div class="result-card" style="border: 1px solid #e0e0e0; border-radius: 8px; overflow: hidden; background: white;">
-                                <img src="${img.url}" alt="生成结果 ${index + 1}" style="width: 100%; height: 250px; object-fit: cover;">
-                                <div style="padding: 10px; display: flex; gap: 10px; justify-content: center;">
-                                    <a href="${img.url}" target="_blank" download class="btn btn-sm" style="text-decoration: none;">下载</a>
-                                    <button class="btn btn-sm btn-primary" onclick="saveToAssets('${img.url}')">保存到素材库</button>
+                if (images.length === 0) {
+                    html = '<p style="color: #999; text-align: center; padding: 20px;">暂无图片结果</p>';
+                } else {
+                    images.forEach((img, index) => {
+                        // 处理可能的多种图片URL格式
+                        const imgUrl = img.url || img.image_url || img.src || img;
+                        if (imgUrl) {
+                            html += `
+                                <div class="result-card" style="border: 1px solid #e0e0e0; border-radius: 8px; overflow: hidden; background: white;">
+                                    <img src="${imgUrl}" alt="生成结果 ${index + 1}" style="width: 100%; height: 250px; object-fit: cover;">
+                                    <div style="padding: 10px; display: flex; gap: 10px; justify-content: center;">
+                                        <a href="${imgUrl}" target="_blank" download class="btn btn-sm" style="text-decoration: none;">下载</a>
+                                        <button class="btn btn-sm btn-primary" onclick="saveToAssets('${imgUrl}')">保存到素材库</button>
+                                    </div>
                                 </div>
-                            </div>
-                        `;
-                    }
-                });
+                            `;
+                        }
+                    });
+                }
 
                 resultsGrid.innerHTML = html;
                 document.getElementById('generationResults').style.display = 'block';
@@ -3814,10 +3823,11 @@
                     imagesHtml = '<p style="color: #999;">暂无图片结果</p>';
                 }
 
-                // 构建模型列表HTML
+                // 构建模型列表HTML (使用驼峰命名 modelDetailList)
                 let modelsHtml = '';
-                if (params.model_detail_list && params.model_detail_list.length > 0) {
-                    modelsHtml = params.model_detail_list.map(m =>
+                const modelList = params.modelDetailList || params.model_detail_list || [];
+                if (modelList.length > 0) {
+                    modelsHtml = modelList.map(m =>
                         `<span style="background: #e8f0fe; padding: 2px 8px; border-radius: 4px; margin-right: 5px;">${m.modelId} (${m.strength})</span>`
                     ).join('');
                 } else {
@@ -3836,14 +3846,14 @@
                                 <h4 style="color: #1a73e8; margin-bottom: 10px;">📝 生成参数</h4>
                                 <div style="background: #f8f9fa; padding: 15px; border-radius: 8px;">
                                     <div style="margin-bottom: 10px;"><strong>正向提示词:</strong> <div style="margin-top: 5px; padding: 8px; background: white; border-radius: 4px;">${params.prompt || '-'}</div></div>
-                                    <div style="margin-bottom: 10px;"><strong>反向提示词:</strong> <div style="margin-top: 5px; padding: 8px; background: white; border-radius: 4px;">${params.negative_prompt || '-'}</div></div>
+                                    <div style="margin-bottom: 10px;"><strong>反向提示词:</strong> <div style="margin-top: 5px; padding: 8px; background: white; border-radius: 4px;">${params.negativePrompt || params.negative_prompt || '-'}</div></div>
                                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
                                         <div><strong>模型列表:</strong> <div style="margin-top: 5px;">${modelsHtml}</div></div>
-                                        <div><strong>宽高比:</strong> ${params.aspect_ratios || '1:1'}</div>
+                                        <div><strong>宽高比:</strong> ${params.aspectRatios || params.aspect_ratios || '1:1'}</div>
                                         <div><strong>随机种子:</strong> ${params.seed || -1}</div>
-                                        <div><strong>出图数量:</strong> ${params.batch_size || 1}</div>
-                                        <div><strong>高清修复:</strong> ${params.hd_fix ? '是' : '否'}</div>
-                                        <div><strong>脸部修复:</strong> ${params.face_detail ? '是' : '否'}</div>
+                                        <div><strong>出图数量:</strong> ${params.batchSize || params.batch_size || 1}</div>
+                                        <div><strong>高清修复:</strong> ${(params.hdFix || params.hd_fix) ? '是' : '否'}</div>
+                                        <div><strong>脸部修复:</strong> ${(params.faceDetail || params.face_detail) ? '是' : '否'}</div>
                                     </div>
                                 </div>
                             </div>
