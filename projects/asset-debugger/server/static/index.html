@@ -3954,10 +3954,10 @@
                     images = result.subTaskList;
                 }
 
-                // 构建图片预览HTML (支持点击放大)
+                // 构建图片预览HTML (大图显示，支持点击放大)
                 let imagesHtml = '';
                 if (images.length > 0) {
-                    imagesHtml = '<div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; margin-top: 10px;">';
+                    imagesHtml = '<div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 15px; margin-top: 10px;">';
                     images.forEach((img, idx) => {
                         let imgUrl = '';
                         if (typeof img === 'string') {
@@ -3966,12 +3966,19 @@
                             imgUrl = (img.url || img.image_url || img.src || '').replace(/`/g, '').trim();
                         }
                         if (imgUrl) {
-                            imagesHtml += `<img src="${imgUrl}" onclick="generationPoller.showImageModal('${imgUrl}')" style="width: 100%; height: 150px; object-fit: cover; border-radius: 4px; cursor: pointer;" title="点击查看大图">`;
+                            imagesHtml += `
+                                <div style="position: relative; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                                    <img src="${imgUrl}" onclick="generationPoller.showImageModal('${imgUrl}')" style="width: 100%; height: 200px; object-fit: cover; cursor: pointer;" title="点击查看大图">
+                                    <div style="position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.6); padding: 8px; text-align: center;">
+                                        <a href="${imgUrl}" target="_blank" download style="color: white; text-decoration: none; font-size: 12px;">📥 下载</a>
+                                    </div>
+                                </div>
+                            `;
                         }
                     });
                     imagesHtml += '</div>';
                 } else {
-                    imagesHtml = '<p style="color: #999;">暂无图片结果</p>';
+                    imagesHtml = '<p style="color: #999; text-align: center; padding: 40px;">暂无图片结果</p>';
                 }
 
                 // 构建模型列表HTML (显示模型名称和阈值)
@@ -3979,9 +3986,7 @@
                 const modelList = params.modelDetailList || params.model_detail_list || [];
                 if (modelList.length > 0) {
                     modelsHtml = modelList.map(m => {
-                        // 查找模型名称
                         let modelName = m.modelId;
-                        // 从 presetModelCombos 中查找
                         for (const combo of Object.values(presetModelCombos)) {
                             const foundPreset = combo.models.find(pm => pm.modelId === m.modelId);
                             if (foundPreset) {
@@ -3989,7 +3994,6 @@
                                 break;
                             }
                         }
-                        // 从 allModels 中查找
                         if (allModels && allModels.length > 0) {
                             const foundModel = allModels.find(am => {
                                 const amId = am.model_id || am.modelId || am.id;
@@ -4005,19 +4009,44 @@
                     modelsHtml = '-';
                 }
 
+                // 生成唯一ID用于折叠展开
+                const paramsSectionId = 'paramsSection_' + clientId.substring(0, 8);
+
                 const modalHtml = `
                     <div class="modal-overlay" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1000; display: flex; align-items: center; justify-content: center;" onclick="if(event.target===this)this.remove()">
-                        <div class="modal-container" style="background: white; border-radius: 8px; width: 90%; max-width: 800px; max-height: 90vh; overflow-y: auto; padding: 20px;">
+                        <div class="modal-container" style="background: white; border-radius: 8px; width: 90%; max-width: 900px; max-height: 90vh; overflow-y: auto; padding: 20px;">
                             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid #e0e0e0; padding-bottom: 15px;">
                                 <h3 style="margin: 0;">📋 任务详情</h3>
                                 <button onclick="this.closest('.modal-overlay').remove()" style="background: none; border: none; font-size: 24px; cursor: pointer;">&times;</button>
                             </div>
 
+                            <!-- 生成结果 - 图片区域 (最突出) -->
                             <div style="margin-bottom: 20px;">
-                                <h4 style="color: #1a73e8; margin-bottom: 10px;">📝 生成参数</h4>
+                                <h4 style="color: #34a853; margin-bottom: 15px; font-size: 18px;">🖼️ 生成图片 (${images.length}张)</h4>
                                 <div style="background: #f8f9fa; padding: 15px; border-radius: 8px;">
-                                    <div style="margin-bottom: 10px;"><strong>正向提示词:</strong> <div style="margin-top: 5px; padding: 8px; background: white; border-radius: 4px;">${params.prompt || '-'}</div></div>
-                                    <div style="margin-bottom: 10px;"><strong>反向提示词:</strong> <div style="margin-top: 5px; padding: 8px; background: white; border-radius: 4px;">${params.negativePrompt || params.negative_prompt || '-'}</div></div>
+                                    ${imagesHtml}
+                                </div>
+                            </div>
+
+                            <!-- 基本信息 -->
+                            <div style="margin-bottom: 15px; padding: 15px; background: #f0f7ff; border-radius: 8px;">
+                                <div style="display: flex; flex-wrap: wrap; gap: 15px; font-size: 14px;">
+                                    <span><strong>Client ID:</strong> ${item.clientId}</span>
+                                    <span><strong>状态:</strong> <span style="color: ${item.status === 'succeed' ? '#34a853' : item.status === 'failed' ? '#ea4335' : '#fbbc05'};">${item.status}</span></span>
+                                    <span><strong>耗时:</strong> ${item.endTime ? Math.round((item.endTime - item.startTime) / 1000) + '秒' : '进行中'}</span>
+                                    <span><strong>时间:</strong> ${new Date(item.startTime).toLocaleString()}</span>
+                                </div>
+                            </div>
+
+                            <!-- 生成参数 - 可折叠 -->
+                            <div style="margin-bottom: 20px;">
+                                <div onclick="document.getElementById('${paramsSectionId}').style.display = document.getElementById('${paramsSectionId}').style.display === 'none' ? 'block' : 'none'; this.querySelector('.toggle-icon').textContent = document.getElementById('${paramsSectionId}').style.display === 'none' ? '▶' : '▼';" style="cursor: pointer; display: flex; align-items: center; gap: 10px; padding: 10px; background: #f5f5f5; border-radius: 8px; margin-bottom: 10px;">
+                                    <span class="toggle-icon" style="font-size: 12px;">▼</span>
+                                    <h4 style="margin: 0; color: #1a73e8; font-size: 16px;">📝 生成参数 (点击折叠/展开)</h4>
+                                </div>
+                                <div id="${paramsSectionId}" style="background: #f8f9fa; padding: 15px; border-radius: 8px;">
+                                    <div style="margin-bottom: 10px;"><strong>正向提示词:</strong> <div style="margin-top: 5px; padding: 8px; background: white; border-radius: 4px; max-height: 100px; overflow-y: auto;">${params.prompt || '-'}</div></div>
+                                    <div style="margin-bottom: 10px;"><strong>反向提示词:</strong> <div style="margin-top: 5px; padding: 8px; background: white; border-radius: 4px; max-height: 80px; overflow-y: auto;">${params.negativePrompt || params.negative_prompt || '-'}</div></div>
                                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
                                         <div><strong>模型列表:</strong> <div style="margin-top: 5px;">${modelsHtml}</div></div>
                                         <div><strong>宽高比:</strong> ${params.aspectRatios || params.aspect_ratios || '1:1'}</div>
@@ -4025,25 +4054,15 @@
                                         <div><strong>出图数量:</strong> ${params.batchSize || params.batch_size || 1}</div>
                                         <div><strong>高清修复:</strong> ${(params.hdFix || params.hd_fix) ? '是' : '否'}</div>
                                         <div><strong>脸部修复:</strong> ${(params.faceDetail || params.face_detail) ? '是' : '否'}</div>
+                                        <div><strong>姿态参考:</strong> ${params.characterPose || params.character_pose ? '有' : '无'}</div>
+                                        <div><strong>简化背景:</strong> ${(params.simpleBackground || params.simple_background) ? '是' : '否'}</div>
                                     </div>
-                                </div>
-                            </div>
-
-                            <div style="margin-bottom: 20px;">
-                                <h4 style="color: #34a853; margin-bottom: 10px;">✅ 生成结果</h4>
-                                <div style="background: #f8f9fa; padding: 15px; border-radius: 8px;">
-                                    <div style="margin-bottom: 10px;"><strong>Client ID:</strong> ${item.clientId}</div>
-                                    <div style="margin-bottom: 10px;"><strong>状态:</strong> ${item.status}</div>
-                                    <div style="margin-bottom: 10px;"><strong>耗时:</strong> ${item.endTime ? Math.round((item.endTime - item.startTime) / 1000) + '秒' : '进行中'}</div>
-                                    <div><strong>生成图片:</strong></div>
-                                    ${imagesHtml}
                                 </div>
                             </div>
                         </div>
                     </div>
                 `;
 
-                // 显示弹框
                 const modalDiv = document.createElement('div');
                 modalDiv.innerHTML = modalHtml;
                 document.body.appendChild(modalDiv.firstElementChild);
