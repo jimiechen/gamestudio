@@ -2996,7 +2996,7 @@
                 poses.forEach(pose => {
                     const isPreset = pose.is_preset;
                     const icon = isPreset ? '⭐' : '💾';
-                    const thumbUrl = pose.thumbnail_path ? `/static/${pose.thumbnail_path}` : '';
+                    const thumbUrl = pose.thumbnail_path ? (pose.thumbnail_path.startsWith('http') ? pose.thumbnail_path : `/static/${pose.thumbnail_path}`) : '';
 
                     html += `
                         <div style="display: flex; align-items: center; gap: 10px; padding: 10px; border-bottom: 1px solid #eee; cursor: pointer;"
@@ -3115,7 +3115,7 @@
                 `;
 
                 poses.forEach(pose => {
-                    const thumbUrl = pose.thumbnail_path ? `/static/${pose.thumbnail_path}` : '';
+                    const thumbUrl = pose.thumbnail_path ? (pose.thumbnail_path.startsWith('http') ? pose.thumbnail_path : `/static/${pose.thumbnail_path}`) : '';
                     // 转义字符串中的特殊字符
                     const safeName = (pose.name || '').replace(/'/g, "\\'").replace(/"/g, '\\"');
                     const safeDesc = (pose.description || '').replace(/'/g, "\\'").replace(/"/g, '\\"');
@@ -3173,9 +3173,15 @@
                 const response = await fetch(`/api/stickman/poses/${poseId}`);
                 const result = await response.json();
                 if (result.success && result.data.thumbnail_path) {
-                    // 构建完整的图片URL作为characterPose (需要加上/static/前缀)
-                    const baseUrl = window.location.origin;
-                    const imageUrl = `${baseUrl}/static/${result.data.thumbnail_path}`;
+                    // 使用网络URL作为characterPose (HoloPix API需要网络地址)
+                    let imageUrl;
+                    if (result.data.thumbnail_path.startsWith('http')) {
+                        imageUrl = result.data.thumbnail_path;
+                    } else {
+                        // 本地路径，添加/static/前缀
+                        const baseUrl = window.location.origin;
+                        imageUrl = `${baseUrl}/static/${result.data.thumbnail_path}`;
+                    }
                     document.getElementById('characterPose').value = imageUrl;
                     console.log('已设置characterPose:', imageUrl);
                 }
