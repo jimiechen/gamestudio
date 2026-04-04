@@ -2505,12 +2505,40 @@
 
             let html = '';
             selectedModels.forEach((model, index) => {
+                // 从 allModels 或 presetModelCombos 中查找模型名称
+                let modelName = '未知模型';
+                
+                // 1. 先从 allModels 中查找
+                if (allModels && allModels.length > 0) {
+                    const foundModel = allModels.find(m => {
+                        const mId = m.model_id || m.modelId || m.id;
+                        return String(mId) === String(model.modelId);
+                    });
+                    if (foundModel) {
+                        modelName = foundModel.model_name || foundModel.modelName || '未命名模型';
+                    }
+                }
+                
+                // 2. 如果没找到，从 presetModelCombos 中查找
+                if (modelName === '未知模型' || modelName === '未命名模型') {
+                    for (const combo of Object.values(presetModelCombos)) {
+                        const foundPreset = combo.models.find(m => m.modelId === model.modelId);
+                        if (foundPreset) {
+                            modelName = foundPreset.name;
+                            break;
+                        }
+                    }
+                }
+                
                 html += `
                     <div class="model-item" style="display: flex; align-items: center; gap: 10px; padding: 10px; background: white; border-radius: 6px; margin-bottom: 8px;">
-                        <span style="font-weight: 500;">模型 ID: ${model.modelId}</span>
+                        <div style="min-width: 150px;">
+                            <div style="font-weight: 600; color: #1a73e8;">${modelName}</div>
+                            <div style="font-size: 12px; color: #666;">ID: ${model.modelId}</div>
+                        </div>
                         <input type="range" min="0" max="1" step="0.1" value="${model.strength}" style="flex: 1;"
                                onchange="updateModelStrength(${index}, this.value)">
-                        <span style="min-width: 60px;">强度: ${model.strength}</span>
+                        <span style="min-width: 80px;">阈值: ${model.strength}</span>
                         <button onclick="removeModel(${index})" style="background: #ea4335; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer;">删除</button>
                     </div>
                 `;
@@ -3826,15 +3854,28 @@
 
                 const params = item.params || {};
                 const result = item.result || {};
-                const images = result.subTaskList || [];
+                
+                // 支持多种图片数据格式
+                let images = [];
+                if (result.imgUrls && Array.isArray(result.imgUrls)) {
+                    images = result.imgUrls;
+                } else if (result.subTaskList && Array.isArray(result.subTaskList)) {
+                    images = result.subTaskList;
+                }
 
-                // 构建图片预览HTML
+                // 构建图片预览HTML (支持点击放大)
                 let imagesHtml = '';
                 if (images.length > 0) {
                     imagesHtml = '<div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; margin-top: 10px;">';
                     images.forEach((img, idx) => {
-                        if (img.url) {
-                            imagesHtml += `<img src="${img.url}" style="width: 100%; height: 150px; object-fit: cover; border-radius: 4px;">`;
+                        let imgUrl = '';
+                        if (typeof img === 'string') {
+                            imgUrl = img.replace(/`/g, '').trim();
+                        } else if (img && typeof img === 'object') {
+                            imgUrl = (img.url || img.image_url || img.src || '').replace(/`/g, '').trim();
+                        }
+                        if (imgUrl) {
+                            imagesHtml += `<img src="${imgUrl}" onclick="generationPoller.showImageModal('${imgUrl}')" style="width: 100%; height: 150px; object-fit: cover; border-radius: 4px; cursor: pointer;" title="点击查看大图">`;
                         }
                     });
                     imagesHtml += '</div>';
@@ -3842,13 +3883,33 @@
                     imagesHtml = '<p style="color: #999;">暂无图片结果</p>';
                 }
 
-                // 构建模型列表HTML (使用驼峰命名 modelDetailList)
+                // 构建模型列表HTML (显示模型名称和阈值)
                 let modelsHtml = '';
                 const modelList = params.modelDetailList || params.model_detail_list || [];
                 if (modelList.length > 0) {
-                    modelsHtml = modelList.map(m =>
-                        `<span style="background: #e8f0fe; padding: 2px 8px; border-radius: 4px; margin-right: 5px;">${m.modelId} (${m.strength})</span>`
-                    ).join('');
+                    modelsHtml = modelList.map(m => {
+                        // 查找模型名称
+                        let modelName = m.modelId;
+                        // 从 presetModelCombos 中查找
+                        for (const combo of Object.values(presetModelCombos)) {
+                            const foundPreset = combo.models.find(pm => pm.modelId === m.modelId);
+                            if (foundPreset) {
+                                modelName = foundPreset.name;
+                                break;
+                            }
+                        }
+                        // 从 allModels 中查找
+                        if (allModels && allModels.length > 0) {
+                            const foundModel = allModels.find(am => {
+                                const amId = am.model_id || am.modelId || am.id;
+                                return String(amId) === String(m.modelId);
+                            });
+                            if (foundModel) {
+                                modelName = foundModel.model_name || foundModel.modelName || modelName;
+                            }
+                        }
+                        return `<span style="background: #e8f0fe; padding: 4px 10px; border-radius: 4px; margin-right: 8px; margin-bottom: 5px; display: inline-block;">${modelName} <small style="color: #666;">(阈值:${m.strength})</small></span>`;
+                    }).join('');
                 } else {
                     modelsHtml = '-';
                 }
@@ -3892,6 +3953,25 @@
                 `;
 
                 // 显示弹框
+                const modalDiv = document.createElement('div');
+                modalDiv.innerHTML = modalHtml;
+                document.body.appendChild(modalDiv.firstElementChild);
+            }
+
+            // 显示图片放大弹框
+            showImageModal(imgUrl) {
+                const modalHtml = `
+                    <div class="modal-overlay" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.9); z-index: 2000; display: flex; align-items: center; justify-content: center;" onclick="if(event.target===this)this.remove()">
+                        <div style="position: relative; max-width: 90%; max-height: 90%;">
+                            <button onclick="this.closest('.modal-overlay').remove()" style="position: absolute; top: -40px; right: 0; background: none; border: none; color: white; font-size: 30px; cursor: pointer;">&times;</button>
+                            <img src="${imgUrl}" style="max-width: 100%; max-height: 85vh; object-fit: contain; border-radius: 8px;">
+                            <div style="text-align: center; margin-top: 15px;">
+                                <a href="${imgUrl}" target="_blank" download class="btn" style="background: #1a73e8; color: white; text-decoration: none; margin-right: 10px;">下载原图</a>
+                                <button class="btn" onclick="this.closest('.modal-overlay').remove()" style="background: #666; color: white;">关闭</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
                 const modalDiv = document.createElement('div');
                 modalDiv.innerHTML = modalHtml;
                 document.body.appendChild(modalDiv.firstElementChild);
