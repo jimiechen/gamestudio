@@ -968,11 +968,23 @@
         
         // 生成图片
         async function generateImage() {
-            const modelId = document.getElementById('modelId').value;
+            // 构建模型列表 (使用 selectedModels)
+            let modelDetailList = [];
+            if (selectedModels && selectedModels.length > 0) {
+                modelDetailList = selectedModels.map(m => ({
+                    modelId: parseInt(m.modelId),
+                    strength: parseFloat(m.strength)
+                }));
+            } else {
+                // 如果没有选择模型，使用默认值
+                modelDetailList = [{
+                    modelId: 2,
+                    strength: 0.9
+                }];
+            }
             
             const data = {
-                model_id: modelId ? parseInt(modelId) : parseInt(document.getElementById('modelSelect').value),
-                model_strength: parseFloat(document.getElementById('modelStrength').value),
+                model_detail_list: modelDetailList,
                 prompt: document.getElementById('prompt').value,
                 negative_prompt: document.getElementById('negativePrompt').value,
                 aspect_ratios: document.getElementById('aspectRatios').value,
@@ -982,7 +994,12 @@
                 hd_scale: parseFloat(document.getElementById('hdScale').value),
                 face_detail: document.getElementById('faceDetail').value === 'true',
                 enable_perturb: document.getElementById('enablePerturb').value === 'true',
-                simple_background: document.getElementById('simpleBackground').value === 'true'
+                simple_background: document.getElementById('simpleBackground').value === 'true',
+                // 参考图片相关参数
+                image_reference: document.getElementById('imageReference').value,
+                reference_mode: document.getElementById('referenceMode').value,
+                reference_weight: parseFloat(document.getElementById('referenceWeight').value) || 0,
+                character_pose: document.getElementById('characterPose').value
             };
             
             try {
@@ -2911,7 +2928,7 @@
                 poses.forEach(pose => {
                     const isPreset = pose.is_preset;
                     const icon = isPreset ? '⭐' : '💾';
-                    const thumbUrl = pose.thumbnail_path ? `/${pose.thumbnail_path}` : '';
+                    const thumbUrl = pose.thumbnail_path ? `/static/${pose.thumbnail_path}` : '';
 
                     html += `
                         <div style="display: flex; align-items: center; gap: 10px; padding: 10px; border-bottom: 1px solid #eee; cursor: pointer;"
@@ -3030,7 +3047,7 @@
                 `;
 
                 poses.forEach(pose => {
-                    const thumbUrl = pose.thumbnail_path ? `/${pose.thumbnail_path}` : '';
+                    const thumbUrl = pose.thumbnail_path ? `/static/${pose.thumbnail_path}` : '';
                     // 转义字符串中的特殊字符
                     const safeName = (pose.name || '').replace(/'/g, "\\'").replace(/"/g, '\\"');
                     const safeDesc = (pose.description || '').replace(/'/g, "\\'").replace(/"/g, '\\"');
@@ -3088,9 +3105,9 @@
                 const response = await fetch(`/api/stickman/poses/${poseId}`);
                 const result = await response.json();
                 if (result.success && result.data.thumbnail_path) {
-                    // 构建完整的图片URL作为characterPose
+                    // 构建完整的图片URL作为characterPose (需要加上/static/前缀)
                     const baseUrl = window.location.origin;
-                    const imageUrl = `${baseUrl}/${result.data.thumbnail_path}`;
+                    const imageUrl = `${baseUrl}/static/${result.data.thumbnail_path}`;
                     document.getElementById('characterPose').value = imageUrl;
                     console.log('已设置characterPose:', imageUrl);
                 }

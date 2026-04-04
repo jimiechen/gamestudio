@@ -183,12 +183,18 @@ def generate_image():
     """生成图片"""
     data = request.json
     
-    # 构建请求参数
-    params = {
-        "modelDetailList": [{
+    # 获取模型列表 (支持多模型)
+    model_detail_list = data.get('model_detail_list', [])
+    if not model_detail_list:
+        # 兼容旧格式
+        model_detail_list = [{
             "modelId": data.get('model_id', 2),
             "strength": data.get('model_strength', 0.9)
-        }],
+        }]
+    
+    # 构建请求参数
+    params = {
+        "modelDetailList": model_detail_list,
         "prompt": data.get('prompt', ''),
         "negativePrompt": data.get('negative_prompt', ''),
         "aspectRatios": data.get('aspect_ratios', '1:1'),
@@ -209,18 +215,32 @@ def generate_image():
     if data.get('simple_background', False):
         params['simpleBackground'] = True
     
+    # 参考图片相关参数
+    if data.get('image_reference'):
+        params['imageReference'] = data.get('image_reference')
+    
+    if data.get('reference_mode'):
+        params['referenceMode'] = data.get('reference_mode')
+    
+    if data.get('reference_weight'):
+        params['referenceWeight'] = data.get('reference_weight')
+    
+    if data.get('character_pose'):
+        params['characterPose'] = data.get('character_pose')
+    
     # 调用 API
     result = holopix_client.generate_image(params)
     
-    # 保存记录到数据库
+    # 保存记录到数据库 (保存第一个模型的信息作为代表)
+    primary_model = model_detail_list[0] if model_detail_list else {"modelId": 2, "strength": 0.9}
     if result.get('success') and result.get('data'):
         client_id = result['data'].get('clientId')
         record_data = {
             'client_id': client_id,
             'prompt': data.get('prompt', ''),
             'negative_prompt': data.get('negative_prompt', ''),
-            'model_id': data.get('model_id', 2),
-            'model_strength': data.get('model_strength', 0.9),
+            'model_id': primary_model.get('modelId', 2),
+            'model_strength': primary_model.get('strength', 0.9),
             'aspect_ratios': data.get('aspect_ratios', '1:1'),
             'seed': data.get('seed', -1),
             'batch_size': data.get('batch_size', 1),
