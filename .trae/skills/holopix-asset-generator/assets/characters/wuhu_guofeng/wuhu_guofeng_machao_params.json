@@ -1,0 +1,22 @@
+{
+  "prompt": "国风Q版马超，狮盔银甲，西凉锦马超造型，手持长枪，2.5头身比例，强化描边线条感，柔和协调配色，英武不凡，白色背景",
+  "modelDetailList": [
+    {
+      "modelId": "Q34BT78XAJ"
+    }
+  ],
+  "aspectRatios": "3:4",
+  "seed": -1,
+  "hdFix": false,
+  "hdScale": null,
+  "faceDetail": true,
+  "negativePrompt": "",
+  "batchSize": 1,
+  "enablePerturb": false,
+  "perturb": null,
+  "simpleBackground": false,
+  "characterPose": null,
+  "imageReference": null,
+  "referenceMode": null,
+  "referenceWeight": null
+}

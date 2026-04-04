@@ -1,0 +1,23 @@
+{
+  "prompt": "Q版Lu Bu，fierce warrior, red armor, powerful and arrogant, strongest fighter，2.5头身比，大头小身体，Sky Piercer Halberd (方天画戟)，red and gold armor with pheasant feathers，可爱卡通风格，明亮色彩，干净线条，透明背景，游戏角色，手游优化，高质量，精致面部，生动表情",
+  "modelDetailList": [
+    {
+      "modelId": "23MM6QW9GA",
+      "strength": 0.9
+    }
+  ],
+  "aspectRatios": "1:1",
+  "seed": -1,
+  "hdFix": false,
+  "hdScale": null,
+  "faceDetail": true,
+  "negativePrompt": "",
+  "batchSize": 1,
+  "enablePerturb": false,
+  "perturb": null,
+  "simpleBackground": false,
+  "characterPose": null,
+  "imageReference": null,
+  "referenceMode": null,
+  "referenceWeight": null
+}

@@ -1,0 +1,23 @@
+{
+  "prompt": "Zhao Yun, white silver armor, standing pose, upright posture, wielding Dragon Silver Spear with sharp pointed tip and decorative dragon patterns on shaft, elegant and swift posture, holopix style, cool blue-white palette, translucent afterimage effect, transparent background --ar 3:4",
+  "modelDetailList": [
+    {
+      "modelId": "23DU67CDCU",
+      "strength": 0.9
+    }
+  ],
+  "aspectRatios": "3:4",
+  "seed": -1,
+  "hdFix": false,
+  "hdScale": null,
+  "faceDetail": true,
+  "negativePrompt": "",
+  "batchSize": 1,
+  "enablePerturb": false,
+  "perturb": null,
+  "simpleBackground": false,
+  "characterPose": null,
+  "imageReference": null,
+  "referenceMode": null,
+  "referenceWeight": null
+}

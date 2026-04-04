@@ -1,0 +1,23 @@
+{
+  "prompt": "Huang Zhong, elderly but muscular, rattan armor, standing pose, upright posture, wielding large heavy war bow with flaming arrows and intricate bow decorations, aiming pose with fire arrow nocked, holopix style, warm orange and brown tones, pixel fire particles, transparent background --ar 3:4",
+  "modelDetailList": [
+    {
+      "modelId": "23DU67CDCU",
+      "strength": 0.9
+    }
+  ],
+  "aspectRatios": "3:4",
+  "seed": -1,
+  "hdFix": false,
+  "hdScale": null,
+  "faceDetail": true,
+  "negativePrompt": "",
+  "batchSize": 1,
+  "enablePerturb": false,
+  "perturb": null,
+  "simpleBackground": false,
+  "characterPose": null,
+  "imageReference": null,
+  "referenceMode": null,
+  "referenceWeight": null
+}

@@ -1,0 +1,17 @@
+查询可用模型列表
+查询账号下可用的模型
+创建任务
+网络协议	请求地址	请求方法	请求格式	响应格式
+https	/v1/model/apiList	POST	application/json	application/json
+请求头
+字段	值	描述
+Content-Type	application/json	application/json
+Authorization	鉴权信息，参考接口鉴权	鉴权信息，参考接口鉴权
+响应参数
+字段	类型	描述
+Id	string	模型唯一代码
+modelName	int	模型名称
+modelType	int	模型类型
+styleType	string	风格类型
+total	int	总数
+

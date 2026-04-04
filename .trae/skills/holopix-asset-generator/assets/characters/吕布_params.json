@@ -1,0 +1,23 @@
+{
+  "prompt": "chibi style 吕布 from Three Kingdoms, fierce warrior, red armor, powerful and arrogant, strongest fighter, 2.5 head-to-body ratio, big head small body, Sky Piercer Halberd, red and gold armor with pheasant feathers, cute and appealing, bright colors, clean lines, transparent background, game sprite, mobile game optimized, high quality, detailed face, expressive eyes",
+  "modelDetailList": [
+    {
+      "modelId": 2,
+      "strength": 0.9
+    }
+  ],
+  "aspectRatios": "1:1",
+  "seed": -1,
+  "hdFix": true,
+  "hdScale": 2,
+  "faceDetail": true,
+  "negativePrompt": "",
+  "batchSize": 1,
+  "enablePerturb": false,
+  "perturb": null,
+  "simpleBackground": false,
+  "characterPose": null,
+  "imageReference": null,
+  "referenceMode": null,
+  "referenceWeight": null
+}

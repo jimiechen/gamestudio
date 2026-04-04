@@ -1,0 +1,23 @@
+{
+  "prompt": "Q版诸葛亮，睿智军师，羽扇纶巾，沉着冷静，仙风道骨，2.5头身比，大头小身体，羽毛扇，蓝色道袍，仙鹤图案，可爱卡通风格，明亮色彩，干净线条，透明背景，游戏角色，手游优化，高质量，精致面部，生动表情",
+  "modelDetailList": [
+    {
+      "modelId": 2,
+      "strength": 0.9
+    }
+  ],
+  "aspectRatios": "1:1",
+  "seed": -1,
+  "hdFix": true,
+  "hdScale": 2,
+  "faceDetail": true,
+  "negativePrompt": "模糊，低质量，变形，丑陋，畸形，糟糕的人体结构，多余的手指，缺失的手指，多余的手臂，多余的腿， watermark, signature, text, logo",
+  "batchSize": 1,
+  "enablePerturb": false,
+  "perturb": null,
+  "simpleBackground": false,
+  "characterPose": null,
+  "imageReference": null,
+  "referenceMode": null,
+  "referenceWeight": null
+}
