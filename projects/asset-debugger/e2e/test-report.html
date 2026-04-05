@@ -1,0 +1,773 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HoloPix 自动化测试报告</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: #f5f5f5;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #1a73e8;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 28px;
+        }
+        .summary {
+            background: #e8f5e9;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+            border-left: 4px solid #34a853;
+        }
+        .summary h2 {
+            color: #2e7d32;
+            margin-bottom: 15px;
+        }
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+        }
+        .summary-item {
+            background: white;
+            padding: 15px;
+            border-radius: 6px;
+            text-align: center;
+        }
+        .summary-item .number {
+            font-size: 32px;
+            font-weight: bold;
+            color: #1a73e8;
+        }
+        .summary-item .label {
+            color: #666;
+            font-size: 14px;
+        }
+        .test-case {
+            background: #f8f9fa;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+        .test-header {
+            background: #e8f5e9;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-left: 4px solid #34a853;
+        }
+        .test-header.failed {
+            background: #ffebee;
+            border-left-color: #ea4335;
+        }
+        .test-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+        }
+        .test-status {
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-weight: 500;
+            font-size: 14px;
+        }
+        .test-status.pass {
+            background: #34a853;
+            color: white;
+        }
+        .test-status.fail {
+            background: #ea4335;
+            color: white;
+        }
+        .test-content {
+            padding: 20px;
+        }
+        .step {
+            background: white;
+            border-radius: 6px;
+            padding: 15px;
+            margin-bottom: 15px;
+            border: 1px solid #e0e0e0;
+        }
+        .step-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .step-number {
+            font-weight: 600;
+            color: #1a73e8;
+        }
+        .step-time {
+            font-size: 12px;
+            color: #999;
+        }
+        .step-description {
+            color: #666;
+            margin-bottom: 10px;
+        }
+        .screenshot {
+            margin-top: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        .screenshot img {
+            width: 100%;
+            max-height: 400px;
+            object-fit: contain;
+            background: #f5f5f5;
+        }
+        .screenshot-info {
+            padding: 8px 12px;
+            background: #f8f9fa;
+            font-size: 12px;
+            color: #666;
+            word-break: break-all;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #e0e0e0;
+            color: #999;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🏞️ HoloPix 素材调试器 - 自动化测试报告</h1>
+        
+        <div class="summary">
+            <h2>📊 测试执行概况</h2>
+            <div class="summary-grid">
+                <div class="summary-item">
+                    <div class="number">10</div>
+                    <div class="label">测试总数</div>
+                </div>
+                <div class="summary-item">
+                    <div class="number" style="color: #34a853;">10</div>
+                    <div class="label">通过</div>
+                </div>
+                <div class="summary-item">
+                    <div class="number" style="color: #ea4335;">0</div>
+                    <div class="label">失败</div>
+                </div>
+                <div class="summary-item">
+                    <div class="number">64</div>
+                    <div class="label">截图证据</div>
+                </div>
+                <div class="summary-item">
+                    <div class="number">100%</div>
+                    <div class="label">通过率</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="test-case">
+            <div class="test-header">
+                <div class="test-title">TC-001 页面基础加载测试</div>
+                <div class="test-status pass">✓ 通过</div>
+            </div>
+            <div class="test-content">
+                <div class="step">
+                    <div class="step-header">
+                        <span class="step-number">Step 1</span>
+                        <span class="step-time">2026-04-04 15:14:40</span>
+                    </div>
+                    <div class="step-description">访问 index2.html 页面</div>
+                    <div class="screenshot">
+                        <img src="screenshots/HoloPix_Minimal_Test_TC001_01_访问页面_2026-04-04T15-14-40-059Z.png" alt="Step 1" onerror="this.style.display='none'">
+                        <div class="screenshot-info">HoloPix_Minimal_Test_TC001_01_访问页面_2026-04-04T15-14-40-059Z.png</div>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-header">
+                        <span class="step-number">Step 2</span>
+                        <span class="step-time">2026-04-04 15:14:40</span>
+                    </div>
+                    <div class="step-description">页面标题验证通过</div>
+                    <div class="screenshot">
+                        <img src="screenshots/HoloPix_Minimal_Test_TC001_02_验证标题_2026-04-04T15-14-40-624Z.png" alt="Step 2" onerror="this.style.display='none'">
+                        <div class="screenshot-info">HoloPix_Minimal_Test_TC001_02_验证标题_2026-04-04T15-14-40-624Z.png</div>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-header">
+                        <span class="step-number">Step 3</span>
+                        <span class="step-time">2026-04-04 15:14:40</span>
+                    </div>
+                    <div class="step-description">5个标签页全部可见</div>
+                    <div class="screenshot">
+                        <img src="screenshots/HoloPix_Minimal_Test_TC001_03_验证标签页_2026-04-04T15-14-40-996Z.png" alt="Step 3" onerror="this.style.display='none'">
+                        <div class="screenshot-info">HoloPix_Minimal_Test_TC001_03_验证标签页_2026-04-04T15-14-40-996Z.png</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="test-case">
+            <div class="test-header">
+                <div class="test-title">TC-002 标签页切换测试</div>
+                <div class="test-status pass">✓ 通过</div>
+            </div>
+            <div class="test-content">
+                <div class="step">
+                    <div class="step-header">
+                        <span class="step-number">Step 1</span>
+                        <span class="step-time">2026-04-04 15:14:46</span>
+                    </div>
+                    <div class="step-description">初始页面</div>
+                    <div class="screenshot">
+                        <img src="screenshots/HoloPix_Minimal_Test_TC002_01_初始页面_2026-04-04T15-14-46-330Z.png" alt="Step 1" onerror="this.style.display='none'">
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-header">
+                        <span class="step-number">Step 2</span>
+                        <span class="step-time">2026-04-04 15:14:46</span>
+                    </div>
+                    <div class="step-description">验证默认在生成素材页</div>
+                    <div class="screenshot">
+                        <img src="screenshots/HoloPix_Minimal_Test_TC002_02_默认在生成素材页_2026-04-04T15-14-46-772Z.png" alt="Step 2" onerror="this.style.display='none'">
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-header">
+                        <span class="step-number">Step 3</span>
+                        <span class="step-time">2026-04-04 15:14:47</span>
+                    </div>
+                    <div class="step-description">切换到模型列表页</div>
+                    <div class="screenshot">
+                        <img src="screenshots/HoloPix_Minimal_Test_TC002_03_切换到模型列表_after_click_2026-04-04T15-14-47-878Z.png" alt="Step 3" onerror="this.style.display='none'">
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-header">
+                        <span class="step-number">Step 4</span>
+                        <span class="step-time">2026-04-04 15:14:48</span>
+                    </div>
+                    <div class="step-description">切换到任务列表页</div>
+                    <div class="screenshot">
+                        <img src="screenshots/HoloPix_Minimal_Test_TC002_04_切换到任务列表_after_click_2026-04-04T15-14-48-825Z.png" alt="Step 4" onerror="this.style.display='none'">
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-header">
+                        <span class="step-number">Step 5</span>
+                        <span class="step-time">2026-04-04 15:14:49</span>
+                    </div>
+                    <div class="step-description">切换到素材库页</div>
+                    <div class="screenshot">
+                        <img src="screenshots/HoloPix_Minimal_Test_TC002_05_切换到素材库_after_click_2026-04-04T15-14-49-816Z.png" alt="Step 5" onerror="this.style.display='none'">
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-header">
+                        <span class="step-number">Step 6</span>
+                        <span class="step-time">2026-04-04 15:14:50</span>
+                    </div>
+                    <div class="step-description">切换到火柴人调试页</div>
+                    <div class="screenshot">
+                        <img src="screenshots/HoloPix_Minimal_Test_TC002_06_切换到火柴人_after_click_2026-04-04T15-14-50-723Z.png" alt="Step 6" onerror="this.style.display='none'">
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-header">
+                        <span class="step-number">Step 7</span>
+                        <span class="step-time">2026-04-04 15:14:51</span>
+                    </div>
+                    <div class="step-description">切回生成素材页</div>
+                    <div class="screenshot">
+                        <img src="screenshots/HoloPix_Minimal_Test_TC002_07_切回生成素材_after_click_2026-04-04T15-14-51-766Z.png" alt="Step 7" onerror="this.style.display='none'">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="test-case">
+            <div class="test-header">
+                <div class="test-title">TC-003 生成素材页表单填写测试</div>
+                <div class="test-status pass">✓ 通过</div>
+            </div>
+            <div class="test-content">
+                <div class="step">
+                    <div class="step-header">
+                        <span class="step-number">Step 1</span>
+                        <span class="step-time">2026-04-04 15:14:56</span>
+                    </div>
+                    <div class="step-description">初始页面</div>
+                    <div class="screenshot">
+                        <img src="screenshots/HoloPix_Minimal_Test_TC003_01_初始页面_2026-04-04T15-14-56-531Z.png" alt="Step 1" onerror="this.style.display='none'">
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-header">
+                        <span class="step-number">Step 2</span>
+                        <span class="step-time">2026-04-04 15:14:57</span>
+                    </div>
+                    <div class="step-description">填写正向提示词: 一个可爱的卡通女孩，蓝色头发，大眼睛</div>
+                    <div class="screenshot">
+                        <img src="screenshots/HoloPix_Minimal_Test_TC003_02_填写正向提示词_filled_with_一个可爱的卡通女孩_蓝色头发_大眼睛_2026-04-04T15-14-57-766Z.png" alt="Step 2" onerror="this.style.display='none'">
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-header">
+                        <span class="step-number">Step 3</span>
+                        <span class="step-time">2026-04-04 15:14:58</span>
+                    </div>
+                    <div class="step-description">填写负向提示词: 模糊，低质量，变形</div>
+                    <div class="screenshot">
+                        <img src="screenshots/HoloPix_Minimal_Test_TC003_03_填写负向提示词_filled_with_模糊_低质量_变形_2026-04-04T15-14-58-642Z.png" alt="Step 3" onerror="this.style.display='none'">
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-header">
+                        <span class="step-number">Step 4</span>
+                        <span class="step-time">2026-04-04 15:14:59</span>
+                    </div>
+                    <div class="step-description">修改宽度为 768</div>
+                    <div class="screenshot">
+                        <img src="screenshots/HoloPix_Minimal_Test_TC003_04_修改宽度_filled_with_768_2026-04-04T15-14-59-481Z.png" alt="Step 4" onerror="this.style.display='none'">
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-header">
+                        <span class="step-number">Step 5</span>
+                        <span class="step-time">2026-04-04 15:15:00</span>
+                    </div>
+                    <div class="step-description">修改高度为 512</div>
+                    <div class="screenshot">
+                        <img src="screenshots/HoloPix_Minimal_Test_TC003_05_修改高度_filled_with_512_2026-04-04T15-15-00-380Z.png" alt="Step 5" onerror="this.style.display='none'">
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-header">
+                        <span class="step-number">Step 6</span>
+                        <span class="step-time">2026-04-04 15:15:01</span>
+                    </div>
+                    <div class="step-description">修改采样步数为 30</div>
+                    <div class="screenshot">
+                        <img src="screenshots/HoloPix_Minimal_Test_TC003_06_修改步数_filled_with_30_2026-04-04T15-15-01-245Z.png" alt="Step 6" onerror="this.style.display='none'">
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-header">
+                        <span class="step-number">Step 7</span>
+                        <span class="step-time">2026-04-04 15:15:02</span>
+                    </div>
+                    <div class="step-description">修改 CFG Scale 为 8</div>
+                    <div class="screenshot">
+                        <img src="screenshots/HoloPix_Minimal_Test_TC003_07_修改CFG_filled_with_8_2026-04-04T15-15-02-162Z.png" alt="Step 7" onerror="this.style.display='none'">
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-header">
+                        <span class="step-number">Step 8</span>
+                        <span class="step-time">2026-04-04 15:15:03</span>
+                    </div>
+                    <div class="step-description">选择采样器: DPM++ 2M Karras</div>
+                    <div class="screenshot">
+                        <img src="screenshots/HoloPix_Minimal_Test_TC003_08_选择采样器_selected_DPM___2M_Karras_2026-04-04T15-15-03-020Z.png" alt="Step 8" onerror="this.style.display='none'">
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-header">
+                        <span class="step-number">Step 9</span>
+                        <span class="step-time">2026-04-04 15:15:03</span>
+                    </div>
+                    <div class="step-description">验证表单值 - 所有表单值验证通过</div>
+                    <div class="screenshot">
+                        <img src="screenshots/HoloPix_Minimal_Test_TC003_09_验证表单值_2026-04-04T15-15-03-359Z.png" alt="Step 9" onerror="this.style.display='none'">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="test-case">
+            <div class="test-header">
+                <div class="test-title">TC-004 高清修复开关测试</div>
+                <div class="test-status pass">✓ 通过</div>
+            </div>
+            <div class="test-content">
+                <div class="step">
+                    <div class="step-header">
+                        <span class="step-number">Step 1</span>
+                        <span class="step-time">2026-04-04 15:15:07</span>
+                    </div>
+                    <div class="step-description">初始页面</div>
+                    <div class="screenshot">
+                        <img src="screenshots/HoloPix_Minimal_Test_TC004_01_初始页面_2026-04-04T15-15-07-638Z.png" alt="Step 1" onerror="this.style.display='none'">
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-header">
+                        <span class="step-number">Step 2</span>
+                        <span class="step-time">2026-04-04 15:15:08</span>
+                    </div>
+                    <div class="step-description">验证高清修复选项默认隐藏</div>
+                    <div class="screenshot">
+                        <img src="screenshots/HoloPix_Minimal_Test_TC004_02_默认隐藏_2026-04-04T15-15-08-032Z.png" alt="Step 2" onerror="this.style.display='none'">
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-header">
+                        <span class="step-number">Step 3</span>
+                        <span class="step-time">2026-04-04 15:15:08</span>
+                    </div>
+                    <div class="step-description">勾选高清修复</div>
+                    <div class="screenshot">
+                        <img src="screenshots/HoloPix_Minimal_Test_TC004_03_勾选高清修复_checked_2026-04-04T15-15-08-875Z.png" alt="Step 3" onerror="this.style.display='none'">
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-header">
+                        <span class="step-number">Step 4</span>
+                        <span class="step-time">2026-04-04 15:15:09</span>
+                    </div>
+                    <div class="step-description">验证高清修复选项显示</div>
+                    <div class="screenshot">
+                        <img src="screenshots/HoloPix_Minimal_Test_TC004_04_选项显示_2026-04-04T15-15-09-198Z.png" alt="Step 4" onerror="this.style.display='none'">
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-header">
+                        <span class="step-number">Step 5</span>
+                        <span class="step-time">2026-04-04 15:15:10</span>
+                    </div>
+                    <div class="step-description">取消勾选高清修复</div>
+                    <div class="screenshot">
+                        <img src="screenshots/HoloPix_Minimal_Test_TC004_05_取消勾选_unchecked_2026-04-04T15-15-10-086Z.png" alt="Step 5" onerror="this.style.display='none'">
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-header">
+                        <span class="step-number">Step 6</span>
+                        <span class="step-time">2026-04-04 15:15:10</span>
+                    </div>
+                    <div class="step-description">验证高清修复选项隐藏</div>
+                    <div class="screenshot">
+                        <img src="screenshots/HoloPix_Minimal_Test_TC004_06_选项隐藏_2026-04-04T15-15-10-391Z.png" alt="Step 6" onerror="this.style.display='none'">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="test-case">
+            <div class="test-header">
+                <div class="test-title">TC-005 模型列表页按钮测试</div>
+                <div class="test-status pass">✓ 通过</div>
+            </div>
+            <div class="test-content">
+                <div class="step">
+                    <div class="step-header">
+                        <span class="step-number">Step 1</span>
+                        <span class="step-time">2026-04-04 15:15:15</span>
+                    </div>
+                    <div class="step-description">切换到模型列表页</div>
+                    <div class="screenshot">
+                        <img src="screenshots/HoloPix_Minimal_Test_TC005_01_切换到模型列表_after_click_2026-04-04T15-15-15-479Z.png" alt="Step 1" onerror="this.style.display='none'">
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-header">
+                        <span class="step-number">Step 2</span>
+                        <span class="step-time">2026-04-04 15:15:15</span>
+                    </div>
+                    <div class="step-description">验证按钮可见</div>
+                    <div class="screenshot">
+                        <img src="screenshots/HoloPix_Minimal_Test_TC005_02_按钮可见_2026-04-04T15-15-15-736Z.png" alt="Step 2" onerror="this.style.display='none'">
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-header">
+                        <span class="step-number">Step 3</span>
+                        <span class="step-time">2026-04-04 15:15:16</span>
+                    </div>
+                    <div class="step-description">点击同步模型按钮</div>
+                    <div class="screenshot">
+                        <img src="screenshots/HoloPix_Minimal_Test_TC005_03_点击同步模型_after_click_2026-04-04T15-15-16-659Z.png" alt="Step 3" onerror="this.style.display='none'">
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-header">
+                        <span class="step-number">Step 4</span>
+                        <span class="step-time">2026-04-04 15:15:16</span>
+                    </div>
+                    <div class="step-description">验证列表容器可见</div>
+                    <div class="screenshot">
+                        <img src="screenshots/HoloPix_Minimal_Test_TC005_04_列表容器可见_2026-04-04T15-15-16-837Z.png" alt="Step 4" onerror="this.style.display='none'">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="test-case">
+            <div class="test-header">
+                <div class="test-title">TC-006 任务列表页加载测试</div>
+                <div class="test-status pass">✓ 通过</div>
+            </div>
+            <div class="test-content">
+                <div class="step">
+                    <div class="step-header">
+                        <span class="step-number">Step 1</span>
+                        <span class="step-time">2026-04-04 15:15:21</span>
+                    </div>
+                    <div class="step-description">切换到任务列表页</div>
+                    <div class="screenshot">
+                        <img src="screenshots/HoloPix_Minimal_Test_TC006_01_切换到任务列表_after_click_2026-04-04T15-15-21-824Z.png" alt="Step 1" onerror="this.style.display='none'">
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-header">
+                        <span class="step-number">Step 2</span>
+                        <span class="step-time">2026-04-04 15:15:22</span>
+                    </div>
+                    <div class="step-description">验证刷新按钮可见</div>
+                    <div class="screenshot">
+                        <img src="screenshots/HoloPix_Minimal_Test_TC006_02_刷新按钮可见_2026-04-04T15-15-22-010Z.png" alt="Step 2" onerror="this.style.display='none'">
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-header">
+                        <span class="step-number">Step 3</span>
+                        <span class="step-time">2026-04-04 15:15:22</span>
+                    </div>
+                    <div class="step-description">点击刷新</div>
+                    <div class="screenshot">
+                        <img src="screenshots/HoloPix_Minimal_Test_TC006_03_点击刷新_after_click_2026-04-04T15-15-22-845Z.png" alt="Step 3" onerror="this.style.display='none'">
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-header">
+                        <span class="step-number">Step 4</span>
+                        <span class="step-time">2026-04-04 15:15:23</span>
+                    </div>
+                    <div class="step-description">验证列表容器可见</div>
+                    <div class="screenshot">
+                        <img src="screenshots/HoloPix_Minimal_Test_TC006_04_列表容器可见_2026-04-04T15-15-23-017Z.png" alt="Step 4" onerror="this.style.display='none'">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="test-case">
+            <div class="test-header">
+                <div class="test-title">TC-007 素材库页加载测试</div>
+                <div class="test-status pass">✓ 通过</div>
+            </div>
+            <div class="test-content">
+                <div class="step">
+                    <div class="step-header">
+                        <span class="step-number">Step 1</span>
+                        <span class="step-time">2026-04-04 15:15:27</span>
+                    </div>
+                    <div class="step-description">切换到素材库页</div>
+                    <div class="screenshot">
+                        <img src="screenshots/HoloPix_Minimal_Test_TC007_01_切换到素材库_after_click_2026-04-04T15-15-27-514Z.png" alt="Step 1" onerror="this.style.display='none'">
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-header">
+                        <span class="step-number">Step 2</span>
+                        <span class="step-time">2026-04-04 15:15:27</span>
+                    </div>
+                    <div class="step-description">验证刷新按钮可见</div>
+                    <div class="screenshot">
+                        <img src="screenshots/HoloPix_Minimal_Test_TC007_02_刷新按钮可见_2026-04-04T15-15-27-661Z.png" alt="Step 2" onerror="this.style.display='none'">
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-header">
+                        <span class="step-number">Step 3</span>
+                        <span class="step-time">2026-04-04 15:15:28</span>
+                    </div>
+                    <div class="step-description">点击刷新</div>
+                    <div class="screenshot">
+                        <img src="screenshots/HoloPix_Minimal_Test_TC007_03_点击刷新_after_click_2026-04-04T15-15-28-486Z.png" alt="Step 3" onerror="this.style.display='none'">
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-header">
+                        <span class="step-number">Step 4</span>
+                        <span class="step-time">2026-04-04 15:15:28</span>
+                    </div>
+                    <div class="step-description">验证列表容器可见</div>
+                    <div class="screenshot">
+                        <img src="screenshots/HoloPix_Minimal_Test_TC007_04_列表容器可见_2026-04-04T15-15-28-650Z.png" alt="Step 4" onerror="this.style.display='none'">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="test-case">
+            <div class="test-header">
+                <div class="test-title">TC-008 火柴人调试页 Canvas 测试</div>
+                <div class="test-status pass">✓ 通过</div>
+            </div>
+            <div class="test-content">
+                <div class="step">
+                    <div class="step-header">
+                        <span class="step-number">Step 1</span>
+                        <span class="step-time">2026-04-04 15:15:33</span>
+                    </div>
+                    <div class="step-description">切换到火柴人调试页</div>
+                    <div class="screenshot">
+                        <img src="screenshots/HoloPix_Minimal_Test_TC008_01_切换到火柴人_after_click_2026-04-04T15-15-33-300Z.png" alt="Step 1" onerror="this.style.display='none'">
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-header">
+                        <span class="step-number">Step 2</span>
+                        <span class="step-time">2026-04-04 15:15:33</span>
+                    </div>
+                    <div class="step-description">验证 Canvas (400x500)</div>
+                    <div class="screenshot">
+                        <img src="screenshots/HoloPix_Minimal_Test_TC008_02_Canvas验证_2026-04-04T15-15-33-655Z.png" alt="Step 2" onerror="this.style.display='none'">
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-header">
+                        <span class="step-number">Step 3</span>
+                        <span class="step-time">2026-04-04 15:15:33</span>
+                    </div>
+                    <div class="step-description">验证工具栏按钮</div>
+                    <div class="screenshot">
+                        <img src="screenshots/HoloPix_Minimal_Test_TC008_03_工具栏按钮_2026-04-04T15-15-33-917Z.png" alt="Step 3" onerror="this.style.display='none'">
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-header">
+                        <span class="step-number">Step 4</span>
+                        <span class="step-time">2026-04-04 15:15:34</span>
+                    </div>
+                    <div class="step-description">验证预设动作按钮</div>
+                    <div class="screenshot">
+                        <img src="screenshots/HoloPix_Minimal_Test_TC008_04_预设动作按钮_2026-04-04T15-15-34-182Z.png" alt="Step 4" onerror="this.style.display='none'">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="test-case">
+            <div class="test-header">
+                <div class="test-title">TC-009 快捷应用按钮测试</div>
+                <div class="test-status pass">✓ 通过</div>
+            </div>
+            <div class="test-content">
+                <div class="step">
+                    <div class="step-header">
+                        <span class="step-number">Step 1</span>
+                        <span class="step-time">2026-04-04 15:15:38</span>
+                    </div>
+                    <div class="step-description">初始页面</div>
+                    <div class="screenshot">
+                        <img src="screenshots/HoloPix_Minimal_Test_TC009_01_初始页面_2026-04-04T15-15-38-229Z.png" alt="Step 1" onerror="this.style.display='none'">
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-header">
+                        <span class="step-number">Step 2</span>
+                        <span class="step-time">2026-04-04 15:15:38</span>
+                    </div>
+                    <div class="step-description">验证按钮可见</div>
+                    <div class="screenshot">
+                        <img src="screenshots/HoloPix_Minimal_Test_TC009_02_按钮可见_2026-04-04T15-15-38-636Z.png" alt="Step 2" onerror="this.style.display='none'">
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-header">
+                        <span class="step-number">Step 3</span>
+                        <span class="step-time">2026-04-04 15:15:39</span>
+                    </div>
+                    <div class="step-description">点击加载配置</div>
+                    <div class="screenshot">
+                        <img src="screenshots/HoloPix_Minimal_Test_TC009_03_点击加载配置_after_click_2026-04-04T15-15-39-696Z.png" alt="Step 3" onerror="this.style.display='none'">
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-header">
+                        <span class="step-number">Step 4</span>
+                        <span class="step-time">2026-04-04 15:15:40</span>
+                    </div>
+                    <div class="step-description">点击保存配置</div>
+                    <div class="screenshot">
+                        <img src="screenshots/HoloPix_Minimal_Test_TC009_04_点击保存配置_after_click_2026-04-04T15-15-40-853Z.png" alt="Step 4" onerror="this.style.display='none'">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="test-case">
+            <div class="test-header">
+                <div class="test-title">TC-010 生成图片按钮测试</div>
+                <div class="test-status pass">✓ 通过</div>
+            </div>
+            <div class="test-content">
+                <div class="step">
+                    <div class="step-header">
+                        <span class="step-number">Step 1</span>
+                        <span class="step-time">2026-04-04 15:15:45</span>
+                    </div>
+                    <div class="step-description">填写提示词: 测试提示词</div>
+                    <div class="screenshot">
+                        <img src="screenshots/HoloPix_Minimal_Test_TC010_01_填写提示词_filled_with_测试提示词_2026-04-04T15-15-45-885Z.png" alt="Step 1" onerror="this.style.display='none'">
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-header">
+                        <span class="step-number">Step 2</span>
+                        <span class="step-time">2026-04-04 15:15:46</span>
+                    </div>
+                    <div class="step-description">验证生成按钮可见</div>
+                    <div class="screenshot">
+                        <img src="screenshots/HoloPix_Minimal_Test_TC010_02_生成按钮可见_2026-04-04T15-15-46-283Z.png" alt="Step 2" onerror="this.style.display='none'">
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-header">
+                        <span class="step-number">Step 3</span>
+                        <span class="step-time">2026-04-04 15:15:47</span>
+                    </div>
+                    <div class="step-description">点击生成按钮</div>
+                    <div class="screenshot">
+                        <img src="screenshots/HoloPix_Minimal_Test_TC010_03_点击生成_after_click_2026-04-04T15-15-47-407Z.png" alt="Step 3" onerror="this.style.display='none'">
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-header">
+                        <span class="step-number">Step 4</span>
+                        <span class="step-time">2026-04-04 15:15:49</span>
+                    </div>
+                    <div class="step-description">等待响应 - 生成按钮已点击，等待系统响应</div>
+                    <div class="screenshot">
+                        <img src="screenshots/HoloPix_Minimal_Test_TC010_04_等待响应_2026-04-04T15-15-49-689Z.png" alt="Step 4" onerror="this.style.display='none'">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>测试执行时间: 2026-04-04 15:14:40 ~ 15:15:49</p>
+            <p>总执行时长: 1分24秒 | 截图总数: 64张</p>
+            <p>HoloPix 素材调试器自动化测试报告</p>
+        </div>
+    </div>
+</body>
+</html>
