@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HoloPix 素材调试器</title>
+    <!-- CSS -->
+    <link rel="stylesheet" href="css/base.css">
+    <link rel="stylesheet" href="css/components.css">
+    <link rel="stylesheet" href="css/modal.css">
+</head>
+<body>
+    <div class="container">
+        <h1>🏞️ HoloPix 素材调试器</h1>
+        
+        <!-- 标签页 - 使用 data-action -->
+        <div class="tabs">
+            <div class="tab active" data-action="switchTab" data-tab="generate">🎨 生成素材</div>
+            <div class="tab" data-action="switchTab" data-tab="models">📋 模型列表</div>
+            <div class="tab" data-action="switchTab" data-tab="tasks">📋 任务列表</div>
+            <div class="tab" data-action="switchTab" data-tab="assets">🖼️ 素材库</div>
+            <div class="tab" data-action="switchTab" data-tab="stickman">🎭 火柴人调试</div>
+        </div>
+        
+        <!-- 生成素材标签页 -->
+        <div id="generate" class="tab-content active">
+            <!-- 快捷应用栏 -->
+            <div class="card">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                    <h2 style="margin: 0; border: none; padding: 0;">⚡ 快捷应用</h2>
+                    <div style="display: flex; gap: 10px;">
+                        <button class="btn" data-action="openQuickPresetModal" style="background: #e8f0fe; color: #1a73e8;">📂 加载配置</button>
+                        <button class="btn btn-secondary" data-action="saveQuickPreset">💾 保存配置</button>
+                    </div>
+                </div>
+                <div id="quickPresetList" style="display: flex; gap: 10px; flex-wrap: wrap;">
+                    <span style="color: #999; font-size: 14px;">暂无快捷应用，请保存当前配置</span>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>🎨 文生图参数配置</h2>
+
+                <!-- 第1组: 模型配置 -->
+                <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+                    <h3 style="margin: 0 0 15px 0; font-size: 16px; color: #1a73e8;">📦 1. 模型配置 (必填)</h3>
+                    
+                    <div class="form-group">
+                        <label>已选模型 (可多个)</label>
+                        <div id="selectedModels" style="margin-bottom: 10px;">
+                            <p style="color: #999;">未选择模型</p>
+                        </div>
+                        <button class="btn btn-primary" data-action="openModelSelector">➕ 添加模型</button>
+                    </div>
+
+                    <div class="form-group" style="margin-top: 15px;">
+                        <label>预设模型组合</label>
+                        <div id="presetModelCombos"></div>
+                    </div>
+                </div>
+
+                <!-- 第2组: 提示词配置 -->
+                <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+                    <h3 style="margin: 0 0 15px 0; font-size: 16px; color: #1a73e8;">📝 2. 提示词配置</h3>
+                    
+                    <div class="form-group">
+                        <label for="prompt">正向提示词 (Prompt) *</label>
+                        <textarea id="prompt" rows="4" placeholder="描述你想要生成的图像内容..."></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="negativePrompt">负向提示词 (Negative Prompt)</label>
+                        <textarea id="negativePrompt" rows="2" placeholder="描述你不希望出现在图像中的内容..."></textarea>
+                    </div>
+                </div>
+
+                <!-- 第3组: 图像参数 -->
+                <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+                    <h3 style="margin: 0 0 15px 0; font-size: 16px; color: #1a73e8;">🖼️ 3. 图像参数</h3>
+                    
+                    <div class="params-grid">
+                        <div class="form-group">
+                            <label for="width">宽度</label>
+                            <input type="number" id="width" value="512" min="64" max="2048" step="64">
+                        </div>
+                        <div class="form-group">
+                            <label for="height">高度</label>
+                            <input type="number" id="height" value="512" min="64" max="2048" step="64">
+                        </div>
+                        <div class="form-group">
+                            <label for="steps">采样步数</label>
+                            <input type="number" id="steps" value="20" min="1" max="150">
+                        </div>
+                        <div class="form-group">
+                            <label for="cfgScale">CFG Scale</label>
+                            <input type="number" id="cfgScale" value="7" min="1" max="30" step="0.5">
+                        </div>
+                        <div class="form-group">
+                            <label for="seed">随机种子 (-1为随机)</label>
+                            <input type="number" id="seed" value="-1" min="-1">
+                        </div>
+                        <div class="form-group">
+                            <label for="batchSize">批次大小</label>
+                            <input type="number" id="batchSize" value="1" min="1" max="8">
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="sampler">采样器</label>
+                        <select id="sampler">
+                            <option value="Euler a">Euler a</option>
+                            <option value="Euler">Euler</option>
+                            <option value="LMS">LMS</option>
+                            <option value="Heun">Heun</option>
+                            <option value="DPM2">DPM2</option>
+                            <option value="DPM2 a">DPM2 a</option>
+                            <option value="DPM++ 2S a">DPM++ 2S a</option>
+                            <option value="DPM++ 2M">DPM++ 2M</option>
+                            <option value="DPM++ SDE">DPM++ SDE</option>
+                            <option value="DPM fast">DPM fast</option>
+                            <option value="DPM adaptive">DPM adaptive</option>
+                            <option value="LMS Karras">LMS Karras</option>
+                            <option value="DPM2 Karras">DPM2 Karras</option>
+                            <option value="DPM2 a Karras">DPM2 a Karras</option>
+                            <option value="DPM++ 2S a Karras">DPM++ 2S a Karras</option>
+                            <option value="DPM++ 2M Karras">DPM++ 2M Karras</option>
+                            <option value="DPM++ SDE Karras">DPM++ SDE Karras</option>
+                            <option value="DDIM">DDIM</option>
+                            <option value="PLMS">PLMS</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- 第4组: 高级选项 -->
+                <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+                    <h3 style="margin: 0 0 15px 0; font-size: 16px; color: #1a73e8;">⚙️ 4. 高级选项</h3>
+                    
+                    <div class="form-group">
+                        <label>
+                            <input type="checkbox" id="hdScale" onchange="toggleHdScale()"> 启用高清修复 (Hires. fix)
+                        </label>
+                    </div>
+                    
+                    <div id="hrOptions" style="display: none; margin-top: 15px; padding: 15px; background: white; border-radius: 6px;">
+                        <div class="params-grid">
+                            <div class="form-group">
+                                <label for="hrScale">放大倍数</label>
+                                <input type="number" id="hrScale" value="2" min="1" max="4" step="0.5">
+                            </div>
+                            <div class="form-group">
+                                <label for="hrSteps">高清修复步数</label>
+                                <input type="number" id="hrSteps" value="20" min="1" max="150">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="hrSampler">高清修复采样器</label>
+                            <select id="hrSampler">
+                                <option value="Euler a">Euler a</option>
+                                <option value="Euler">Euler</option>
+                                <option value="LMS">LMS</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group" style="margin-top: 15px;">
+                        <label>
+                            <input type="checkbox" id="perturb" onchange="togglePerturb()"> 启用画面增强
+                        </label>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 生成按钮 -->
+            <div style="text-align: center; padding: 20px; background: #e8f0fe; border-radius: 8px;">
+                <button class="btn btn-primary" data-action="generateImage" style="font-size: 18px; padding: 15px 40px;">🎨 生成图片</button>
+            </div>
+
+            <!-- 生成进度 -->
+            <div id="generationProgress" style="margin-top: 20px;"></div>
+
+            <!-- 生成结果 -->
+            <div id="generationResults" style="margin-top: 20px;"></div>
+
+            <!-- 生成历史 -->
+            <div class="card" style="margin-top: 20px;">
+                <h2>📜 生成历史</h2>
+                <div id="generationHistory">
+                    <p style="color: #999; text-align: center;">暂无生成记录</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 模型列表标签页 -->
+        <div id="models" class="tab-content">
+            <div class="card">
+                <h2>📋 模型列表</h2>
+                
+                <div style="display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap;">
+                    <button class="btn btn-primary" data-action="syncModels">🔄 同步模型</button>
+                    <button class="btn btn-secondary" data-action="loadModels">📂 刷新列表</button>
+                    <button class="btn" onclick="expandAllDetails()">📖 展开全部</button>
+                    <button class="btn" onclick="collapseAllDetails()">📕 收起全部</button>
+                </div>
+
+                <!-- 筛选栏 -->
+                <div class="filter-bar">
+                    <select id="filterModelType" onchange="updateFilter('modelType', this.value)">
+                        <option value="">全部类型</option>
+                    </select>
+                    <select id="filterStyleType" onchange="updateFilter('styleType', this.value)">
+                        <option value="">全部风格</option>
+                    </select>
+                    <select id="filterBaseModel" onchange="updateFilter('baseModel', this.value)">
+                        <option value="">全部基础模型</option>
+                    </select>
+                    <select id="filterModelTags" onchange="updateFilter('modelTags', this.value)">
+                        <option value="">全部标签</option>
+                    </select>
+                    <input type="text" id="searchModelName" placeholder="搜索模型名称..." onkeyup="applyNameSearch()">
+                    <input type="text" id="filterModelIds" placeholder="模型ID筛选 (逗号分割)" onchange="applyModelIdFilter()">
+                    <button class="btn" data-action="clearAllFilters">清除筛选</button>
+                </div>
+
+                <div id="modelSelectionIndicator"></div>
+
+                <div id="modelListContainer">
+                    <p style="text-align: center; color: #999; padding: 40px;">点击"同步模型"加载数据</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 任务列表标签页 -->
+        <div id="tasks" class="tab-content">
+            <div class="card">
+                <h2>📋 任务列表</h2>
+                <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+                    <button class="btn btn-primary" data-action="loadTasks">🔄 刷新</button>
+                </div>
+                <div id="taskListContainer">
+                    <p style="text-align: center; color: #999; padding: 40px;">暂无任务</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 素材库标签页 -->
+        <div id="assets" class="tab-content">
+            <div class="card">
+                <h2>🖼️ 素材库</h2>
+                <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+                    <button class="btn btn-primary" data-action="loadAssets">🔄 刷新</button>
+                </div>
+                <div id="assetListContainer">
+                    <p style="text-align: center; color: #999; padding: 40px;">暂无素材</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 火柴人调试标签页 -->
+        <div id="stickman" class="tab-content">
+            <div class="card">
+                <h2>🎭 火柴人姿势编辑器</h2>
+                
+                <div style="display: flex; gap: 20px;">
+                    <div style="flex: 1;">
+                        <canvas id="stickmanCanvas" width="400" height="500"></canvas>
+                        <div class="editor-toolbar" style="margin-top: 15px;">
+                            <button class="btn btn-primary" onclick="stickmanEditor.savePose()">💾 保存姿势</button>
+                            <button class="btn btn-secondary" onclick="stickmanEditor.resetPose()">🔄 重置</button>
+                            <button class="btn btn-secondary" onclick="stickmanEditor.exportPNG()">📷 导出PNG</button>
+                            <button class="btn btn-secondary" onclick="stickmanEditor.generateDescription()">📝 生成描述</button>
+                            <button class="btn btn-success" onclick="stickmanEditor.useInGeneration()">🎨 用于文生图</button>
+                        </div>
+                    </div>
+                    
+                    <div style="flex: 1;">
+                        <h3>姿势列表</h3>
+                        <div class="form-group">
+                            <input type="text" placeholder="搜索姿势..." onkeyup="stickmanEditor.filterPoses(this.value)">
+                        </div>
+                        <div id="poseList">
+                            <p style="color: #999;">暂无保存的姿势</p>
+                        </div>
+                        
+                        <h3 style="margin-top: 20px;">预设动作</h3>
+                        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                            <button class="btn" data-preset="standing" onclick="stickmanEditor.loadPreset('standing')">🧍 站立</button>
+                            <button class="btn" data-preset="walking" onclick="stickmanEditor.loadPreset('walking')">🚶 行走</button>
+                            <button class="btn" data-preset="running" onclick="stickmanEditor.loadPreset('running')">🏃 奔跑</button>
+                            <button class="btn" data-preset="sitting" onclick="stickmanEditor.loadPreset('sitting')">🪑 坐姿</button>
+                        </div>
+                        
+                        <div style="margin-top: 20px; padding: 15px; background: #f8f9fa; border-radius: 8px;">
+                            <h4>使用姿势</h4>
+                            <p style="font-size: 14px; color: #666; margin-bottom: 10px;">选择已保存的姿势用于文生图</p>
+                            <button class="btn btn-primary" data-action="openStickmanPoseModal">📂 选择姿势</button>
+                            <button class="btn btn-secondary" data-action="clearStickmanPose">❌ 清除</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- JavaScript - 使用传统脚本方式加载，兼容 Flask 静态文件服务 -->
+    <script src="js/app.js"></script>
+</body>
+</html>
