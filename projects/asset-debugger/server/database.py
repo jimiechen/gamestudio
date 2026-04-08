@@ -169,6 +169,36 @@ class Database:
                 )
             ''')
 
+            # 视频生成任务表（图生视频功能）
+            cursor.execute('''
+                CREATE TABLE IF NOT EXISTS video_tasks (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    task_id TEXT UNIQUE,
+                    mode TEXT NOT NULL DEFAULT 'first_frame',
+                    model TEXT DEFAULT 'wan2.2-kf2v-flash',
+                    prompt TEXT,
+                    first_frame_url TEXT,
+                    first_frame_local TEXT,
+                    last_frame_url TEXT,
+                    last_frame_local TEXT,
+                    resolution TEXT DEFAULT '720P',
+                    duration INTEGER DEFAULT 5,
+                    prompt_extend BOOLEAN DEFAULT 1,
+                    watermark BOOLEAN DEFAULT 1,
+                    video_url TEXT,
+                    video_local_path TEXT,
+                    video_filename TEXT,
+                    status TEXT DEFAULT 'pending',
+                    status_msg TEXT,
+                    error_code TEXT,
+                    error_message TEXT,
+                    request_body TEXT,
+                    response_body TEXT,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                )
+            ''')
+
             # 数据库迁移：添加缺失的字段
             self._migrate_database(cursor)
             

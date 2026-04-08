@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="css/base.css">
     <link rel="stylesheet" href="css/components.css">
     <link rel="stylesheet" href="css/modal.css">
+    <link rel="stylesheet" href="css/prompts.css">
 </head>
 <body>
     <div class="container">
@@ -15,11 +16,13 @@
         
         <!-- 标签页 -->
         <div class="tabs">
-            <div class="tab active" data-tab="generate">🎨 生成素材</div>
+            <div class="tab" data-tab="generate">🎨 生成素材</div>
             <div class="tab" data-tab="models">📋 模型列表</div>
             <div class="tab" data-tab="tasks">📋 任务列表</div>
             <div class="tab" data-tab="assets">🖼️ 素材库</div>
             <div class="tab" data-tab="stickman">🎭 火柴人调试</div>
+            <div class="tab" data-tab="video">🎬 图生视频</div>
+            <div class="tab" data-tab="promptsLibrary">📝 提示词库</div>
         </div>
 
         <!-- 标签页内容 -->
@@ -61,16 +64,26 @@
                     <h3 style="margin: 0 0 15px 0; font-size: 16px; color: #1a73e8;">📝 2. 文本提示词</h3>
 
                     <div class="form-group">
-                        <label>正向提示词 (prompt) <span style="color: #ea4335;">*</span>
-                            <span style="font-weight: normal; color: #999; font-size: 12px;"> - 描述想要生成的内容，最多2000字符</span>
-                        </label>
+                        <div class="prompt-toolbar">
+                            <span class="prompt-label">正向提示词 (prompt) <span style="color: #ea4335;">*</span></span>
+                            <div class="prompt-actions">
+                                <button class="prompt-btn prompt-btn-primary" data-prompt-action="openSelector" data-target="prompt">📋 选择模板</button>
+                                <button class="prompt-btn" data-prompt-action="saveCurrent" data-target="prompt">💾 保存</button>
+                            </div>
+                        </div>
+                        <span style="font-weight: normal; color: #999; font-size: 12px;"> - 描述想要生成的内容，最多2000字符</span>
                         <textarea id="prompt" placeholder="例如: Q版角色，2.5头身比，大头小身体，可爱卡通风格，明亮色彩..."></textarea>
                     </div>
 
                     <div class="form-group">
-                        <label>反向提示词 (negativePrompt)
-                            <span style="font-weight: normal; color: #999; font-size: 12px;"> - 描述不想要的内容</span>
-                        </label>
+                        <div class="prompt-toolbar">
+                            <span class="prompt-label">反向提示词 (negativePrompt)</span>
+                            <div class="prompt-actions">
+                                <button class="prompt-btn prompt-btn-primary" data-prompt-action="openSelector" data-target="negativePrompt">📋 选择模板</button>
+                                <button class="prompt-btn" data-prompt-action="saveCurrent" data-target="negativePrompt">💾 保存</button>
+                            </div>
+                        </div>
+                        <span style="font-weight: normal; color: #999; font-size: 12px;"> - 描述不想要的内容</span>
                         <textarea id="negativePrompt" placeholder="例如: 模糊，低质量，变形，丑陋..."></textarea>
                     </div>
                 </div>
@@ -283,11 +296,21 @@
                     </div>
                 </div>
 
+                <!-- 多模型生成工具栏 -->
+                <div id="multiModelToolbar" style="margin: 15px 0; padding: 12px 15px; background: #e8f0fe; border-radius: 8px; display: none; align-items: center; gap: 15px;">
+                    <span style="font-weight: 500; color: #1a73e8;">已选择 <span id="selectedModelCount">0</span> 个模型</span>
+                    <button class="btn btn-primary" onclick="Models.openMultiModelGenerateModal()">🎨 多模型生成</button>
+                    <button class="btn" onclick="Models.clearAllModelSelection()">清除选择</button>
+                </div>
+
                 <!-- 模型表格容器 -->
                 <div id="modelsTableContainer">
                     <table class="model-table" style="width: 100%; border-collapse: collapse;">
                         <thead>
                             <tr style="background: #f8f9fa;">
+                                <th style="padding: 12px; text-align: left; border-bottom: 2px solid #e0e0e0;">
+                                    <input type="checkbox" id="selectAllModels" onclick="Models.toggleSelectAllModels()" style="cursor: pointer;">
+                                </th>
                                 <th style="padding: 12px; text-align: left; border-bottom: 2px solid #e0e0e0;">ID</th>
                                 <th style="padding: 12px; text-align: left; border-bottom: 2px solid #e0e0e0;">名称</th>
                                 <th style="padding: 12px; text-align: left; border-bottom: 2px solid #e0e0e0;">类型</th>
@@ -298,7 +321,7 @@
                         </thead>
                         <tbody id="modelsTableBody">
                             <tr>
-                                <td colspan="6" style="padding: 20px; text-align: center; color: #999;">暂无模型数据，请点击"同步模型"按钮获取</td>
+                                <td colspan="7" style="padding: 20px; text-align: center; color: #999;">暂无模型数据，请点击"同步模型"按钮获取</td>
                             </tr>
                         </tbody>
                     </table>
@@ -342,19 +365,221 @@
 
         <!-- 火柴人调试 -->
         <div id="stickman" class="tab-content">
-            <div class="card">
-                <h2>🎭 火柴人姿势编辑器</h2>
-                
-                <!-- 工具栏 -->
-                <div id="stickmanToolbar" style="display: flex; gap: 10px; margin-bottom: 20px; padding: 10px; background: #f8f9fa; border-radius: 8px;">
-                    <button class="btn btn-secondary" data-action="clearCanvas">🗑️ 清空</button>
-                    <button class="btn btn-secondary" data-action="savePose">💾 保存姿势</button>
-                    <button class="btn btn-primary" data-action="exportPose">📤 导出</button>
+            <div style="display: grid; grid-template-columns: 1fr 320px; gap: 20px;">
+                <!-- 左侧: Canvas 编辑器 -->
+                <div class="card">
+                    <h2>🎨 火柴人编辑器</h2>
+                    <div style="background: #000; border-radius: 8px; overflow: hidden; margin-bottom: 15px;">
+                        <canvas id="stickmanCanvas" width="600" height="500" style="display: block; cursor: crosshair;"></canvas>
+                    </div>
+
+                    <!-- 预设动作按钮 -->
+                    <div style="margin-bottom: 15px;">
+                        <label style="display: block; margin-bottom: 8px; font-weight: 500; color: #555;">预设动作:</label>
+                        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                            <button class="btn btn-primary" onclick="Stickman.loadPreset('standing')">🧍 站立</button>
+                            <button class="btn btn-primary" onclick="Stickman.loadPreset('walking')">🚶 行走</button>
+                            <button class="btn btn-primary" onclick="Stickman.loadPreset('running')">🏃 奔跑</button>
+                            <button class="btn btn-primary" onclick="Stickman.loadPreset('sitting')">🪑 坐姿</button>
+                            <button class="btn btn-primary" onclick="Stickman.loadPreset('jumping')">⬆️ 跳跃</button>
+                            <button class="btn btn-warning" onclick="Stickman.clearCanvas()">🔄 重置</button>
+                        </div>
+                    </div>
+
+                    <!-- 编辑工具 -->
+                    <div style="display: flex; gap: 10px; flex-wrap: wrap; padding-top: 15px; border-top: 1px solid #eee;">
+                        <button class="btn btn-secondary" onclick="Stickman.saveCustomPose()">💾 保存姿势</button>
+                        <button class="btn" onclick="Stickman.exportPose()" style="background: #34a853; color: white;">🖼️ 导出PNG</button>
+                        <button class="btn" onclick="Stickman.useInGeneration()" style="background: #1a73e8; color: white;">🎨 用于文生图</button>
+                    </div>
                 </div>
 
-                <!-- Canvas画布 -->
-                <div style="display: flex; justify-content: center; background: #1e1e1e; border-radius: 8px; padding: 20px;">
-                    <canvas id="stickmanCanvas" width="512" height="512" style="background: #2d2d2d; border-radius: 4px;"></canvas>
+                <!-- 右侧: 姿势列表 -->
+                <div class="card">
+                    <h2>📋 姿势列表</h2>
+
+                    <!-- 筛选按钮 -->
+                    <div style="display: flex; gap: 5px; margin-bottom: 15px;">
+                        <button class="filter-btn active" onclick="Stickman.filterPoses('all')" id="filter-all">全部</button>
+                        <button class="filter-btn" onclick="Stickman.filterPoses('official')" id="filter-official">官方</button>
+                        <button class="filter-btn" onclick="Stickman.filterPoses('custom')" id="filter-custom">自定义</button>
+                    </div>
+
+                    <!-- 姿势列表容器 -->
+                    <div id="poseList" style="max-height: 500px; overflow-y: auto;">
+                        <p style="color: #999; text-align: center; padding: 40px;">加载中...</p>
+                    </div>
+
+                    <!-- 初始化/刷新按钮 -->
+                    <button class="btn" onclick="Stickman.refreshPoseList()" style="margin-top: 15px; width: 100%; background: #e8f0fe; color: #1a73e8;">🔄 刷新列表</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 图生视频 -->
+        <div id="video" class="tab-content">
+            <div class="card">
+                <h2>🎬 图生视频生成</h2>
+
+                <!-- 模式选择 -->
+                <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+                    <h3 style="margin: 0 0 12px 0; font-size: 16px; color: #1a73e8;">1️⃣ 选择模式</h3>
+                    <div style="display: flex; gap: 20px; align-items: center;">
+                        <label style="display: flex; align-items: center; gap: 6px; cursor: pointer; font-weight: 500;">
+                            <input type="radio" name="videoMode" value="first_frame" data-video-mode checked>
+                            首帧模式（输入一张图片）
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 6px; cursor: pointer; font-weight: 500;">
+                            <input type="radio" name="videoMode" value="first_last_frame" data-video-mode>
+                            首尾帧模式（输入两张图片）
+                        </label>
+                        <span id="modeHint" style="font-size: 13px; color: #666;">当前模式：仅使用首帧图片生成视频</span>
+                    </div>
+                </div>
+
+                <!-- 图片上传区域 -->
+                <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+                    <h3 style="margin: 0 0 12px 0; font-size: 16px; color: #1a73e8;">2️⃣ 上传图片</h3>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                        <!-- 首帧图片 -->
+                        <div style="background: white; padding: 12px; border-radius: 8px; border: 2px dashed #ddd;">
+                            <div style="font-weight: 600; margin-bottom: 8px; font-size: 14px;">📷 首帧图片 <span style="color: #ea4335;">*</span></div>
+                            <div id="firstFrameDropZone"
+                                 style="width: 100%; height: 180px; display: flex; align-items: center; justify-content: center;
+                                        background: #fafafa; border-radius: 6px; cursor: pointer; position: relative; overflow: hidden;"
+                                 onclick="document.getElementById('firstFrameInput').click()">
+                                <img id="firstFramePreview" src="" alt=""
+                                     style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: contain; display: none;">
+                                <div id="firstFramePlaceholder" style="text-align: center; color: #999;">
+                                    <div style="font-size: 32px; margin-bottom: 8px;">📁</div>
+                                    <div style="font-size: 13px;">点击或拖拽上传<br>支持 PNG/JPG/WebP</div>
+                                </div>
+                            </div>
+                            <input type="file" id="firstFrameInput" accept="image/*" style="display: none;">
+                            <div style="display: flex; gap: 8px; margin-top: 10px;">
+                                <button class="btn" data-select-image="firstFrame"
+                                        style="flex: 1; font-size: 12px; padding: 6px; background: #e8f0fe; color: #1a73e8;">
+                                    📂 选择文件
+                                </button>
+                                <button class="btn" data-select-from-assets="firstFrame"
+                                        style="flex: 1; font-size: 12px; padding: 6px; background: #f0f0f0; color: #666;">
+                                    🖼️ 从素材库选
+                                </button>
+                            </div>
+                            <div id="firstFrameUploadStatus" style="font-size: 12px; margin-top: 6px; color: #666;"></div>
+                        </div>
+
+                        <!-- 尾帧图片（首尾帧模式显示） -->
+                        <div id="lastFrameSection" style="background: white; padding: 12px; border-radius: 8px; border: 2px dashed #ddd; display: none;">
+                            <div style="font-weight: 600; margin-bottom: 8px; font-size: 14px;">📷 尾帧图片 <span style="color: #ea4335;">*</span>（首尾帧模式）</div>
+                            <div id="lastFrameDropZone"
+                                 style="width: 100%; height: 180px; display: flex; align-items: center; justify-content: center;
+                                        background: #fafafa; border-radius: 6px; cursor: pointer; position: relative; overflow: hidden;"
+                                 onclick="document.getElementById('lastFrameInput').click()">
+                                <img id="lastFramePreview" src="" alt=""
+                                     style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: contain; display: none;">
+                                <div id="lastFramePlaceholder" style="text-align: center; color: #999;">
+                                    <div style="font-size: 32px; margin-bottom: 8px;">📁</div>
+                                    <div style="font-size: 13px;">点击或拖拽上传<br>支持 PNG/JPG/WebP</div>
+                                </div>
+                            </div>
+                            <input type="file" id="lastFrameInput" accept="image/*" style="display: none;">
+                            <div style="display: flex; gap: 8px; margin-top: 10px;">
+                                <button class="btn" data-select-image="lastFrame"
+                                        style="flex: 1; font-size: 12px; padding: 6px; background: #e8f0fe; color: #1a73e8;">
+                                    📂 选择文件
+                                </button>
+                                <button class="btn" data-select-from-assets="lastFrame"
+                                        style="flex: 1; font-size: 12px; padding: 6px; background: #f0f0f0; color: #666;">
+                                    🖼️ 从素材库选
+                                </button>
+                            </div>
+                            <div id="lastFrameUploadStatus" style="font-size: 12px; margin-top: 6px; color: #666;"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 提示词配置 -->
+                <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+                    <h3 style="margin: 0 0 12px 0; font-size: 16px; color: #1a73e8;">3️⃣ 提示词配置</h3>
+                    <div class="form-group">
+                        <label>视频描述提示词
+                            <span style="font-weight: normal; color: #999; font-size: 12px;"> - 描述想要的视频效果和动作</span>
+                        </label>
+                        <textarea id="videoPrompt" placeholder="例如：Q版卡通角色缓慢旋转360度，纯色背景，俯视角..." rows="3"></textarea>
+                    </div>
+                </div>
+
+                <!-- 高级设置 -->
+                <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+                    <h3 style="margin: 0 0 12px 0; font-size: 16px; color: #1a73e8;">4️⃣ 高级设置</h3>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+                        <div class="form-group" style="margin: 0;">
+                            <label>分辨率</label>
+                            <select id="videoResolution" style="width: 100%;">
+                                <option value="480P">480P (标清)</option>
+                                <option value="720P" selected>720P (高清) - 推荐</option>
+                                <option value="1080P">1080P (全高清)</option>
+                            </select>
+                        </div>
+                        <div class="form-group" style="margin: 0;">
+                            <label>模型</label>
+                            <select id="videoModel" style="width: 100%;">
+                                <option value="wan2.2-kf2v-flash">万相 2.2 Flash (推荐)</option>
+                                <option value="wanx2.1-kf2v-plus">万相 2.1 Plus</option>
+                            </select>
+                        </div>
+                        <div class="param-row" style="background: white; padding: 10px; border-radius: 6px; margin: 0;">
+                            <input type="checkbox" id="promptExtend" checked>
+                            <div>
+                                <label style="margin: 0; font-weight: 600; font-size: 13px;">智能改写提示词</label>
+                                <span style="font-size: 11px; color: #666;">AI优化你的描述</span>
+                            </div>
+                        </div>
+                        <div class="param-row" style="background: white; padding: 10px; border-radius: 6px; margin: 0;">
+                            <input type="checkbox" id="watermark" checked>
+                            <div>
+                                <label style="margin: 0; font-weight: 600; font-size: 13px;">添加水印</label>
+                                <span style="font-size: 11px; color: #666;">百炼平台水印</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 生成按钮 -->
+                <div style="text-align: center; padding: 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 8px;">
+                    <button class="btn btn-primary" data-action="generateVideo"
+                            style="font-size: 18px; padding: 15px 50px; background: white; color: #667eea; border: none; border-radius: 30px; font-weight: 600; box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
+                        🎬 生成视频
+                    </button>
+                </div>
+            </div>
+
+            <!-- 进度展示区域 -->
+            <div id="videoProgress" style="display: none; margin-top: 20px; padding: 20px; background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); border-radius: 8px; border: 1px solid #667eea;">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                    <span id="videoProgressStatus" style="font-weight: 600; color: #667eea;">正在处理...</span>
+                    <span id="videoProgressTime" style="color: #666;">已等待: 0秒</span>
+                </div>
+                <div style="width: 100%; height: 10px; background: rgba(255,255,255,0.5); border-radius: 5px; overflow: hidden;">
+                    <div id="videoProgressFill" style="width: 0%; height: 100%; background: linear-gradient(90deg, #667eea, #764ba2); transition: width 0.5s ease; border-radius: 5px;"></div>
+                </div>
+            </div>
+
+            <!-- 结果展示区域 -->
+            <div id="videoResults" class="card" style="display: none; margin-top: 20px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                    <h2 style="margin: 0; border: none; padding: 0;">🎉 视频生成结果</h2>
+                    <button class="btn" style="background: #ea4335; color: white;" onclick="document.getElementById('videoResults').style.display='none'">关闭</button>
+                </div>
+                <div id="videoResultsContainer"></div>
+            </div>
+
+            <!-- 历史记录 -->
+            <div class="card" style="margin-top: 20px;">
+                <h2 style="border: none; padding: 0;">📜 视频生成历史</h2>
+                <div id="videoHistoryList" style="max-height: 300px; overflow-y: auto;">
+                    <p style="color: #999; padding: 20px; text-align: center;">暂无视频生成记录</p>
                 </div>
             </div>
         </div>
@@ -426,6 +651,99 @@
     <script src="js/modules/stickman.js"></script>
     <script src="js/modules/poller.js"></script>
     <script src="js/modules/results.js"></script>
+    <script src="js/modules/video.js"></script>
+    <script src="js/modules/prompts.js"></script>
     <script src="js/app.js"></script>
+
+    <!-- 提示词选择器弹窗 -->
+    <div id="promptSelectorModal">
+        <div class="modal-content" style="padding: 20px;">
+            <div class="prompt-modal-header">
+                <h3>📋 选择提示词模板</h3>
+                <button data-prompt-action="closeSelector" style="
+                    background: none; border: none; font-size: 22px; cursor: pointer; color: #999; padding: 4px;">&times;</button>
+            </div>
+            <div class="prompt-modal-body">
+                <!-- 搜索栏 -->
+                <div class="prompt-search-bar">
+                    <input id="promptSearchInput" type="text" placeholder="搜索预设名称或内容..." />
+                    <button data-prompt-action="searchPresets">🔍 搜索</button>
+                    <button data-prompt-action="clearSearch">✕ 清除</button>
+                </div>
+
+                <!-- 应用模式 -->
+                <div class="prompt-apply-mode">
+                    <span>应用方式:</span>
+                    <button data-prompt-action="switchApplyMode" data-mode="replace" class="active">替换当前内容</button>
+                    <button data-prompt-action="switchApplyMode" data-mode="append">追加到末尾</button>
+                </div>
+
+                <!-- 分类Tab -->
+                <div class="prompt-category-tabs" id="promptCategoryTabs"></div>
+
+                <!-- 预设卡片网格 -->
+                <div id="promptCardsGrid"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 创建/编辑预设弹窗 -->
+    <div id="promptCreateModal">
+        <div class="modal-content" style="padding: 24px;">
+            <div class="prompt-modal-header">
+                <h3 class="modal-title">➕ 新建预设</h3>
+                <button data-prompt-action="closeCreateModal" style="
+                    background: none; border: none; font-size: 22px; cursor: pointer; color: #999; padding: 4px;">&times;</button>
+            </div>
+            <form id="promptCreateForm">
+                <div class="prompt-modal-body">
+                    <div class="prompt-form-group">
+                        <label>名称 *</label>
+                        <input type="text" name="name" placeholder="例如: Q版角色通用模板" required />
+                    </div>
+                    <div class="prompt-form-group">
+                        <label>分类</label>
+                        <select name="category">
+                            <option value="character">👤 角色 (character)</option>
+                            <option value="scene">🏞️ 场景 (scene)</option>
+                            <option value="style">🎨 风格 (style)</option>
+                            <option value="action">🏃 动作 (action)</option>
+                            <option value="quality">⭐ 质量 (quality)</option>
+                            <option value="negative">🚫 反向 (negative)</option>
+                        </select>
+                    </div>
+                    <div class="prompt-form-group">
+                        <label>正向提示词 (prompt_template)</label>
+                        <textarea name="promptTemplate" placeholder="输入正向提示词模板..."></textarea>
+                    </div>
+                    <div class="prompt-form-group">
+                        <label>反向提示词 (negative_prompt)</label>
+                        <textarea name="negativePrompt" placeholder="输入反向提示词..."></textarea>
+                    </div>
+                    <div class="prompt-form-group">
+                        <label>描述</label>
+                        <input type="text" name="description" placeholder="简短描述此预设的用途..." />
+                    </div>
+                </div>
+                <div class="prompt-form-actions">
+                    <button type="button" data-prompt-action="closeCreateModal" class="btn-prompt-cancel">取消</button>
+                    <button type="button" data-prompt-action="submitCreate" class="btn-prompt-submit">💾 保存预设</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 提示词库选项卡内容 -->
+    <div id="promptsLibrary" class="tab-content">
+        <div class="card">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+                <h2 style="margin:0; border:none; padding:0;">📝 提示词预设管理</h2>
+                <button class="btn" data-prompt-action="openCreateModal" style="background:#1a73e8; color:white;">➕ 新建预设</button>
+            </div>
+            <div id="promptsLibraryContent">
+                <p style="color:#999; text-align:center; padding:40px;">加载中...</p>
+            </div>
+        </div>
+    </div>
 </body>
 </html>

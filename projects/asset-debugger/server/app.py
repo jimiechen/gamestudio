@@ -5,6 +5,7 @@ Flask 主应用
 
 import os
 import sys
+from datetime import datetime
 
 # 添加项目根目录到路径
 project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -12,9 +13,11 @@ sys.path.insert(0, project_root)
 
 from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
-from config import UPLOAD_FOLDER, DEBUG, PORT, HOST
-from server.models import Model, ModelDetailCache, GenerationRecord, Asset, PromptPreset, StickmanPose, QuickPreset
+from config import UPLOAD_FOLDER, VIDEO_UPLOAD_FOLDER, DEBUG, PORT, HOST
+from server.models import Model, ModelDetailCache, GenerationRecord, Asset, PromptPreset, StickmanPose, QuickPreset, VideoTask
 from server.holopix_client import holopix_client
+from server.oss_client import oss_client
+from server.dashscope_client import dashscope_client
 
 app = Flask(__name__, static_folder='static')
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
@@ -454,6 +457,291 @@ def create_preset():
     return jsonify({'success': True, 'id': preset_id})
 
 
+@app.route('/api/presets/<int:preset_id>', methods=['GET'])
+def get_preset(preset_id):
+    """获取单个预设"""
+    preset = PromptPreset.get_by_id(preset_id)
+    if preset:
+        return jsonify({'success': True, 'data': preset})
+    return jsonify({'success': False, 'error': '预设不存在'}), 404
+
+
+@app.route('/api/presets/<int:preset_id>', methods=['PUT'])
+def update_preset(preset_id):
+    """更新预设提示词"""
+    data = request.json
+    success = PromptPreset.update(preset_id, data)
+    if success:
+        return jsonify({'success': True})
+    return jsonify({'success': False, 'error': '预设不存在或无更新'}), 404
+
+
+@app.route('/api/presets/<int:preset_id>', methods=['DELETE'])
+def delete_preset(preset_id):
+    """删除预设提示词"""
+    success = PromptPreset.delete(preset_id)
+    if success:
+        return jsonify({'success': True})
+    return jsonify({'success': False, 'error': '预设不存在'}), 404
+
+
+@app.route('/api/presets/search', methods=['GET'])
+def search_presets():
+    """搜索预设提示词"""
+    keyword = request.args.get('keyword', '')
+    category = request.args.get('category')
+    if keyword:
+        presets = PromptPreset.search(keyword, category=category)
+    else:
+        presets = PromptPreset.get_all(category=category)
+    return jsonify({'success': True, 'data': presets})
+
+
+@app.route('/api/presets/init', methods=['POST'])
+def init_presets():
+    """初始化内置预设提示词"""
+    try:
+        from server.models import PromptPreset
+        PromptPreset.init_presets()
+        return jsonify({'success': True, 'message': '内置预设初始化完成'})
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
+
+# ==================== 图生视频 API ====================
+
+@app.route('/api/video/upload', methods=['POST'])
+def upload_video_image():
+    """上传图片到 OSS（图生视频素材中转）"""
+    if 'file' not in request.files:
+        return jsonify({'success': False, 'error': '没有上传文件'}), 400
+
+    file = request.files['file']
+
+    if file.filename == '':
+        return jsonify({'success': False, 'error': '没有选择文件'}), 400
+
+    # 验证文件类型
+    allowed_extensions = {'.png', '.jpg', '.jpeg', '.webp', '.bmp'}
+    ext = os.path.splitext(file.filename)[1].lower()
+    if ext not in allowed_extensions:
+        return jsonify({'success': False, 'error': '不支持的文件格式，请上传图片文件'}), 400
+
+    # 保存到本地临时目录
+    timestamp = datetime.now().strftime('%Y%m%d%H%M%S')
+    random_suffix = os.urandom(4).hex()
+    local_filename = f"video_input_{timestamp}_{random_suffix}{ext}"
+    local_path = os.path.join(UPLOAD_FOLDER, local_filename)
+
+    file.save(local_path)
+
+    # 上传到 OSS
+    oss_result = oss_client.upload_file(local_path)
+
+    if oss_result.get('success'):
+        return jsonify({
+            'success': True,
+            'data': {
+                'local_path': local_path,
+                'oss_url': oss_result['oss_url'],
+                'object_key': oss_result['object_key'],
+                'filename': local_filename
+            }
+        })
+    else:
+        # OSS 上传失败，返回本地路径（降级方案）
+        print(f"[Warning] OSS 上传失败，使用本地路径: {oss_result.get('error')}")
+        return jsonify({
+            'success': True,
+            'data': {
+                'local_path': local_path,
+                'oss_url': None,
+                'filename': local_filename,
+                'warning': 'OSS 上传失败，使用本地模式'
+            }
+        })
+
+
+@app.route('/api/video/generate', methods=['POST'])
+def generate_video():
+    """提交图生视频任务"""
+    data = request.json
+
+    # 验证必填参数
+    mode = data.get('mode', 'first_frame')
+    first_frame_url = data.get('first_frame_url')
+    prompt = data.get('prompt', '')
+
+    if not first_frame_url:
+        return jsonify({'success': False, 'error': '缺少首帧图片URL'}), 400
+
+    # 首尾帧模式验证
+    last_frame_url = data.get('last_frame_url')
+    if mode == 'first_last_frame' and not last_frame_url:
+        return jsonify({'success': False, 'error': '首尾帧模式必须提供尾帧图片URL'}), 400
+
+    # 调用百炼 API 提交任务
+    result = dashscope_client.submit_video_task(
+        first_frame_url=first_frame_url,
+        prompt=prompt,
+        last_frame_url=last_frame_url,
+        mode=mode,
+        resolution=data.get('resolution', '720P'),
+        prompt_extend=data.get('prompt_extend', True),
+        watermark=data.get('watermark', True)
+    )
+
+    if result.get('success'):
+        task_id = result['task_id']
+
+        # 保存到数据库
+        VideoTask.create({
+            'task_id': task_id,
+            'mode': mode,
+            'model': data.get('model', 'wan2.2-kf2v-flash'),
+            'prompt': prompt,
+            'first_frame_url': first_frame_url,
+            'first_frame_local': data.get('first_frame_local', ''),
+            'last_frame_url': last_frame_url or '',
+            'last_frame_local': data.get('last_frame_local', ''),
+            'resolution': data.get('resolution', '720P'),
+            'duration': 5,
+            'prompt_extend': data.get('prompt_extend', True),
+            'watermark': data.get('watermark', True),
+            'status': 'submitted',
+            'request_body': data
+        })
+
+        return jsonify({
+            'success': True,
+            'data': {
+                'task_id': task_id,
+                'mode': mode
+            },
+            'msg': '任务提交成功'
+        })
+    else:
+        return jsonify({
+            'success': False,
+            'error': result.get('error', '任务提交失败'),
+            'code': result.get('code')
+        }), 500
+
+
+@app.route('/api/video/tasks/<path:task_id>', methods=['GET'])
+def get_video_task_status(task_id):
+    """查询视频生成任务状态"""
+    result = dashscope_client.query_task_status(task_id)
+
+    if result.get('success'):
+        status = result['status']
+
+        # 状态映射（百炼 → 内部）
+        status_map = {
+            'PENDING': 'pending',
+            'RUNNING': 'processing',
+            'SUCCEEDED': 'succeeded',
+            'FAILED': 'failed'
+        }
+        internal_status = status_map.get(status, status.lower())
+
+        # 更新数据库
+        VideoTask.update_status(
+            task_id=task_id,
+            status=internal_status,
+            status_msg=result.get('message'),
+            video_url=result.get('video_url'),
+            response_body=result
+        )
+
+        return jsonify({
+            'success': True,
+            'data': {
+                'task_id': task_id,
+                'status': internal_status,
+                'original_status': status,
+                'video_url': result.get('video_url'),
+                'message': result.get('message'),
+                'code': result.get('code')
+            }
+        })
+    else:
+        return jsonify({
+            'success': False,
+            'error': result.get('error', '查询失败')
+        }), 500
+
+
+@app.route('/api/video/tasks/<path:task_id>/download', methods=['POST'])
+def download_video_to_local(task_id):
+    """下载生成的视频到本地素材库"""
+    # 查询任务记录
+    task_record = VideoTask.get_by_task_id(task_id)
+    if not task_record:
+        return jsonify({'success': False, 'error': '任务记录不存在'}), 404
+
+    video_url = task_record.get('video_url')
+    if not video_url:
+        return jsonify({'success': False, 'error': '视频URL不存在，任务可能未完成'}), 400
+
+    # 生成文件名
+    timestamp = datetime.now().strftime('%Y%m%d%H%M%S')
+    video_filename = f"video_{task_id[:8]}_{timestamp}.mp4"
+    local_path = os.path.join(VIDEO_UPLOAD_FOLDER, video_filename)
+
+    # 下载视频
+    if dashscope_client.download_video(video_url, local_path):
+        # 更新数据库
+        VideoTask.update_video_info(task_id, local_path, video_filename)
+
+        # 保存到素材库
+        file_size = os.path.getsize(local_path) if os.path.exists(local_path) else 0
+        Asset.create({
+            'record_id': None,
+            'filename': video_filename,
+            'original_url': video_url,
+            'local_path': local_path,
+            'file_size': file_size,
+            'asset_type': 'video',
+            'tags': f"mode:{task_record.get('mode')}",
+            'description': task_record.get('prompt', '')[:200]
+        })
+
+        return jsonify({
+            'success': True,
+            'data': {
+                'local_path': local_path,
+                'filename': video_filename,
+                'asset_type': 'video',
+                'file_size': file_size
+            },
+            'msg': '视频已保存到素材库'
+        })
+    else:
+        return jsonify({'success': False, 'error': '视频下载失败'}), 500
+
+
+@app.route('/api/video/tasks', methods=['GET'])
+def get_video_tasks():
+    """获取视频任务列表"""
+    limit = request.args.get('limit', 50, type=int)
+    status = request.args.get('status')
+
+    tasks = VideoTask.get_all(limit=limit, status=status)
+
+    # 添加额外信息
+    for task in tasks:
+        if task.get('video_filename'):
+            task['url'] = f'/uploads/videos/{task["video_filename"]}'
+
+    return jsonify({
+        'success': True,
+        'data': tasks,
+        'count': len(tasks)
+    })
+
+
 # ==================== 静态文件服务 ====================
 
 @app.route('/uploads/<filename>')
@@ -670,4 +958,6 @@ def index():
 if __name__ == '__main__':
     # 初始化预设姿势
     StickmanPose.init_presets()
+    # 初始化内置提示词预设
+    PromptPreset.init_presets()
     app.run(host=HOST, port=PORT, debug=DEBUG)

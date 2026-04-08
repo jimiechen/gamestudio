@@ -3,28 +3,43 @@
  * 处理图片生成表单和交互
  */
 const Generate = {
-    // 预设模型组合
+    // 预设模型组合（完整版 - 支持多模型叠加）
     presetModelCombos: {
         'q版卡通人物': {
             icon: '👧',
+            description: 'Q版基础模型 + 卡通渲染风格 + 萌系表情增强',
             models: [
-                { modelId: 2, name: 'Q版卡通人物', strength: 0.9 }
+                { modelId: '23v56pjLui', name: 'Q版基础模型', strength: 0.9 },
+                { modelId: '2BB56NBV2F', name: '卡通渲染风格', strength: 0.8 },
+                { modelId: 'iKXx6k89s3', name: '萌系表情增强', strength: 0.7 }
+            ]
+        },
+        '中国风场景': {
+            icon: '🏯',
+            description: '水墨画风格 + 古建筑元素 + 山水意境',
+            models: [
+                { modelId: 'c3P5zkc92s', name: '水墨画风格', strength: 0.9 },
+                { modelId: 'L3W5F7EE2P', name: '古建筑元素', strength: 0.8 },
+                { modelId: '2KJ5GG8CC3', name: '山水意境', strength: 0.7 }
             ]
         },
         '3D渲染风格': {
             icon: '🎨',
+            description: '3D基础模型 + 渲染增强',
             models: [
                 { modelId: 3, name: '3D渲染风格', strength: 0.9 }
             ]
         },
         '动漫风格': {
             icon: '🎌',
+            description: '动漫基础 + 线条优化',
             models: [
                 { modelId: 4, name: '动漫风格', strength: 0.9 }
             ]
         },
         '写实风格': {
             icon: '📷',
+            description: '写实基础 + 细节增强',
             models: [
                 { modelId: 5, name: '写实风格', strength: 0.9 }
             ]
@@ -56,7 +71,7 @@ const Generate = {
         }
     },
 
-    // 渲染预设模型组合按钮
+    // 渲染预设模型组合按钮（增强版 - 显示详细模型信息）
     renderPresetModelComboButtons() {
         const container = document.getElementById('presetModelComboButtons');
         if (!container) return;
@@ -64,17 +79,30 @@ const Generate = {
         let html = '';
         for (const [comboName, comboData] of Object.entries(this.presetModelCombos)) {
             const modelNames = comboData.models.map(m => m.name).join(' + ');
+            const description = comboData.description || modelNames;
+
             html += `
-                <button class="btn" onclick="Generate.applyPresetModelCombo('${comboName}')" 
-                    style="background: #f0f7ff; color: #1a73e8; font-size: 13px; padding: 8px 12px;">
-                    ${comboData.icon} ${comboName}
+                <button class="btn" onclick="Generate.applyPresetModelCombo('${comboName}')"
+                    style="background: linear-gradient(135deg, #ffcc80 0%, #ffb74d 100%);
+                           color: #e65100; font-size: 13px; text-align: left;
+                           padding: 12px 16px; border: none; border-radius: 8px;
+                           cursor: pointer; transition: all 0.3s; min-width: 200px;
+                           box-shadow: 0 2px 4px rgba(230, 81, 0, 0.2);"
+                    onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 8px rgba(230, 81, 0, 0.3)'"
+                    onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 4px rgba(230, 81, 0, 0.2)'">
+                    <div style="font-weight: 600; font-size: 14px; margin-bottom: 4px;">
+                        ${comboData.icon} ${comboName}
+                    </div>
+                    <div style="font-size: 11px; color: #bf360c; line-height: 1.4; opacity: 0.9;">
+                        ${description}
+                    </div>
                 </button>
             `;
         }
         container.innerHTML = html;
     },
 
-    // 应用预设模型组合
+    // 应用预设模型组合（增强版 - 支持参数微调）
     applyPresetModelCombo(comboName) {
         const combo = this.presetModelCombos[comboName];
         if (!combo) {
@@ -85,7 +113,7 @@ const Generate = {
         // 清空当前模型列表
         State.clearSelectedModels();
 
-        // 添加预设模型
+        // 添加预设模型（带强度参数）
         combo.models.forEach(model => {
             State.addSelectedModel({
                 modelId: model.modelId,
@@ -94,13 +122,15 @@ const Generate = {
             });
         });
 
-        // 渲染已选模型列表
+        // 渲染已选模型列表（显示滑块可微调）
         if (typeof Models !== 'undefined') {
             Models.renderSelectedModels();
         }
 
-        // 显示提示
-        alert(`已应用预设: ${comboName} (${combo.models.length}个模型)`);
+        // 显示成功提示
+        const modelCount = combo.models.length;
+        const modelNames = combo.models.map(m => `${m.name}(${m.strength})`).join(', ');
+        alert(`✅ 已应用预设: ${comboName}\n\n包含 ${modelCount} 个模型:\n${modelNames}\n\n💡 提示：可通过滑块微调每个模型的强度`);
     },
 
     toggleHdScale() {

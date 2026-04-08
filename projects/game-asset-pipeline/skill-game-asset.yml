@@ -1,0 +1,16 @@
+name: game-asset-generator
+description: 三国五虎将游戏资源生成器
+version: 1.0.0
+commands:
+  generate-sprite:
+    description: 生成角色动作 Sprite Sheet
+    args:
+      - name: character
+        type: choice
+        options: [关羽, 张飞, 赵云, 马超, 黄忠]
+      - name: action
+        type: string
+      - name: reference_video
+        type: file
+    steps:
+      - run: python game_asset_pipeline.py -c {{character}} -a {{action}} -v {{reference_video}} --upload-to-lark

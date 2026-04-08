@@ -330,6 +330,203 @@ class PromptPreset:
             row = cursor.fetchone()
             return dict(row) if row else None
 
+    @staticmethod
+    def get_by_id(preset_id: int) -> Optional[Dict]:
+        """根据ID获取预设"""
+        with db.get_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute('SELECT * FROM prompt_presets WHERE id = ?', (preset_id,))
+            row = cursor.fetchone()
+            return dict(row) if row else None
+
+    @staticmethod
+    def update(preset_id: int, data: Dict) -> bool:
+        """更新预设"""
+        with db.get_connection() as conn:
+            cursor = conn.cursor()
+            fields = []
+            params = []
+
+            field_mapping = {
+                'name': 'name',
+                'category': 'category',
+                'prompt_template': 'prompt_template',
+                'negative_prompt': 'negative_prompt',
+                'default_params': 'default_params',
+                'description': 'description'
+            }
+
+            for key, db_field in field_mapping.items():
+                if key in data:
+                    fields.append(f'{db_field} = ?')
+                    if key == 'default_params' and data[key] is not None:
+                        params.append(json.dumps(data[key], ensure_ascii=False))
+                    else:
+                        params.append(data[key])
+
+            if not fields:
+                return False
+
+            params.append(preset_id)
+            cursor.execute(f'''
+                UPDATE prompt_presets
+                SET {', '.join(fields)}
+                WHERE id = ?
+            ''', params)
+            conn.commit()
+            return cursor.rowcount > 0
+
+    @staticmethod
+    def delete(preset_id: int) -> bool:
+        """删除预设"""
+        with db.get_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute('DELETE FROM prompt_presets WHERE id = ?', (preset_id,))
+            conn.commit()
+            return cursor.rowcount > 0
+
+    @staticmethod
+    def search(keyword: str, category: str = None) -> List[Dict]:
+        """搜索预设（按名称/描述/提示词内容模糊匹配）"""
+        with db.get_connection() as conn:
+            cursor = conn.cursor()
+            query = '''
+                SELECT * FROM prompt_presets 
+                WHERE name LIKE ? OR prompt_template LIKE ? OR description LIKE ?
+            '''
+            like_pattern = f'%{keyword}%'
+            params = [like_pattern, like_pattern, like_pattern]
+
+            if category:
+                query += ' AND category = ?'
+                params.append(category)
+
+            query += ' ORDER BY created_at DESC'
+
+            cursor.execute(query, params)
+            return [dict(row) for row in cursor.fetchall()]
+
+    @staticmethod
+    def init_presets():
+        """初始化内置提示词预设"""
+        presets = [
+            {
+                'name': 'Q版角色通用模板',
+                'category': 'character',
+                'prompt_template': 'Q版卡通角色，{subject}，2.5头身比，大头小身体，可爱卡通风格，明亮色彩，粗黑线条，平涂色块，白色背景，2d游戏资产',
+                'negative_prompt': '3d, realistic, photography, blurry, low quality, deformed, ugly, bad anatomy',
+                'description': '通用Q版角色生成基础模板，支持变量替换'
+            },
+            {
+                'name': '三国武将-关羽',
+                'category': 'character',
+                'prompt_template': '三国武将关羽，长须飘飘，红脸膛，绿巾冠，身披绿战袍，手持青龙偃月刀，Q版风格，俯视角45度，面朝画面下方，粗黑线条，白色背景，2d游戏资产',
+                'negative_prompt': '3d, realistic, photograph, ugly, deformed, cute, feminine, slim',
+                'description': '关羽角色立绘专用模板'
+            },
+            {
+                'name': '三国武将-张飞',
+                'category': 'character',
+                'prompt_template': '三国武将张飞，豹头环眼，黑色铠甲，丈八蛇矛，Q版风格，威猛表情，粗黑线条，白色背景，2d游戏资产',
+                'negative_prompt': '3d, cute, feminine, slim, weak, peaceful',
+                'description': '张飞角色立绘专用模板'
+            },
+            {
+                'name': '战斗-挥刀斩击',
+                'category': 'action',
+                'prompt_template': '{character}挥刀斩击动作，从右上方劈向左下方，动态姿态，衣袂飘动，力量感十足，Q版风格，纯色背景，2d游戏资产',
+                'negative_prompt': 'static pose, standing still, peaceful, no motion, calm',
+                'description': '攻击动作模板，需配合角色名使用'
+            },
+            {
+                'name': '战斗-受击闪避',
+                'category': 'action',
+                'prompt_template': '{character}受击向后闪避，双手护胸，惊讶表情，动态防御姿态，Q版风格，纯色背景，2d游戏资产',
+                'negative_prompt': 'standing calmly, no motion, aggressive, attacking',
+                'description': '受击动作模板'
+            },
+            {
+                'name': '待机呼吸',
+                'category': 'action',
+                'prompt_template': '{character}原地站立待机，轻微呼吸起伏，自然放松姿态，Q版风格，正面朝向，纯色背景，2d游戏资产',
+                'negative_prompt': 'aggressive, fast motion, combat, running, jumping',
+                'description': '待机动画帧模板'
+            },
+            {
+                'name': '行走循环',
+                'category': 'action',
+                'prompt_template': '{character}向前行走循环动画，手臂自然摆动，步伐稳健，侧面视角，Q版风格，纯色背景，2d游戏资产',
+                'negative_prompt': 'running, flying, jumping, standing still, fast motion',
+                'description': '行走动画帧模板'
+            },
+            {
+                'name': '古风场景-战场',
+                'category': 'scene',
+                'prompt_template': '古代战场场景，烽火台，战旗飘扬，远处军队阵列，烟尘弥漫，水墨画风格，俯视角，2d游戏场景素材',
+                'negative_prompt': 'modern, futuristic, sci-fi, clean, bright, urban',
+                'description': '战场背景场景模板'
+            },
+            {
+                'name': '古风场景-军营',
+                'category': 'scene',
+                'prompt_template': '古代军营场景，连绵营帐，篝火点点，士兵巡逻，夜晚星空，古风水墨风格，2d游戏场景素材',
+                'negative_prompt': 'urban, indoor, bright daylight, modern city',
+                'description': '军营背景场景模板'
+            },
+            {
+                'name': '质量增强-标准',
+                'category': 'quality',
+                'prompt_template': 'masterpiece, best quality, highly detailed, 8k resolution, sharp focus',
+                'negative_prompt': 'lowres, bad anatomy, bad hands, text, error, missing fingers, extra digits, fewer digits, cropped, worst quality, low quality, normal quality, jpeg artifacts, signature, watermark, username, blurry, artist name',
+                'description': '通用质量增强正向+反向提示词'
+            },
+            {
+                'name': '质量增强-游戏立绘',
+                'category': 'quality',
+                'prompt_template': 'game asset, sprite sheet ready, consistent proportions, clean lineart, flat colors, vector art style',
+                'negative_prompt': 'gradient, shading, complex background, 3d render, photograph, realistic texture, noise, grain',
+                'description': '游戏立绘专用质量增强'
+            },
+            {
+                'name': '通用反向-基础',
+                'category': 'negative',
+                'prompt_template': '',
+                'negative_prompt': '3d, render, sketch, painting, drawing, anime, cartoon, lowres, long neck, mutated hands, extra fingers, missing fingers, poorly drawn face, mutation, deformed, ugly, duplicate, morbid, mutilated, out of frame, extra limbs, cloned face, disfigured',
+                'description': '通用反向提示词组合，适用于大多数情况'
+            },
+            {
+                'name': '通用反向-构图',
+                'category': 'negative',
+                'prompt_template': '',
+                'negative_prompt': 'bad anatomy, disfigured, poorly drawn face, mutation, mutated, extra limb, ugly, duplicate, morbid, mutilated, out of frame, extra limbs, cloned face, disfigured, gross proportions, malformed limbs, missing arms, missing legs, extra arms, extra legs, fused fingers, too many fingers, long neck',
+                'description': '构图与解剖结构反向提示词'
+            }
+        ]
+
+        with db.get_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute('SELECT COUNT(*) FROM prompt_presets')
+            count = cursor.fetchone()[0]
+
+            if count == 0:
+                for preset in presets:
+                    try:
+                        cursor.execute('''
+                            INSERT OR IGNORE INTO prompt_presets
+                            (name, category, prompt_template, negative_prompt, description)
+                            VALUES (?, ?, ?, ?, ?)
+                        ''', (
+                            preset['name'],
+                            preset['category'],
+                            preset['prompt_template'],
+                            preset['negative_prompt'],
+                            preset['description']
+                        ))
+                    except Exception as e:
+                        print(f"[Init Preset Warning] {preset['name']}: {e}")
+                conn.commit()
+                print(f"[Init] 已初始化 {len(presets)} 条内置提示词预设")
+
 
 class StickmanPose:
     """火柴人姿势"""
@@ -736,5 +933,119 @@ class QuickPreset:
         with db.get_connection() as conn:
             cursor = conn.cursor()
             cursor.execute('DELETE FROM quick_presets WHERE id = ?', (preset_id,))
+            conn.commit()
+            return cursor.rowcount > 0
+
+
+class VideoTask:
+    """视频生成任务"""
+
+    @staticmethod
+    def create(data: Dict) -> int:
+        """创建视频生成任务"""
+        with db.get_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute('''
+                INSERT INTO video_tasks
+                (task_id, mode, model, prompt, first_frame_url, first_frame_local,
+                 last_frame_url, last_frame_local, resolution, duration,
+                 prompt_extend, watermark, status, request_body)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            ''', (
+                data.get('task_id'),
+                data.get('mode', 'first_frame'),
+                data.get('model', 'wan2.2-kf2v-flash'),
+                data.get('prompt', ''),
+                data.get('first_frame_url', ''),
+                data.get('first_frame_local', ''),
+                data.get('last_frame_url', ''),
+                data.get('last_frame_local', ''),
+                data.get('resolution', '720P'),
+                data.get('duration', 5),
+                int(data.get('prompt_extend', True)),
+                int(data.get('watermark', True)),
+                data.get('status', 'submitted'),
+                json.dumps(data.get('request_body'), ensure_ascii=False) if data.get('request_body') else None
+            ))
+            conn.commit()
+            return cursor.lastrowid
+
+    @staticmethod
+    def get_by_id(task_record_id: int) -> Optional[Dict]:
+        """根据ID获取记录"""
+        with db.get_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute('SELECT * FROM video_tasks WHERE id = ?', (task_record_id,))
+            row = cursor.fetchone()
+            return dict(row) if row else None
+
+    @staticmethod
+    def get_by_task_id(task_id: str) -> Optional[Dict]:
+        """根据百炼任务ID获取记录"""
+        with db.get_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute('SELECT * FROM video_tasks WHERE task_id = ?', (task_id,))
+            row = cursor.fetchone()
+            return dict(row) if row else None
+
+    @staticmethod
+    def get_all(limit: int = 100, status: str = None) -> List[Dict]:
+        """获取所有记录"""
+        with db.get_connection() as conn:
+            cursor = conn.cursor()
+            if status:
+                cursor.execute('''
+                    SELECT * FROM video_tasks
+                    WHERE status = ?
+                    ORDER BY created_at DESC
+                    LIMIT ?
+                ''', (status, limit))
+            else:
+                cursor.execute('''
+                    SELECT * FROM video_tasks
+                    ORDER BY created_at DESC
+                    LIMIT ?
+                ''', (limit,))
+            return [dict(row) for row in cursor.fetchall()]
+
+    @staticmethod
+    def update_status(task_id: str, status: str, status_msg: str = None,
+                      video_url: str = None, response_body: Dict = None):
+        """更新任务状态"""
+        with db.get_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute('''
+                UPDATE video_tasks
+                SET status = ?, status_msg = ?, video_url = ?,
+                    response_body = ?, updated_at = CURRENT_TIMESTAMP
+                WHERE task_id = ?
+            ''', (
+                status,
+                status_msg,
+                video_url,
+                json.dumps(response_body, ensure_ascii=False) if response_body else None,
+                task_id
+            ))
+            conn.commit()
+
+    @staticmethod
+    def update_video_info(task_id: str, video_local_path: str, video_filename: str):
+        """更新视频本地存储信息"""
+        with db.get_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute('''
+                UPDATE video_tasks
+                SET video_local_path = ?, video_filename = ?,
+                    status = 'downloaded', updated_at = CURRENT_TIMESTAMP
+                WHERE task_id = ?
+            ''', (video_local_path, video_filename, task_id))
+            conn.commit()
+
+    @staticmethod
+    def delete(task_record_id: int) -> bool:
+        """删除记录"""
+        with db.get_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute('DELETE FROM video_tasks WHERE id = ?', (task_record_id,))
             conn.commit()
             return cursor.rowcount > 0

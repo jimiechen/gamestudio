@@ -96,6 +96,79 @@ const API = {
         return this.request(`/api/assets/${assetId}`, {
             method: 'DELETE'
         });
+    },
+
+    // ========== 图生视频相关API ==========
+
+    // 上传图片到OSS
+    async uploadVideoImage(file) {
+        const formData = new FormData();
+        formData.append('file', file);
+        return this.request('/api/video/upload', {
+            method: 'POST',
+            body: formData,
+            headers: {}  // 让浏览器自动设置 Content-Type
+        });
+    },
+
+    // 提交图生视频任务
+    async generateVideo(data) {
+        return this.request('/api/video/generate', {
+            method: 'POST',
+            body: JSON.stringify(data)
+        });
+    },
+
+    // 查询视频任务状态
+    async getVideoTaskStatus(taskId) {
+        return this.request(`/api/video/tasks/${taskId}`);
+    },
+
+    // 下载视频到本地
+    async downloadVideo(taskId) {
+        return this.request(`/api/video/tasks/${taskId}/download`, {
+            method: 'POST'
+        });
+    },
+
+    // 获取视频任务列表
+    async getVideoTasks(limit = 50, status = null) {
+        const params = status ? `?limit=${limit}&status=${status}` : `?limit=${limit}`;
+        return this.request(`/api/video/tasks${params}`);
+    },
+
+    // ========== 提示词预设 CRUD ==========
+
+    async getPresets(category = null) {
+        const params = category ? `?category=${encodeURIComponent(category)}` : '';
+        return this.request(`/api/presets${params}`);
+    },
+
+    async getPreset(presetId) {
+        return this.request(`/api/presets/${presetId}`);
+    },
+
+    async updatePreset(presetId, data) {
+        return this.request(`/api/presets/${presetId}`, {
+            method: 'PUT',
+            body: data
+        });
+    },
+
+    async deletePreset(presetId) {
+        return this.request(`/api/presets/${presetId}`, {
+            method: 'DELETE'
+        });
+    },
+
+    async searchPresets(keyword, category = null) {
+        let url = `/api/presets/search?keyword=${encodeURIComponent(keyword)}`;
+        if (category) url += `&category=${encodeURIComponent(category)}`;
+        return this.request(url);
+    },
+
+    async initPresets() {
+        return this.request('/api/presets/init', { method: 'POST' });
     }
 };
 

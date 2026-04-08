@@ -1,0 +1,132 @@
+name: game-asset-generator-openclaw
+description: 三国五虎将游戏资源生成器（OpenClaw 版本）
+version: 1.0.0
+author: game-asset-team
+category: game
+
+inputs:
+  character:
+    type: string
+    required: true
+    description: 角色类型（关羽|张飞|赵云|马超|黄忠）
+    enum:
+      - 关羽
+      - 张飞
+      - 赵云
+      - 马超
+      - 黄忠
+  action:
+    type: string
+    required: true
+    description: 动作描述，如"挥刀斩击"
+  reference_video:
+    type: file
+    required: true
+    description: 参考动作视频文件
+  video_service:
+    type: string
+    required: false
+    default: kling
+    description: 视频生成服务（kling|aliyun）
+    enum:
+      - kling
+      - aliyun
+  upload_to_lark:
+    type: boolean
+    required: false
+    default: false
+    description: 是否上传到飞书
+  export_to_godot:
+    type: boolean
+    required: false
+    default: false
+    description: 是否导出为Godot资源
+  export_to_web:
+    type: boolean
+    required: false
+    default: false
+    description: 是否导出为Web部署包
+
+outputs:
+  sprite_sheet_path:
+    type: string
+    description: 生成的 Sprite Sheet 路径
+  metadata:
+    type: object
+    description: 生成的资源元数据
+  lark_record_id:
+    type: string
+    description: 飞书多维表格记录ID（如果上传）
+
+steps:
+  - name: 运行游戏资源生成流水线
+    command: python game_asset_pipeline.py
+    args:
+      - --character
+      - {{inputs.character}}
+      - --action
+      - {{inputs.action}}
+      - --reference-video
+      - {{inputs.reference_video}}
+      - --video-service
+      - {{inputs.video_service}}
+      - {{#if inputs.upload_to_lark}}--upload-to-lark{{/if}}
+      - {{#if inputs.export_to_godot}}--export-to-godot{{/if}}
+      - {{#if inputs.export_to_web}}--export-to-web{{/if}}
+    env:
+      HOLOPIX_ACCESS_KEY: ${{env.HOLOPIX_ACCESS_KEY}}
+      HOLOPIX_SECRET_KEY: ${{env.HOLOPIX_SECRET_KEY}}
+      KLING_ACCESS_KEY: ${{env.KLING_ACCESS_KEY}}
+      KLING_SECRET_KEY: ${{env.KLING_SECRET_KEY}}
+      DASHSCOPE_API_KEY: ${{env.DASHSCOPE_API_KEY}}
+      LARK_APP_TOKEN: ${{env.LARK_APP_TOKEN}}
+      LARK_TABLE_ID: ${{env.LARK_TABLE_ID}}
+      LARK_FOLDER_TOKEN: ${{env.LARK_FOLDER_TOKEN}}
+      LARK_CHAT_ID: ${{env.LARK_CHAT_ID}}
+
+  - name: 解析输出结果
+    script: |
+      import json
+      import os
+      import glob
+      
+      # 找到最新生成的输出目录
+      output_dir = "./output"
+      if os.path.exists(output_dir):
+          subdirs = [d for d in os.listdir(output_dir) if os.path.isdir(os.path.join(output_dir, d))]
+          if subdirs:
+              latest_dir = sorted(subdirs, reverse=True)[0]
+              work_dir = os.path.join(output_dir, latest_dir)
+              
+              # 查找 Sprite Sheet 文件
+              sprite_files = glob.glob(os.path.join(work_dir, "*_spritesheet.png"))
+              if sprite_files:
+                  sprite_path = sprite_files[0]
+                  
+                  # 查找元数据文件
+                  metadata_file = sprite_path.replace(".png", ".json")
+                  metadata = {}
+                  if os.path.exists(metadata_file):
+                      with open(metadata_file, 'r', encoding='utf-8') as f:
+                          metadata = json.load(f)
+                  
+                  # 查找飞书记录ID（如果存在）
+                  lark_record_id = ""
+                  lark_file = os.path.join(work_dir, "lark_record_id.txt")
+                  if os.path.exists(lark_file):
+                      with open(lark_file, 'r', encoding='utf-8') as f:
+                          lark_record_id = f.read().strip()
+                  
+                  # 输出结果
+                  result = {
+                      "sprite_sheet_path": sprite_path,
+                      "metadata": metadata,
+                      "lark_record_id": lark_record_id
+                  }
+                  print(json.dumps(result, ensure_ascii=False))
+              else:
+                  print(json.dumps({"error": "未找到 Sprite Sheet 文件"}, ensure_ascii=False))
+          else:
+              print(json.dumps({"error": "未找到输出目录"}, ensure_ascii=False))
+      else:
+          print(json.dumps({"error": "输出目录不存在"}, ensure_ascii=False))

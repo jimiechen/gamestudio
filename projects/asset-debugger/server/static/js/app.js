@@ -38,4 +38,10 @@ document.addEventListener('DOMContentLoaded', () => {
     if (typeof Stickman !== 'undefined') {
         Stickman.init();
     }
+
+    // 初始化提示词预设模块
+    if (typeof Prompts !== 'undefined') {
+        Prompts.init();
+        Prompts.renderLibraryPage();
+    }
 });
