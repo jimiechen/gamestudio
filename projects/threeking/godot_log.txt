@@ -1,0 +1,315 @@
+Godot Engine v4.6.1.stable.official.14d19694e - https://godotengine.org
+
+---  GUT  ---
+[INFO]:  using [C:/Users/MAC/AppData/Roaming/Godot/app_userdata/ThreeKing Survivor] for temporary output.
+Godot version:  4.6.1
+GUT version:  9.6.0
+
+
+res://tests/unit/test_bullet.gd
+* test_initial_direction_is_right
+* test_speed_is_positive
+    [WARNING]:  Warn:  Float/Int comparison.  Got FLOAT but expected INT
+* test_damage_is_positive
+* test_lifetime_is_positive
+    [WARNING]:  Warn:  Float/Int comparison.  Got FLOAT but expected INT
+* test_static_bullet_visual_points_exists
+* test_static_bullet_visual_points_has_correct_count
+* test_bullet_direction_can_be_set
+* test_bullet_direction_raw_stored
+8/8 passed.
+
+
+res://tests/unit/test_enemy.gd
+* test_initial_hp_equals_max
+* test_exported_properties_positive
+    [WARNING]:  Warn:  Float/Int comparison.  Got FLOAT but expected INT
+* test_current_hp_within_bounds
+* test_take_damage_zero_does_nothing
+4/4 passed.
+
+
+res://tests/unit/test_hud.gd
+* test_initial_score_is_zero
+ERROR: Node not found: "HPContainer/HPBar" (relative to "/root/GutRunner/@Node@27/@CanvasLayer@29").
+   at: get_node (scene/main/node.cpp:1963)
+   GDScript backtrace (most recent call first):
+       [0] @implicit_ready (res://scripts/HUD.gd:8)
+       [1] add_child_autofree (res://addons/gut/test.gd:2784)
+       [2] before_each (res://tests/unit/test_hud.gd:7)
+       [3] _run_test (res://addons/gut/gut.gd:612)
+       [4] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [5] test_scripts (res://addons/gut/gut.gd:1047)
+       [6] run_tests (res://addons/gut/gui/GutRunner.gd:198)
+       [7] _run_tests (res://addons/gut/cli/gut_cli.gd:239)
+       [8] main (res://addons/gut/cli/gut_cli.gd:297)
+       [9] _init (res://addons/gut/gut_cmdln.gd:39)
+ERROR: Node not found: "InfoContainer/ScoreLabel" (relative to "/root/GutRunner/@Node@27/@CanvasLayer@29").
+   at: get_node (scene/main/node.cpp:1963)
+   GDScript backtrace (most recent call first):
+       [0] @implicit_ready (res://scripts/HUD.gd:9)
+       [1] add_child_autofree (res://addons/gut/test.gd:2784)
+       [2] before_each (res://tests/unit/test_hud.gd:7)
+       [3] _run_test (res://addons/gut/gut.gd:612)
+       [4] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [5] test_scripts (res://addons/gut/gut.gd:1047)
+       [6] run_tests (res://addons/gut/gui/GutRunner.gd:198)
+       [7] _run_tests (res://addons/gut/cli/gut_cli.gd:239)
+       [8] main (res://addons/gut/cli/gut_cli.gd:297)
+       [9] _init (res://addons/gut/gut_cmdln.gd:39)
+ERROR: Node not found: "InfoContainer/TimeLabel" (relative to "/root/GutRunner/@Node@27/@CanvasLayer@29").
+   at: get_node (scene/main/node.cpp:1963)
+   GDScript backtrace (most recent call first):
+       [0] @implicit_ready (res://scripts/HUD.gd:10)
+       [1] add_child_autofree (res://addons/gut/test.gd:2784)
+       [2] before_each (res://tests/unit/test_hud.gd:7)
+       [3] _run_test (res://addons/gut/gut.gd:612)
+       [4] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [5] test_scripts (res://addons/gut/gut.gd:1047)
+       [6] run_tests (res://addons/gut/gui/GutRunner.gd:198)
+       [7] _run_tests (res://addons/gut/cli/gut_cli.gd:239)
+       [8] main (res://addons/gut/cli/gut_cli.gd:297)
+       [9] _init (res://addons/gut/gut_cmdln.gd:39)
+* test_initial_game_time_is_zero
+ERROR: Node not found: "HPContainer/HPBar" (relative to "/root/GutRunner/@Node@27/@CanvasLayer@30").
+   at: get_node (scene/main/node.cpp:1963)
+   GDScript backtrace (most recent call first):
+       [0] @implicit_ready (res://scripts/HUD.gd:8)
+       [1] add_child_autofree (res://addons/gut/test.gd:2784)
+       [2] before_each (res://tests/unit/test_hud.gd:7)
+       [3] _run_test (res://addons/gut/gut.gd:612)
+       [4] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [5] test_scripts (res://addons/gut/gut.gd:1047)
+       [6] run_tests (res://addons/gut/gui/GutRunner.gd:198)
+       [7] _run_tests (res://addons/gut/cli/gut_cli.gd:239)
+       [8] main (res://addons/gut/cli/gut_cli.gd:297)
+       [9] _init (res://addons/gut/gut_cmdln.gd:39)
+ERROR: Node not found: "InfoContainer/ScoreLabel" (relative to "/root/GutRunner/@Node@27/@CanvasLayer@30").
+   at: get_node (scene/main/node.cpp:1963)
+   GDScript backtrace (most recent call first):
+       [0] @implicit_ready (res://scripts/HUD.gd:9)
+       [1] add_child_autofree (res://addons/gut/test.gd:2784)
+       [2] before_each (res://tests/unit/test_hud.gd:7)
+       [3] _run_test (res://addons/gut/gut.gd:612)
+       [4] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [5] test_scripts (res://addons/gut/gut.gd:1047)
+       [6] run_tests (res://addons/gut/gui/GutRunner.gd:198)
+       [7] _run_tests (res://addons/gut/cli/gut_cli.gd:239)
+       [8] main (res://addons/gut/cli/gut_cli.gd:297)
+       [9] _init (res://addons/gut/gut_cmdln.gd:39)
+ERROR: Node not found: "InfoContainer/TimeLabel" (relative to "/root/GutRunner/@Node@27/@CanvasLayer@30").
+   at: get_node (scene/main/node.cpp:1963)
+   GDScript backtrace (most recent call first):
+       [0] @implicit_ready (res://scripts/HUD.gd:10)
+       [1] add_child_autofree (res://addons/gut/test.gd:2784)
+       [2] before_each (res://tests/unit/test_hud.gd:7)
+       [3] _run_test (res://addons/gut/gut.gd:612)
+       [4] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [5] test_scripts (res://addons/gut/gut.gd:1047)
+       [6] run_tests (res://addons/gut/gui/GutRunner.gd:198)
+       [7] _run_tests (res://addons/gut/cli/gut_cli.gd:239)
+       [8] main (res://addons/gut/cli/gut_cli.gd:297)
+       [9] _init (res://addons/gut/gut_cmdln.gd:39)
+* test_initial_game_over_is_false
+ERROR: Node not found: "HPContainer/HPBar" (relative to "/root/GutRunner/@Node@27/@CanvasLayer@31").
+   at: get_node (scene/main/node.cpp:1963)
+   GDScript backtrace (most recent call first):
+       [0] @implicit_ready (res://scripts/HUD.gd:8)
+       [1] add_child_autofree (res://addons/gut/test.gd:2784)
+       [2] before_each (res://tests/unit/test_hud.gd:7)
+       [3] _run_test (res://addons/gut/gut.gd:612)
+       [4] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [5] test_scripts (res://addons/gut/gut.gd:1047)
+       [6] run_tests (res://addons/gut/gui/GutRunner.gd:198)
+       [7] _run_tests (res://addons/gut/cli/gut_cli.gd:239)
+       [8] main (res://addons/gut/cli/gut_cli.gd:297)
+       [9] _init (res://addons/gut/gut_cmdln.gd:39)
+ERROR: Node not found: "InfoContainer/ScoreLabel" (relative to "/root/GutRunner/@Node@27/@CanvasLayer@31").
+   at: get_node (scene/main/node.cpp:1963)
+   GDScript backtrace (most recent call first):
+       [0] @implicit_ready (res://scripts/HUD.gd:9)
+       [1] add_child_autofree (res://addons/gut/test.gd:2784)
+       [2] before_each (res://tests/unit/test_hud.gd:7)
+       [3] _run_test (res://addons/gut/gut.gd:612)
+       [4] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [5] test_scripts (res://addons/gut/gut.gd:1047)
+       [6] run_tests (res://addons/gut/gui/GutRunner.gd:198)
+       [7] _run_tests (res://addons/gut/cli/gut_cli.gd:239)
+       [8] main (res://addons/gut/cli/gut_cli.gd:297)
+       [9] _init (res://addons/gut/gut_cmdln.gd:39)
+ERROR: Node not found: "InfoContainer/TimeLabel" (relative to "/root/GutRunner/@Node@27/@CanvasLayer@31").
+   at: get_node (scene/main/node.cpp:1963)
+   GDScript backtrace (most recent call first):
+       [0] @implicit_ready (res://scripts/HUD.gd:10)
+       [1] add_child_autofree (res://addons/gut/test.gd:2784)
+       [2] before_each (res://tests/unit/test_hud.gd:7)
+       [3] _run_test (res://addons/gut/gut.gd:612)
+       [4] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [5] test_scripts (res://addons/gut/gut.gd:1047)
+       [6] run_tests (res://addons/gut/gui/GutRunner.gd:198)
+       [7] _run_tests (res://addons/gut/cli/gut_cli.gd:239)
+       [8] main (res://addons/gut/cli/gut_cli.gd:297)
+       [9] _init (res://addons/gut/gut_cmdln.gd:39)
+* test_update_score_sets_score
+ERROR: Node not found: "HPContainer/HPBar" (relative to "/root/GutRunner/@Node@27/@CanvasLayer@32").
+   at: get_node (scene/main/node.cpp:1963)
+   GDScript backtrace (most recent call first):
+       [0] @implicit_ready (res://scripts/HUD.gd:8)
+       [1] add_child_autofree (res://addons/gut/test.gd:2784)
+       [2] before_each (res://tests/unit/test_hud.gd:7)
+       [3] _run_test (res://addons/gut/gut.gd:612)
+       [4] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [5] test_scripts (res://addons/gut/gut.gd:1047)
+       [6] run_tests (res://addons/gut/gui/GutRunner.gd:198)
+       [7] _run_tests (res://addons/gut/cli/gut_cli.gd:239)
+       [8] main (res://addons/gut/cli/gut_cli.gd:297)
+       [9] _init (res://addons/gut/gut_cmdln.gd:39)
+ERROR: Node not found: "InfoContainer/ScoreLabel" (relative to "/root/GutRunner/@Node@27/@CanvasLayer@32").
+   at: get_node (scene/main/node.cpp:1963)
+   GDScript backtrace (most recent call first):
+       [0] @implicit_ready (res://scripts/HUD.gd:9)
+       [1] add_child_autofree (res://addons/gut/test.gd:2784)
+       [2] before_each (res://tests/unit/test_hud.gd:7)
+       [3] _run_test (res://addons/gut/gut.gd:612)
+       [4] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [5] test_scripts (res://addons/gut/gut.gd:1047)
+       [6] run_tests (res://addons/gut/gui/GutRunner.gd:198)
+       [7] _run_tests (res://addons/gut/cli/gut_cli.gd:239)
+       [8] main (res://addons/gut/cli/gut_cli.gd:297)
+       [9] _init (res://addons/gut/gut_cmdln.gd:39)
+ERROR: Node not found: "InfoContainer/TimeLabel" (relative to "/root/GutRunner/@Node@27/@CanvasLayer@32").
+   at: get_node (scene/main/node.cpp:1963)
+   GDScript backtrace (most recent call first):
+       [0] @implicit_ready (res://scripts/HUD.gd:10)
+       [1] add_child_autofree (res://addons/gut/test.gd:2784)
+       [2] before_each (res://tests/unit/test_hud.gd:7)
+       [3] _run_test (res://addons/gut/gut.gd:612)
+       [4] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [5] test_scripts (res://addons/gut/gut.gd:1047)
+       [6] run_tests (res://addons/gut/gui/GutRunner.gd:198)
+       [7] _run_tests (res://addons/gut/cli/gut_cli.gd:239)
+       [8] main (res://addons/gut/cli/gut_cli.gd:297)
+       [9] _init (res://addons/gut/gut_cmdln.gd:39)
+* test_update_score_overwrites
+ERROR: Node not found: "HPContainer/HPBar" (relative to "/root/GutRunner/@Node@27/@CanvasLayer@33").
+   at: get_node (scene/main/node.cpp:1963)
+   GDScript backtrace (most recent call first):
+       [0] @implicit_ready (res://scripts/HUD.gd:8)
+       [1] add_child_autofree (res://addons/gut/test.gd:2784)
+       [2] before_each (res://tests/unit/test_hud.gd:7)
+       [3] _run_test (res://addons/gut/gut.gd:612)
+       [4] _test_the_scripts (res://addons/gut/gut.gd:835)
+ERROR: Node not found: "InfoContainer/ScoreLabel" (relative to "/root/GutRunner/@Node@27/@CanvasLayer@33").
+   at: get_node (scene/main/node.cpp:1963)
+   GDScript backtrace (most recent call first):
+       [0] @implicit_ready (res://scripts/HUD.gd:9)
+       [1] add_child_autofree (res://addons/gut/test.gd:2784)
+       [2] before_each (res://tests/unit/test_hud.gd:7)
+       [3] _run_test (res://addons/gut/gut.gd:612)
+       [4] _test_the_scripts (res://addons/gut/gut.gd:835)
+ERROR: Node not found: "InfoContainer/TimeLabel" (relative to "/root/GutRunner/@Node@27/@CanvasLayer@33").
+   at: get_node (scene/main/node.cpp:1963)
+   GDScript backtrace (most recent call first):
+       [0] @implicit_ready (res://scripts/HUD.gd:10)
+       [1] add_child_autofree (res://addons/gut/test.gd:2784)
+       [2] before_each (res://tests/unit/test_hud.gd:7)
+       [3] _run_test (res://addons/gut/gut.gd:612)
+       [4] _test_the_scripts (res://addons/gut/gut.gd:835)
+* test_update_time_changes_time
+ERROR: Node not found: "HPContainer/HPBar" (relative to "/root/GutRunner/@Node@27/@CanvasLayer@34").
+   at: get_node (scene/main/node.cpp:1963)
+   GDScript backtrace (most recent call first):
+       [0] @implicit_ready (res://scripts/HUD.gd:8)
+       [1] add_child_autofree (res://addons/gut/test.gd:2784)
+       [2] before_each (res://tests/unit/test_hud.gd:7)
+       [3] _run_test (res://addons/gut/gut.gd:612)
+       [4] _test_the_scripts (res://addons/gut/gut.gd:835)
+ERROR: Node not found: "InfoContainer/ScoreLabel" (relative to "/root/GutRunner/@Node@27/@CanvasLayer@34").
+   at: get_node (scene/main/node.cpp:1963)
+   GDScript backtrace (most recent call first):
+       [0] @implicit_ready (res://scripts/HUD.gd:9)
+       [1] add_child_autofree (res://addons/gut/test.gd:2784)
+       [2] before_each (res://tests/unit/test_hud.gd:7)
+       [3] _run_test (res://addons/gut/gut.gd:612)
+       [4] _test_the_scripts (res://addons/gut/gut.gd:835)
+ERROR: Node not found: "InfoContainer/TimeLabel" (relative to "/root/GutRunner/@Node@27/@CanvasLayer@34").
+   at: get_node (scene/main/node.cpp:1963)
+   GDScript backtrace (most recent call first):
+       [0] @implicit_ready (res://scripts/HUD.gd:10)
+       [1] add_child_autofree (res://addons/gut/test.gd:2784)
+       [2] before_each (res://tests/unit/test_hud.gd:7)
+       [3] _run_test (res://addons/gut/gut.gd:612)
+       [4] _test_the_scripts (res://addons/gut/gut.gd:835)
+* test_reset_clears_state
+ERROR: Node not found: "HPContainer/HPBar" (relative to "/root/GutRunner/@Node@27/@CanvasLayer@35").
+   at: get_node (scene/main/node.cpp:1963)
+   GDScript backtrace (most recent call first):
+       [0] @implicit_ready (res://scripts/HUD.gd:8)
+       [1] add_child_autofree (res://addons/gut/test.gd:2784)
+       [2] before_each (res://tests/unit/test_hud.gd:7)
+       [3] _run_test (res://addons/gut/gut.gd:612)
+       [4] _test_the_scripts (res://addons/gut/gut.gd:835)
+ERROR: Node not found: "InfoContainer/ScoreLabel" (relative to "/root/GutRunner/@Node@27/@CanvasLayer@35").
+   at: get_node (scene/main/node.cpp:1963)
+   GDScript backtrace (most recent call first):
+       [0] @implicit_ready (res://scripts/HUD.gd:9)
+       [1] add_child_autofree (res://addons/gut/test.gd:2784)
+       [2] before_each (res://tests/unit/test_hud.gd:7)
+       [3] _run_test (res://addons/gut/gut.gd:612)
+       [4] _test_the_scripts (res://addons/gut/gut.gd:835)
+ERROR: Node not found: "InfoContainer/TimeLabel" (relative to "/root/GutRunner/@Node@27/@CanvasLayer@35").
+   at: get_node (scene/main/node.cpp:1963)
+   GDScript backtrace (most recent call first):
+       [0] @implicit_ready (res://scripts/HUD.gd:10)
+       [1] add_child_autofree (res://addons/gut/test.gd:2784)
+       [2] before_each (res://tests/unit/test_hud.gd:7)
+       [3] _run_test (res://addons/gut/gut.gd:612)
+       [4] _test_the_scripts (res://addons/gut/gut.gd:835)
+7/7 passed.
+
+
+res://tests/unit/test_player.gd
+* test_initial_hp_equals_max
+* test_initial_state
+* test_aim_mode_defaults_to_keys
+* test_last_key_aim_direction_defaults_to_right
+* test_take_damage_reduces_hp_direct
+* test_invincible_flag_can_be_toggled
+* test_exported_properties_positive
+    [WARNING]:  Warn:  Float/Int comparison.  Got FLOAT but expected INT
+    [WARNING]:  Warn:  Float/Int comparison.  Got FLOAT but expected INT
+    [WARNING]:  Warn:  Float/Int comparison.  Got FLOAT but expected INT
+    [WARNING]:  Warn:  Float/Int comparison.  Got FLOAT but expected INT
+    [WARNING]:  Warn:  Float/Int comparison.  Got FLOAT but expected INT
+* test_cycle_aim_mode_changes
+切换瞄准模式: 自动瞄准
+* test_cycle_aim_mode_returns_after_full_cycle
+切换瞄准模式: 自动瞄准
+切换瞄准模式: 移动瞄准
+切换瞄准模式: 鼠标瞄准
+切换瞄准模式: 方向键瞄准
+* test_find_nearest_enemy_returns_null_when_empty
+10/10 passed.
+
+
+
+
+==============================================
+= Run Summary
+==============================================
+
+Totals
+------
+Warnings              8
+
+Scripts               4
+Tests                29
+Passing Tests        29
+Asserts              44
+Time              0.661s
+
+
+---- All tests passed! ----
+
+WARNING: ObjectDB instances leaked at exit (run with --verbose for details).
+   at: cleanup (core/object/object.cpp:2641)

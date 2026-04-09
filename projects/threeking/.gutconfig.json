@@ -1,0 +1,15 @@
+{
+  "_comment": "GUT configuration for ThreeKing Survivor",
+  "directories": {
+    "include": ["res://tests/unit/"],
+    "exclude": []
+  },
+  "double_strategy": "partial",
+  "exit_after_tests": true,
+  "disable_assert": false,
+  "log_level": 1,
+  "should_exit": true,
+  "should_maximize": false,
+  "pause_before_teardown": false,
+  "inner_class_name": ""
+}

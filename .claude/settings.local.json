@@ -1,0 +1,7 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(projects/threeking/reviews/DAY5-CODE-REVIEW.md:*)"
+    ]
+  }
+}

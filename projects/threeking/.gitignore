@@ -1,0 +1,13 @@
+# Godot 4.x ignores
+*.import
+godot/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Editor files
+*.tscn.undo
+
+# Export templates
+export_presets.cfg

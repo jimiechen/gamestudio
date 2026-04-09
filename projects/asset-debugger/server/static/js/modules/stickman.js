@@ -11,18 +11,13 @@ const Stickman = {
     currentStroke: [],
 
     // CDN基础地址
-    CDN_BASE: 'https://pino-img.yingzhongshare.com',
+    CDN_BASE: 'https://holopix.cn',
 
     // 官方预设姿势库（从HoloPix平台提取）
     officialPoses: [
-        { id: 1, name: '姿势 1', previewUrl: 'posePreview/7/1.png', poseUrl: 'pose/7/1.jpg', type: 'official' },
-        { id: 2, name: '姿势 2', previewUrl: 'posePreview/7/2.png', poseUrl: 'pose/7/2.jpg', type: 'official' },
-        { id: 3, name: '姿势 3', previewUrl: 'posePreview/7/3.png', poseUrl: 'pose/7/3.jpg', type: 'official' },
-        { id: 4, name: '姿势 4', previewUrl: 'posePreview/7/4.png', poseUrl: 'pose/7/4.jpg', type: 'official' },
-        { id: 5, name: '姿势 5', previewUrl: 'posePreview/7/5.png', poseUrl: 'pose/7/5.jpg', type: 'official' },
-        { id: 6, name: '姿势 6', previewUrl: 'posePreview/7/6.png', poseUrl: 'pose/7/6.jpg', type: 'official' },
-        { id: 7, name: '姿势 7', previewUrl: 'posePreview/7/7.png', poseUrl: 'pose/7/7.jpg', type: 'official' },
-        { id: 8, name: '姿势 8', previewUrl: 'posePreview/7/8.png', poseUrl: 'pose/7/8.jpg', type: 'official' }
+        { id: 7001, name: '姿势 7001', previewUrl: 'posePreview/7/7001.webp', poseUrl: 'pose/7/7001.jpg', type: 'official' },
+        { id: 7002, name: '姿势 7002', previewUrl: 'posePreview/7/7002.jpg', poseUrl: 'pose/7/7002.jpg', type: 'official' },
+        { id: 3, name: '姿势 3', previewUrl: 'posePreview/7/3.png', poseUrl: 'pose/7/3.jpg', type: 'official' }
     ],
 
     // 本地绘制预设（代码生成的基本火柴人）
@@ -495,7 +490,7 @@ const Stickman = {
         document.body.appendChild(modal);
     },
 
-    // 选择官方姿势（核心修复：填入纯火柴人骨架图URL）
+    // 选择官方姿势（使用Holopix公网图片URL）
     selectOfficialPose(poseId) {
         const pose = this.officialPoses.find(p => p.id === poseId);
         if (!pose) {
@@ -503,15 +498,14 @@ const Stickman = {
             return;
         }
 
-        // 构建完整的纯火柴人骨架图URL
-        // 使用相对路径格式：/pose/7/{id}.jpg
-        const poseImageUrl = `/${pose.poseUrl}`;
+        // 构建完整的姿势图公网URL
+        const poseImageUrl = `${this.CDN_BASE}/${pose.poseUrl}`;
 
-        // 设置到characterPose输入框
+        // 直接设置到characterPose输入框（使用公网URL，不转换为base64）
         const characterPoseInput = document.getElementById('characterPose');
         if (characterPoseInput) {
             characterPoseInput.value = poseImageUrl;
-            console.log(`✅ 已设置纯火柴人骨架图URL: ${poseImageUrl}`);
+            console.log(`✅ 已设置姿势图URL: ${poseImageUrl}`);
         }
 
         // 显示选中状态提示

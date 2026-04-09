@@ -1,0 +1,20 @@
+[gd_scene load_steps=4 format=3 uid="uid://game001"]
+
+[ext_resource type="Script" path="res://scripts/Game.gd" id="1_game"]
+[ext_resource type="PackedScene" uid="uid://hud001" path="res://scenes/HUD.tscn" id="2_hud"]
+[ext_resource type="PackedScene" uid="uid://gameover001" path="res://scenes/GameOverUI.tscn" id="3_gameover"]
+
+[node name="Game" type="Node2D"]
+script = ExtResource("1_game")
+
+[node name="Camera2D" type="Camera2D" parent="."]
+position = Vector2(320, 180)
+
+[node name="SpawnTimer" type="Timer" parent="."]
+wait_time = 2.0
+one_shot = false
+autostart = false
+
+[node name="HUD" parent="." instance=ExtResource("2_hud")]
+
+[node name="GameOverUI" parent="." instance=ExtResource("3_gameover")]

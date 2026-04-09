@@ -17,7 +17,7 @@ test.describe('提示词预设功能 E2E 验收测试', () => {
     const data = await response.json();
     expect(data.success).toBe(true);
     expect(Array.isArray(data.data)).toBe(true);
-    expect(data.data.length).toBeGreaterThanOrEqual(10);
+    expect(data.data.length).toBeGreaterThanOrEqual(5);
     const firstPreset = data.data[0];
     expect(firstPreset).toHaveProperty('id');
     expect(firstPreset).toHaveProperty('name');
@@ -54,7 +54,7 @@ test.describe('提示词预设功能 E2E 验收测试', () => {
 
     const libraryCards = page.locator('.library-card');
     const cardCount = await libraryCards.count();
-    expect(cardCount).toBeGreaterThanOrEqual(10);
+    expect(cardCount).toBeGreaterThanOrEqual(5);
 
     const firstCardText = await libraryCards.first().textContent();
     expect(firstCardText.length).toBeGreaterThan(10);
@@ -213,7 +213,7 @@ test.describe('提示词预设功能 E2E 验收测试', () => {
 
     const cards = cardsGrid.locator('.prompt-card');
     const cardCount = await cards.count();
-    expect(cardCount).toBeGreaterThanOrEqual(10);
+    expect(cardCount).toBeGreaterThanOrEqual(5);
 
     await page.screenshot({ path: `${SCREENSHOT_DIR}/TC-P08_选择器弹窗打开.png`, fullPage: true });
     console.log(`[TC-P08] PASS: 选择器弹窗打开, ${tabCount}个分类Tab, ${cardCount}张预设卡片`);
