@@ -53,6 +53,7 @@ func test_multishot_upgrade_increases_bullet_count() -> void:
 	GameManager.start_run()
 
 func test_damage_upgrade_does_not_change_bullet_count() -> void:
+	# 重置 GameManager 状态，避免前一个测试的升级残留
 	GameManager.start_run()
 	
 	var main: Node = _setup_main_with_enemy()

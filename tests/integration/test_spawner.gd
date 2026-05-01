@@ -18,6 +18,11 @@ func test_spawner_creates_enemy_after_interval() -> void:
 
 # I12: Spawner 在非运行状态下不生成
 func test_spawner_does_not_spawn_when_not_running() -> void:
+	# 清理前一个测试可能残留的敌人
+	for enemy in get_tree().get_nodes_in_group(&"enemy"):
+		enemy.queue_free()
+	await get_tree().process_frame
+
 	var main_scene: PackedScene = load("res://scenes/Main.tscn")
 	var main = main_scene.instantiate()
 	add_child(main)
