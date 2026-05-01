@@ -14,9 +14,32 @@ func _init() -> void:
 	print("失败: %d" % _failed)
 	quit(_failed > 0)
 
+const TEST_FILES: Array[String] = [
+	"res://tests/unit/test_smoke.gd",
+	"res://tests/unit/test_math_utils.gd",
+	"res://tests/unit/test_upgrade_pool.gd",
+	"res://tests/unit/test_game_manager.gd",
+	"res://tests/unit/test_extreme_values.gd",
+
+	"res://tests/integration/test_player_movement.gd",
+	"res://tests/integration/test_enemy_behavior.gd",
+	"res://tests/integration/test_player_attack.gd",
+	"res://tests/integration/test_spawner.gd",
+	"res://tests/integration/test_bullet_lifetime.gd",
+	"res://tests/integration/test_hud_reflects_damage.gd",
+	"res://tests/integration/test_bullet_hits_enemy.gd",
+	"res://tests/integration/test_game_loop.gd",
+	"res://tests/integration/test_upgrade_visual_feedback.gd",
+
+	"res://tests/ui/test_hud.gd",
+
+	"res://tests/e2e/test_balance_simulation.gd",
+	"res://tests/e2e/test_game_loop_smoke.gd",
+]
+
 func _run_all_tests() -> void:
-	# 运行所有测试文件
-	_run_test_file("res://tests/unit/test_smoke.gd")
+	for test_file: String in TEST_FILES:
+		_run_test_file(test_file)
 
 func _run_test_file(path: String) -> void:
 	var script: GDScript = load(path)
