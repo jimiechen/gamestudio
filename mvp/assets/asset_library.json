@@ -1,0 +1,251 @@
+{
+  "project": "Claude-Code-Game-Studios MVP",
+  "theme": "Q版奇幻炼金术风格 (Chibi Fantasy Alchemy)",
+  "color_palette": {
+    "primary": ["#6B3FA0", "#9B59B6", "#8E44AD"],
+    "secondary": ["#D4A843", "#F1C40F", "#E67E22"],
+    "accent": ["#2ECC71", "#E74C3C", "#ECF0F1"],
+    "background": "#2C2C3A"
+  },
+  "assets": [
+    {
+      "id": "char_enemy_spritesheet_01",
+      "filename": "spritesheet_characters_enemies.jpg",
+      "path": "assets/spritesheet_characters_enemies.jpg",
+      "type": "spritesheet",
+      "category": "characters",
+      "description": "2x3网格的6个Q版奇幻角色与敌人精灵",
+      "dimensions": { "grid": "2x3", "total_sprites": 6 },
+      "sprites": [
+        {
+          "name": "alchemist_wizard",
+          "display_name": "炼金术士小巫师",
+          "position": "1,1",
+          "tags": ["player", "hero", "wizard", "alchemist"],
+          "description": "戴尖顶巫师帽，手持紫色药瓶和水晶法杖"
+        },
+        {
+          "name": "slime_potion",
+          "display_name": "史莱姆药瓶怪",
+          "position": "1,2",
+          "tags": ["enemy", "slime", "potion", "monster"],
+          "description": "玻璃瓶中的紫色液态史莱姆，带邪恶表情"
+        },
+        {
+          "name": "steampunk_rat",
+          "display_name": "蒸汽朋克机械鼠",
+          "position": "1,3",
+          "tags": ["enemy", "mechanical", "rat", "steampunk"],
+          "description": "黄铜齿轮驱动的机械老鼠，带发光眼睛"
+        },
+        {
+          "name": "mushroom_monster",
+          "display_name": "蘑菇怪",
+          "position": "2,1",
+          "tags": ["enemy", "mushroom", "plant", "monster"],
+          "description": "紫色带斑点的蘑菇头怪物，散发紫色孢子"
+        },
+        {
+          "name": "candle_ghost",
+          "display_name": "蜡烛幽灵",
+          "position": "2,2",
+          "tags": ["enemy", "ghost", "candle", "fire"],
+          "description": "燃烧的蜡烛化身的小幽灵，有融化蜡滴"
+        },
+        {
+          "name": "demon_assassin",
+          "display_name": "恶魔刺客",
+          "position": "2,3",
+          "tags": ["enemy", "demon", "assassin", "boss"],
+          "description": "带角和蝙蝠翅膀的蒙面恶魔，持匕首"
+        }
+      ]
+    },
+    {
+      "id": "wizard_animation_jpg",
+      "filename": "spritesheet_player_alchemist.jpg",
+      "path": "assets/spritesheet_player_alchemist.jpg",
+      "type": "animation_spritesheet",
+      "category": "player_character",
+      "description": "巫师角色的6帧动作动画序列（深色背景）",
+      "dimensions": { "grid": "2x3", "total_frames": 6 },
+      "character": {
+        "name": "alchemist_wizard",
+        "display_name": "炼金术士小巫师",
+        "class": "法师/炼金术士",
+        "weapon": "水晶法杖",
+        "item": "紫色药瓶"
+      },
+      "frames": [
+        {
+          "name": "idle",
+          "display_name": "待机",
+          "position": "1,1",
+          "description": "站立持药瓶和法杖"
+        },
+        {
+          "name": "walk",
+          "display_name": "行走",
+          "position": "1,2",
+          "description": "抬腿移动姿势"
+        },
+        {
+          "name": "cast",
+          "display_name": "施法",
+          "position": "1,3",
+          "description": "法杖举起，发出紫色魔法光芒"
+        },
+        {
+          "name": "hurt",
+          "display_name": "受击",
+          "position": "2,1",
+          "description": "痛苦表情，药瓶溅出液体"
+        },
+        {
+          "name": "dead",
+          "display_name": "死亡",
+          "position": "2,2",
+          "description": "倒地，眼睛呈X形，药瓶破碎"
+        },
+        {
+          "name": "crouch",
+          "display_name": "蹲下/疲惫",
+          "position": "2,3",
+          "description": "跪地，法杖拄地"
+        }
+      ]
+    },
+    {
+      "id": "wizard_animation_png",
+      "filename": "spritesheet_player_alchemist_transparent.png",
+      "path": "assets/spritesheet_player_alchemist_transparent.png",
+      "type": "animation_spritesheet",
+      "category": "player_character",
+      "description": "巫师角色的6帧动作动画序列（透明背景PNG版）",
+      "has_transparency": true,
+      "dimensions": { "grid": "2x3", "total_frames": 6 },
+      "character": {
+        "name": "alchemist_wizard",
+        "display_name": "炼金术士小巫师",
+        "class": "法师/炼金术士",
+        "weapon": "水晶法杖",
+        "item": "紫色药瓶"
+      },
+      "frames": [
+        { "name": "idle", "display_name": "待机", "position": "1,1" },
+        { "name": "walk", "display_name": "行走", "position": "1,2" },
+        { "name": "cast", "display_name": "施法", "position": "1,3" },
+        { "name": "hurt", "display_name": "受击", "position": "2,1" },
+        { "name": "dead", "display_name": "死亡", "position": "2,2" },
+        { "name": "crouch", "display_name": "蹲下/疲惫", "position": "2,3" }
+      ],
+      "recommended_use": "优先用于游戏引擎，无需抠图处理"
+    },
+    {
+      "id": "battle_scene_01",
+      "filename": "scene_battle_combat.jpg",
+      "path": "assets/scene_battle_combat.jpg",
+      "type": "scene",
+      "category": "battle_scene",
+      "description": "俯视角战斗场景 - 巫师同时与多个敌人交战",
+      "perspective": "top_down",
+      "scene_elements": {
+        "player": ["alchemist_wizard"],
+        "enemies": ["mushroom_monster", "candle_ghost", "steampunk_rat", "demon_assassin", "slime_potion"],
+        "environment": ["stone_walls", "vines", "mushrooms", "alchemy_tables", "cauldron"],
+        "effects": ["purple_magic_missiles", "orange_fire_explosion", "glowing_crystals"],
+        "interactables": ["chests", "potion_bottles", "loot"]
+      },
+      "tags": ["combat", "action", "multi_enemy", "dungeon"],
+      "potential_use": ["宣传图", "概念设计参考", "UI背景", "加载画面"]
+    },
+    {
+      "id": "alchemy_workshop_scene",
+      "filename": "scene_alchemy_workshop.jpg",
+      "path": "assets/scene_alchemy_workshop.jpg",
+      "type": "scene",
+      "category": "environment",
+      "description": "俯视角炼金术士工坊/基地场景",
+      "perspective": "top_down",
+      "scene_elements": {
+        "player": ["alchemist_wizard"],
+        "centerpiece": "glowing_magic_circle_with_cauldron",
+        "structures": ["stone_archways", "wooden_fences", "stone_walls"],
+        "furniture": ["alchemy_tables", "wooden_crates", "shelves"],
+        "props": [
+          "colorful_potion_bottles",
+          "glowing_mushrooms",
+          "crystal_pillars",
+          "candle_holders",
+          "mortar_and_pestle",
+          "books"
+        ],
+        "lighting": ["candlelight", "glowing_crystals", "cauldron_glow"]
+      },
+      "tags": ["hub", "safe_zone", "crafting", "base", "environment"],
+      "potential_use": ["主城/基地场景", "UI背景", "概念设计参考", "商店界面背景"]
+    }
+  ],
+  "character_index": {
+    "alchemist_wizard": {
+      "display_name": "炼金术士小巫师",
+      "type": "player_character",
+      "appears_in": [
+        "spritesheet_characters_enemies.jpg",
+        "spritesheet_player_alchemist.jpg",
+        "spritesheet_player_alchemist_transparent.png",
+        "scene_battle_combat.jpg",
+        "scene_alchemy_workshop.jpg"
+      ],
+      "assets": {
+        "static_sprite": "spritesheet_characters_enemies.jpg#1,1",
+        "animation_spritesheet_jpg": "spritesheet_player_alchemist.jpg",
+        "animation_spritesheet_png": "spritesheet_player_alchemist_transparent.png"
+      },
+      "animations": ["idle", "walk", "cast", "hurt", "dead", "crouch"],
+      "equipment": ["wizard_hat", "crystal_staff", "potion_bottle"],
+      "magic_type": "purple_arcane"
+    },
+    "slime_potion": {
+      "display_name": "史莱姆药瓶怪",
+      "type": "enemy",
+      "appears_in": ["spritesheet_characters_enemies.jpg", "scene_battle_combat.jpg"],
+      "assets": { "static_sprite": "spritesheet_characters_enemies.jpg#1,2" },
+      "tags": ["slime", "potion", "monster"]
+    },
+    "steampunk_rat": {
+      "display_name": "蒸汽朋克机械鼠",
+      "type": "enemy",
+      "appears_in": ["spritesheet_characters_enemies.jpg", "scene_battle_combat.jpg"],
+      "assets": { "static_sprite": "spritesheet_characters_enemies.jpg#1,3" },
+      "tags": ["mechanical", "rat", "steampunk"]
+    },
+    "mushroom_monster": {
+      "display_name": "蘑菇怪",
+      "type": "enemy",
+      "appears_in": ["spritesheet_characters_enemies.jpg", "scene_battle_combat.jpg"],
+      "assets": { "static_sprite": "spritesheet_characters_enemies.jpg#2,1" },
+      "tags": ["plant", "mushroom", "spore"]
+    },
+    "candle_ghost": {
+      "display_name": "蜡烛幽灵",
+      "type": "enemy",
+      "appears_in": ["spritesheet_characters_enemies.jpg", "scene_battle_combat.jpg"],
+      "assets": { "static_sprite": "spritesheet_characters_enemies.jpg#2,2" },
+      "tags": ["ghost", "fire", "candle"]
+    },
+    "demon_assassin": {
+      "display_name": "恶魔刺客",
+      "type": "enemy",
+      "appears_in": ["spritesheet_characters_enemies.jpg", "scene_battle_combat.jpg"],
+      "assets": { "static_sprite": "spritesheet_characters_enemies.jpg#2,3" },
+      "tags": ["demon", "assassin", "boss"]
+    }
+  },
+  "usage_notes": {
+    "spritesheet_extraction": "所有2x3网格素材建议按均等比例切割为6个独立精灵",
+    "recommended_engine": "Unity, Godot, Phaser, Cocos2d 等支持精灵表和透明PNG的引擎",
+    "animation_fps": "建议角色动画使用 8-12 FPS 的帧率",
+    "background_handling": "spritesheet_player_alchemist_transparent.png 为透明背景，优先用于游戏内精灵渲染"
+  }
+}

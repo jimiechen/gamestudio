@@ -1,0 +1,105 @@
+[gd_scene load_steps=2 format=3 uid="uid://hud001"]
+
+[ext_resource type="Script" path="res://src/ui/HUD.gd" id="1_hud"]
+
+[node name="HUD" type="CanvasLayer"]
+script = ExtResource("1_hud")
+
+[node name="Root" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="HealthBar" type="ProgressBar" parent="Root"]
+layout_mode = 0
+offset_left = 20.0
+offset_top = 20.0
+offset_right = 280.0
+offset_bottom = 40.0
+max_value = 10.0
+value = 10.0
+
+[node name="XPBar" type="ProgressBar" parent="Root"]
+layout_mode = 0
+offset_left = 20.0
+offset_top = 48.0
+offset_right = 280.0
+offset_bottom = 62.0
+max_value = 5.0
+value = 0.0
+
+[node name="LevelLabel" type="Label" parent="Root"]
+layout_mode = 0
+offset_left = 20.0
+offset_top = 70.0
+offset_right = 120.0
+offset_bottom = 93.0
+text = "Lv. 1"
+
+[node name="TimeLabel" type="Label" parent="Root"]
+layout_mode = 0
+offset_left = 20.0
+offset_top = 92.0
+offset_right = 120.0
+offset_bottom = 115.0
+text = "Time: 0.0s"
+
+[node name="UpgradePanel" type="Panel" parent="Root"]
+visible = false
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -180.0
+offset_top = -90.0
+offset_right = 180.0
+offset_bottom = 90.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Title" type="Label" parent="Root/UpgradePanel"]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_bottom = 23.0
+grow_horizontal = 2
+text = "Level Up! 选择一个升级"
+horizontal_alignment = 1
+
+[node name="Btn1" type="Button" parent="Root/UpgradePanel"]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_left = 20.0
+offset_top = 40.0
+offset_right = -20.0
+offset_bottom = 71.0
+grow_horizontal = 2
+text = "伤害 +1"
+
+[node name="Btn2" type="Button" parent="Root/UpgradePanel"]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_left = 20.0
+offset_top = 80.0
+offset_right = -20.0
+offset_bottom = 111.0
+grow_horizontal = 2
+text = "攻速 +10%"
+
+[node name="Btn3" type="Button" parent="Root/UpgradePanel"]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_left = 20.0
+offset_top = 120.0
+offset_right = -20.0
+offset_bottom = 151.0
+grow_horizontal = 2
+text = "移速 +10%"
